@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMKS AL MANAR - V5 WA + Izin Online</title>
+<style>
+*{box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{margin:0;background:#f1f5f9;color:#1e293b}
+.header{background:#0f766e;color:white;padding:16px;text-align:center;position:sticky;top:0;z-index:10}
+.header h1{margin:0;font-size:17px}.header p{margin:4px 0 0;font-size:12px;opacity:.9}
+.container{padding:12px;max-width:520px;margin:auto;padding-bottom:95px}
+.card{background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.card h3{margin:0 0 10px;font-size:15px}
+label{font-size:12px;font-weight:600;color:#475569;display:block}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:6px 0 10px;font-size:14px;background:#f8fafc}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px}
+.btn-green{background:#0f766e;color:white}.btn-blue{background:#2563eb;color:white}.btn-red{background:#dc2626;color:white}.btn-light{background:#e2e8f0;color:#0f172a}.btn-wa{background:#25D366;color:white}
+.row{display:flex;gap:8px}.row .btn{flex:1}
+.chip{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:700}
+.hadir{background:#dcfce7;color:#166534}.sakit{background:#fef9c3;color:#854d0e}.izin{background:#dbeafe;color:#1e40af}.alpa{background:#fee2e2;color:#991b1b}
+.msg{background:#f1f5f9;padding:10px;border-radius:10px;margin-bottom:8px;font-size:13px}
+.info-box{background:#fffbeb;border:1px solid #fde68a;padding:10px;border-radius:10px;font-size:13px;margin-bottom:8px}
+.izin-box{background:#eff6ff;border:1px solid #bfdbfe;padding:11px;border-radius:12px;margin-bottom:9px;font-size:13px}
+.izin-box.pending{border-color:#fbbf24;background:#fffbeb}
+.nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;border-top:1px solid #e2e8f0;max-width:520px;margin:auto}
+.nav button{flex:1;padding:9px 2px;border:none;background:white;font-size:11px;font-weight:700;color:#64748b}
+.nav button.active{color:#0f766e;border-top:3px solid #0f766e}
+.hidden{display:none}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 4px;border-bottom:1px solid #e2e8f0;text-align:left}
+.lock{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:9px;border-radius:10px;font-size:12px;text-align:center;font-weight:700;margin-bottom:10px}
+.guru-badge{background:#dcfce7;color:#166534;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:800;display:inline-block}
+.ortu-badge{background:#dbeafe;color:#1e40af;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:800;display:inline-block}
+.edit-input{width:100%;padding:7px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px}
+.small-btn{padding:6px 9px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header"><h1>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h1><p>V5 - WA Tombol + Izin Online</p></div>
+
+<div id="page-login" class="container">
+  <div class="card">
+    <h3>Selamat Datang</h3>
+    <label>Saya adalah</label><select id="role" onchange="cekRole()"><option value="guru">Guru / Wali Kelas</option><option value="ortu">Orang Tua / Wali Siswa</option></select>
+    <label>Nama Lengkap</label><input id="namaLogin" placeholder="Contoh: Pak Asep / Ibu Siti" value="Asep">
+    <div id="boxPass"><label>Password Guru</label><input id="passGuru" type="password" value="almanar123"><p style="font-size:11px;color:#64748b;margin:-5px 0 8px">Demo: <b>almanar123</b></p></div>
+    <label>Pilih Kelas</label><select id="kelasLogin"><option>XI 1 TKJ</option><option>XI 1 AKL</option></select>
+    <div id="boxAnak" class="hidden"><label>Pilih Nama Anak Anda</label><select id="pilihAnak"></select></div>
+    <button class="btn btn-green" onclick="masuk()">Masuk Aplikasi →</button>
+  </div>
+</div>
+
+<div id="page-app" class="container hidden">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div><h3 style="margin:0">👋 Halo, <span id="namaTampil"></span></h3><p style="font-size:13px;margin:4px 0">Kelas: <b id="kelasTampil"></b></p></div><span id="badgeRole"></span></div>
+    <div id="lockInfo" class="lock hidden">🔒 MODE LIHAT SAJA - Orang Tua hanya lihat & ajukan izin. Tidak bisa ubah data.</div>
+    <div id="guruInfo" class="hidden" style="background:#dcfce7;padding:8px;border-radius:10px;font-size:12px;font-weight:700;color:#166534;text-align:center">✅ MODE GURU - Bisa Edit, ACC Izin, Kirim WA</div>
+    <div style="margin-top:10px" class="row"><div style="flex:1;background:#dcfce7;padding:10px;border-radius:10px;text-align:center"><b id="statHadir">0</b><br><span style="font-size:11px">Hadir</span></div><div style="flex:1;background:#fee2e2;padding:10px;border-radius:10px;text-align:center"><b id="statAlpa">0</b><br><span style="font-size:11px">Tidak Hadir</span></div><div style="flex:1;background:#fef9c3;padding:10px;border-radius:10px;text-align:center"><b id="statIzin">0</b><br><span style="font-size:11px">Pengajuan Izin</span></div></div>
+  </div>
+
+  <!-- ABSENSI + WA -->
+  <div id="tab-absensi">
+    <div class="card">
+      <h3>✅ Absensi - <span id="tglHari"></span></h3>
+      <label>Tanggal</label><input type="date" id="tglAbsen" value="2026-11-18">
+      <label>Cari Nama</label><input id="cariSiswa" placeholder="Ketik nama..." oninput="renderSiswa()">
+      <div id="listSiswa"></div>
+      <div style="margin-top:12px">
+        <button class="btn btn-green" onclick="simpanAbsensi()">💾 Simpan Absensi</button>
+        <button class="btn btn-wa" style="margin-top:8px" onclick="kirimWASemua()">📲 KIRIM SEMUA KE WA ORTU - 1 KLIK</button>
+        <p style="font-size:11px;color:#64748b;text-align:center">Tombol hijau WA: Isi pesan sudah jadi otomatis. Tinggal pencet Kirim di WA.</p>
+      </div>
+    </div>
+    <div class="card" id="cardTambahSiswa"><h3>➕ Tambah Siswa (Guru)</h3><input id="namaBaru" placeholder="Nama siswa baru..."><input id="waBaru" placeholder="No WA Ortu (62812...)"><button class="btn btn-green" onclick="tambahSiswa()">+ Tambah Siswa</button></div>
+  </div>
+
+  <!-- IZIN ONLINE -->
+  <div id="tab-izin" class="hidden">
+    <div class="card">
+      <h3>📝 Izin Online / Buku Tamu</h3>
+      <div id="formIzinOrtu">
+        <p style="font-size:13px;background:#eff6ff;padding:10px;border-radius:10px">Untuk <b>Orang Tua</b>: Ajukan izin dari sini. Guru akan ACC. Status anak otomatis berubah.</p>
+        <label>Nama Anak</label><input id="izinNama" readonly>
+        <label>Tanggal Izin</label><input type="date" id="izinTanggal" value="2026-11-19">
+        <label>Jenis Izin</label><select id="izinJenis"><option>Sakit</option><option>Izin</option><option>Keperluan Keluarga</option><option>Berobat / Dokter</option></select>
+        <label>Alasan Lengkap</label><textarea id="izinAlasan" rows="2" placeholder="Contoh: Sakit gigi, ada surat dokter..."></textarea>
+        <button class="btn btn-blue" onclick="ajukanIzin()">📤 Ajukan Izin ke Guru</button>
+      </div>
+      <div id="infoIzinGuru" class="hidden" style="background:#fffbeb;padding:10px;border-radius:10px;font-size:12px;margin-bottom:10px">Guru: Di bawah ini daftar pengajuan. Pencet <b>Setuju</b> agar absensi otomatis berubah. Pencet <b>Tolak</b> jika tidak disetujui.</div>
+      <div style="margin-top:12px"><b>Daftar Pengajuan Izin:</b></div>
+      <div id="listIzin" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- PESAN -->
+  <div id="tab-pesan" class="hidden">
+    <div class="card"><h3>💬 Pesan</h3><div id="listPesan"><div class="msg"><b>Ibu Siti:</b><br>Assalamualaikum Pak, Siti izin ya, sakit gigi.</div><div class="msg"><b>Pak Guru:</b><br>Waalaikumsalam Bu, siap dicatat.</div></div><label>Tulis Pesan</label><textarea id="isiPesan" rows="2"></textarea><button class="btn btn-green" onclick="kirimPesan()">Kirim Pesan ✈️</button></div>
+  </div>
+
+  <!-- INFO -->
+  <div id="tab-info" class="hidden">
+    <div class="card"><h3>📢 Informasi</h3><div id="formInfo"><label>Judul</label><input id="judulInfo" placeholder="Contoh: Pembagian Raport"><label>Isi</label><textarea id="isiInfo" rows="3"></textarea><button class="btn btn-green" onclick="tambahInfo()">+ Buat Pengumuman</button></div><div id="listInfo" style="margin-top:12px"><div class="info-box"><b>🕌 Sholat Jum'at:</b> Bawa Al-Qur'an & sajadah.</div><div class="info-box"><b>💰 SPP:</b> Yang belum lunas hubungi TU.</div></div></div>
+    <div class="card"><h3>📅 Jadwal Pelajaran - <span id="kelasJadwal"></span></h3><div id="listJadwal"></div><div id="formJadwal"><div class="row"><input id="hariBaru" placeholder="Hari"><input id="pelajaranBaru" placeholder="Pelajaran"></div><button class="btn btn-green" onclick="tambahJadwal()">+ Tambah Jadwal</button></div></div>
+    <div class="card"><h3>📊 Rekap Bulanan</h3><div id="rekapBox"></div></div>
+  </div>
+  <button class="btn btn-light" onclick="keluar()">Keluar</button>
+</div>
+
+<div id="navBar" class="nav hidden">
+  <button id="btnAbsensi" class="active" onclick="showTab('absensi',this)">✅<br>Absensi</button>
+  <button onclick="showTab('izin',this)">📝<br>Izin <span id="badgeIzin" style="background:#dc2626;color:white;padding:1px 5px;border-radius:10px;font-size:10px">0</span></button>
+  <button onclick="showTab('pesan',this)">💬<br>Pesan</button>
+  <button onclick="showTab('info',this)">📢<br>Info</button>
+</div>
+
+<script>
+let isGuru=true, kelasAktif='XI 1 TKJ', namaUser='Asep', anakDipilih='';
+let data = JSON.parse(localStorage.getItem('almanar_v5')||'null') || {
+ 'XI 1 TKJ': [{nama:'Ahmad Fauzi',status:'Hadir',wa:'628123456789'},{nama:'Siti Aisyah',status:'Izin',wa:'628123456790'},{nama:'Muhammad Rizki',status:'Hadir',wa:''},{nama:'Nurul Hidayah',status:'Hadir',wa:''},{nama:'Ali Akbar',status:'Sakit',wa:''}],
+ 'XI 1 AKL': [{nama:'Fatimah Zahra',status:'Hadir',wa:''},{nama:'Yusuf Maulana',status:'Alpa',wa:''},{nama:'Dewi Lestari',status:'Hadir',wa:''},{nama:'Budi Santoso',status:'Hadir',wa:''}]
+};
+let jadwal = JSON.parse(localStorage.getItem('almanar_jadwal_v5')||'null') || {
+ 'XI 1 TKJ': [{hari:'Senin',pel:'TKJ + Matematika'},{hari:'Selasa',pel:'B. Inggris + PAI'},{hari:'Rabu',pel:'Produktif TKJ + PJOK'},{hari:'Kamis',pel:'B. Indonesia + Informatika'},{hari:"Jum'at",pel:'Muhasabah + Praktek'}],
+ 'XI 1 AKL': [{hari:'Senin',pel:'Akuntansi + Matematika'},{hari:'Selasa',pel:'B. Inggris + PAI'},{hari:'Rabu',pel:'Produktif AKL + PJOK'},{hari:'Kamis',pel:'B. Indonesia + Informatika'},{hari:"Jum'at",pel:'Muhasabah + Praktek'}]
+};
+let izinList = JSON.parse(localStorage.getItem('almanar_izin')||'null') || [
+ {kelas:'XI 1 TKJ',nama:'Siti Aisyah',pengaju:'Ibu Siti',tanggal:'2026-11-19',jenis:'Sakit',alasan:'Sakit gigi, ada surat dokter',status:'Menunggu'},
+ {kelas:'XI 1 AKL',nama:'Budi Santoso',pengaju:'Bapak Budi',tanggal:'2026-11-19',jenis:'Izin',alasan:'Ada acara keluarga di luar kota',status:'Menunggu'}
+];
+function save(){localStorage.setItem('almanar_v5',JSON.stringify(data));localStorage.setItem('almanar_jadwal_v5',JSON.stringify(jadwal));localStorage.setItem('almanar_izin',JSON.stringify(izinList));}
+function cekRole(){let r=document.getElementById('role').value;document.getElementById('boxPass').classList.toggle('hidden',r!=='guru');document.getElementById('boxAnak').classList.toggle('hidden',r!=='ortu');if(r==='ortu') isiPilihAnak();}
+function isiPilihAnak(){let k=document.getElementById('kelasLogin').value;let sel=document.getElementById('pilihAnak');sel.innerHTML=data[k].map(s=>`<option>${s.nama}</option>`).join('');}
+document.getElementById('kelasLogin').addEventListener('change',()=>{if(document.getElementById('role').value==='ortu') isiPilihAnak();});
+function masuk(){
+ let role=document.getElementById('role').value; namaUser=document.getElementById('namaLogin').value||'Asep'; kelasAktif=document.getElementById('kelasLogin').value; isGuru=(role==='guru');
+ if(isGuru && document.getElementById('passGuru').value!=='almanar123'){alert('❌ Password Guru salah! Demo: almanar123');return;}
+ if(!isGuru) anakDipilih=document.getElementById('pilihAnak').value;
+ document.getElementById('namaTampil').innerText=namaUser + (!isGuru? ' (Ortu '+anakDipilih+')':'');
+ document.getElementById('kelasTampil').innerText=kelasAktif; document.getElementById('badgeRole').innerHTML=isGuru?'<span class="guru-badge">👨‍🏫 GURU</span>':'<span class="ortu-badge">👪 ORANG TUA</span>';
+ document.getElementById('page-login').classList.add('hidden');document.getElementById('page-app').classList.remove('hidden');document.getElementById('navBar').classList.remove('hidden');
+ document.getElementById('tglHari').innerText=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); document.getElementById('kelasJadwal').innerText=kelasAktif;
+ document.getElementById('lockInfo').classList.toggle('hidden',isGuru); document.getElementById('guruInfo').classList.toggle('hidden',!isGuru);
+ document.getElementById('cardTambahSiswa').classList.toggle('hidden',!isGuru); document.getElementById('formInfo').classList.toggle('hidden',!isGuru); document.getElementById('formJadwal').classList.toggle('hidden',!isGuru);
+ document.getElementById('formIzinOrtu').classList.toggle('hidden',isGuru); document.getElementById('infoIzinGuru').classList.toggle('hidden',!isGuru);
+ if(!isGuru) document.getElementById('izinNama').value=anakDipilih;
+ renderAll();
+}
+function getSiswa(){let list=data[kelasAktif]||[]; if(!isGuru && anakDipilih) return list.filter(s=>s.nama===anakDipilih); return list;}
+function renderSiswa(){
+ let cari=document.getElementById('cariSiswa').value.toLowerCase(); let list=getSiswa().filter(s=>s.nama.toLowerCase().includes(cari)); let html='';
+ list.forEach(s=>{let idx=data[kelasAktif].findIndex(x=>x.nama===s.nama);
+  html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9"><div><b style="font-size:13px">${s.nama}</b><br><span class="chip ${s.status.toLowerCase()}">${s.status}</span></div><div style="display:flex;gap:4px;align-items:center">`;
+  if(isGuru){html+=`<select onchange="ubahStatus(${idx},this.value)" style="width:100px;margin:0"><option ${s.status=='Hadir'?'selected':''}>Hadir</option><option ${s.status=='Sakit'?'selected':''}>Sakit</option><option ${s.status=='Izin'?'selected':''}>Izin</option><option ${s.status=='Alpa'?'selected':''}>Alpa</option></select><button class="small-btn" style="background:#25D366;color:white" onclick="kirimWASatu(${idx})">📲 WA</button><button class="small-btn" style="background:#fee2e2;color:#991b1b" onclick="hapusSiswa(${idx})">✕</button>`;}
+  else{html+=`<span style="font-size:12px">🔒 Lihat saja</span>`;}
+  html+=`</div></div>`;});
+ document.getElementById('listSiswa').innerHTML=html||'<p style="font-size:12px">Tidak ada siswa.</p>';
+ document.getElementById('statHadir').innerText=data[kelasAktif].filter(s=>s.status=='Hadir').length; document.getElementById('statAlpa').innerText=data[kelasAktif].filter(s=>s.status!='Hadir').length;
+ document.getElementById('statIzin').innerText=izinList.filter(x=>x.kelas===kelasAktif && x.status==='Menunggu').length;
+ document.getElementById('badgeIzin').innerText=izinList.filter(x=>x.kelas===kelasAktif && x.status==='Menunggu').length;
+}
+function ubahStatus(i,v){data[kelasAktif][i].status=v;save();renderSiswa();}
+function hapusSiswa(i){if(!confirm('Hapus '+data[kelasAktif][i].nama+'?'))return; data[kelasAktif].splice(i,1);save();renderSiswa();}
+function tambahSiswa(){let n=document.getElementById('namaBaru').value.trim(); if(!n) return alert('Isi nama dulu, Pak'); data[kelasAktif].push({nama:n,status:'Hadir',wa:document.getElementById('waBaru').value}); document.getElementById('namaBaru').value=''; save(); renderSiswa(); alert('✅ Siswa ditambahkan!');}
+function simpanAbsensi(){save(); alert('✅ Absensi Disimpan!');}
+
+// === NOMOR 2 - WA TOMBOL ===
+function buatPesanWA(s){let tgl=document.getElementById('tglAbsen').value; return `Assalamualaikum Bapak/Ibu Orang Tua ${s.nama},%0A%0AKami infokan, hari ini ${tgl}, ananda *${s.nama}* kelas *${kelasAktif}* tercatat *${s.status}* di SMKS AL MANAR.%0A%0A${s.status==='Alpa'?'Mohon konfirmasi ke Wali Kelas. Terima kasih.':'Terima kasih sudah konfirmasi ke Wali Kelas.'}%0A- Pak Asep, Wali Kelas`;}
+function kirimWASatu(idx){let s=data[kelasAktif][idx]; let pesan=`Assalamualaikum Bapak/Ibu Orang Tua ${s.nama},\n\nKami infokan, hari ini ${document.getElementById('tglAbsen').value}, ananda ${s.nama} kelas ${kelasAktif} tercatat ${s.status} di SMKS AL MANAR.\n\n${s.status==='Alpa'?'Mohon konfirmasi ke Wali Kelas. Terima kasih.':'Terima kasih.'}\n- Pak Asep, Wali Kelas`; if(s.wa){window.open('https://wa.me/'+s.wa+'?text='+encodeURIComponent(pesan));} else {window.open('https://wa.me/?text='+encodeURIComponent(pesan)); alert('No WA anak ini belum diisi. Silakan pilih kontak manual di WA.');}}
+function kirimWASemua(){let list=data[kelasAktif]; let teks=`Assalamualaikum Bapak/Ibu,\n\n*REKAP ABSENSI - ${kelasAktif} - ${document.getElementById('tglAbsen').value}*\nSMKS AL MANAR\n\n`+list.map(s=>`• ${s.nama} - ${s.status}`).join('\n')+`\n\nTerima kasih.\n- Pak Asep, Wali Kelas`; window.open('https://wa.me/?text='+encodeURIComponent(teks)); alert('✅ Pesan WA sudah jadi! Tinggal pilih Grup WA Kelas / Ortu, lalu pencet Kirim.');}
+
+// === NOMOR 3 - IZIN ONLINE ===
+function ajukanIzin(){let nama=document.getElementById('izinNama').value; let tgl=document.getElementById('izinTanggal').value; let jenis=document.getElementById('izinJenis').value; let alasan=document.getElementById('izinAlasan').value; if(!alasan) return alert('Isi alasan dulu, Bu/Pak'); izinList.unshift({kelas:kelasAktif,nama:nama,pengaju:namaUser,tanggal:tgl,jenis:jenis,alasan:alasan,status:'Menunggu'}); save(); document.getElementById('izinAlasan').value=''; renderIzin(); alert('✅ Pengajuan Izin Terkirim! Menunggu ACC Guru.');}
+function renderIzin(){
+ let list=izinList.filter(x=>x.kelas===kelasAktif); if(!isGuru && anakDipilih) list=list.filter(x=>x.nama===anakDipilih);
+ document.getElementById('listIzin').innerHTML=list.map((it,idxGlobal)=>{
+   let idx=izinList.indexOf(it); let warna=it.status==='Disetujui'?'#dcfce7':it.status==='Ditolak'?'#fee2e2':'#fffbeb';
+   let btnGuru=isGuru && it.status==='Menunggu' ? `<div style="margin-top:8px;display:flex;gap:6px"><button class="small-btn" style="background:#16a34a;color:white;flex:1;padding:9px" onclick="prosesIzin(${idx},'Disetujui')">✅ Setuju - Ubah Jadi ${it.jenis}</button><button class="small-btn" style="background:#dc2626;color:white;flex:1;padding:9px" onclick="prosesIzin(${idx},'Ditolak')">❌ Tolak</button></div>` : '';
+   return `<div class="izin-box" style="background:${warna}"><b>📝 ${it.nama} - ${it.jenis}</b> <span style="float:right;font-weight:800">${it.status==='Menunggu'?'⏳ Menunggu':it.status==='Disetujui'?'✅ Disetujui':'❌ Ditolak'}</span><br><span style="font-size:12px;color:#475569">Tanggal: ${it.tanggal} | Pengaju: ${it.pengaju}</span><br>Alasan: ${it.alasan}${btnGuru}${isGuru?`<button class="small-btn" style="background:#fee2e2;margin-top:6px" onclick="izinList.splice(${idx},1);save();renderIzin();renderSiswa()">Hapus</button>`:''}</div>`;
+ }).join('')||'<p style="font-size:12px">Belum ada pengajuan izin.</p>';
+}
+function prosesIzin(idx,hasil){
+ izinList[idx].status=hasil; if(hasil==='Disetujui'){let s=data[izinList[idx].kelas].find(x=>x.nama===izinList[idx].nama); if(s){s.status=izinList[idx].jenis==='Keperluan Keluarga'||izinList[idx].jenis==='Berobat / Dokter'?'Izin':izinList[idx].jenis;}}
+ save(); renderIzin(); renderSiswa(); alert(hasil==='Disetujui' ? '✅ Disetujui! Absensi '+izinList[idx].nama+' otomatis berubah jadi '+izinList[idx].jenis+'.' : '❌ Pengajuan ditolak.');
+}
+function kirimPesan(){let p=document.getElementById('isiPesan').
