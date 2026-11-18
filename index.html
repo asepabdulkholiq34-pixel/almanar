@@ -66,8 +66,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 4px;b
       <label>Cari Nama</label><input id="cariSiswa" placeholder="Ketik nama..." oninput="renderSiswa()">
       <div id="listSiswa"></div>
       <div style="margin-top:12px">
-        <button class="btn btn-green" onclick="simpanAbsensi()">💾 Simpan Absensi</button>
-        <button class="btn btn-wa" style="margin-top:8px" onclick="kirimWASemua()">📲 KIRIM SEMUA KE WA ORTU - 1 KLIK</button>
+        <button id="btnSimpan" class="btn btn-green" onclick="simpanAbsensi()">💾 Simpan Absensi</button>
+        <button id="btnKirimSemua" class="btn btn-wa" style="margin-top:8px" onclick="kirimWASemua()">📲 KIRIM SEMUA KE WA ORTU - 1 KLIK</button>
         <p style="font-size:11px;color:#64748b;text-align:center">Tombol hijau WA: Isi pesan sudah jadi otomatis. Tinggal pencet Kirim di WA.</p>
       </div>
     </div>
@@ -139,7 +139,7 @@ function masuk(){
  document.getElementById('kelasTampil').innerText=kelasAktif; document.getElementById('badgeRole').innerHTML=isGuru?'<span class="guru-badge">👨‍🏫 GURU</span>':'<span class="ortu-badge">👪 ORANG TUA</span>';
  document.getElementById('page-login').classList.add('hidden');document.getElementById('page-app').classList.remove('hidden');document.getElementById('navBar').classList.remove('hidden');
  document.getElementById('tglHari').innerText=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); document.getElementById('kelasJadwal').innerText=kelasAktif;
- document.getElementById('lockInfo').classList.toggle('hidden',isGuru); document.getElementById('guruInfo').classList.toggle('hidden',!isGuru);
+ document.getElementById('lockInfo').classList.toggle('hidden',isGuru); document.getElementById('btnSimpan').classList.toggle('hidden',!isGuru);document.getElementById('btnKirimSemua').classList.toggle('hidden',!isGuru); document.getElementById('guruInfo').classList.toggle('hidden',!isGuru);
  document.getElementById('cardTambahSiswa').classList.toggle('hidden',!isGuru); document.getElementById('formInfo').classList.toggle('hidden',!isGuru); document.getElementById('formJadwal').classList.toggle('hidden',!isGuru);
  document.getElementById('formIzinOrtu').classList.toggle('hidden',isGuru); document.getElementById('infoIzinGuru').classList.toggle('hidden',!isGuru);
  if(!isGuru) document.getElementById('izinNama').value=anakDipilih;
