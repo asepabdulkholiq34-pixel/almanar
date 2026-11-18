@@ -182,4 +182,14 @@ function prosesIzin(idx,hasil){
  izinList[idx].status=hasil; if(hasil==='Disetujui'){let s=data[izinList[idx].kelas].find(x=>x.nama===izinList[idx].nama); if(s){s.status=izinList[idx].jenis==='Keperluan Keluarga'||izinList[idx].jenis==='Berobat / Dokter'?'Izin':izinList[idx].jenis;}}
  save(); renderIzin(); renderSiswa(); alert(hasil==='Disetujui' ? '✅ Disetujui! Absensi '+izinList[idx].nama+' otomatis berubah jadi '+izinList[idx].jenis+'.' : '❌ Pengajuan ditolak.');
 }
-function kirimPesan(){let p=document.getElementById('isiPesan').
+function kirimPesan(){let p=document.getElementById('isiPesan').value.trim();if(!p)return alert('Tulis pesan dulu');let d=document.createElement('div');d.className='msg';d.innerHTML='<b>'+namaUser+':</b><br>'+p;document.getElementById('listPesan').appendChild(d);document.getElementById('isiPesan').value='';}
+function tambahInfo(){let j=document.getElementById('judulInfo').value.trim();let isi=document.getElementById('isiInfo').value.trim();if(!j||!isi)return alert('Isi judul dan isi dulu');let d=document.createElement('div');d.className='info-box';d.innerHTML='<b>'+j+':</b> '+isi;document.getElementById('listInfo').prepend(d);document.getElementById('judulInfo').value='';document.getElementById('isiInfo').value='';}
+function tambahJadwal(){let h=document.getElementById('hariBaru').value.trim();let p=document.getElementById('pelajaranBaru').value.trim();if(!h||!p)return alert('Isi hari dan pelajaran dulu');jadwal[kelasAktif].push({hari:h,pel:p});save();renderJadwal();document.getElementById('hariBaru').value='';document.getElementById('pelajaranBaru').value='';}
+function renderJadwal(){document.getElementById('listJadwal').innerHTML=(jadwal[kelasAktif]||[]).map(function(j){return '<div style="padding:8px 0;border-bottom:1px solid #f1f5f9"><b>'+j.hari+'</b> - '+j.pel+'</div>'}).join('');}
+function renderRekap(){let list=data[kelasAktif]||[];let h=list.filter(function(s){return s.status==='Hadir'}).length;document.getElementById('rekapBox').innerHTML='Total: '+list.length+' siswa | Hadir: '+h+' | Tidak Hadir: '+(list.length-h);}
+function renderAll(){try{renderSiswa();renderIzin();renderJadwal();renderRekap();}catch(e){alert('Error: '+e.message)}}
+function showTab(n,btn){['absensi','izin','pesan','info'].forEach(function(t){document.getElementById('tab-'+t).classList.toggle('hidden',t!==n)});document.querySelectorAll('#navBar button').forEach(function(b){b.classList.remove('active')});if(btn)btn.classList.add('active');}
+function keluar(){document.getElementById('page-app').classList.add('hidden');document.getElementById('navBar').classList.add('hidden');document.getElementById('page-login').classList.remove('hidden');window.scrollTo(0,0);}
+</script>
+</body>
+</html>
