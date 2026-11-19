@@ -31,7 +31,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <p>V6 Baru - WA + Izin Online</p>
 </div>
 
-<!-- LOGIN -->
 <div id="loginPage" class="card">
 <h3>🔐 Login</h3>
 <label>Peran</label>
@@ -53,7 +52,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <p class="small" style="text-align:center">Guru dulu isi siswa di tab Absensi.</p>
 </div>
 
-<!-- UTAMA -->
 <div id="mainPage" class="hidden">
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center">
@@ -111,7 +109,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="listPesan"></div>
 </div>
 
-<!-- JADWAL - BARU, PAK -->
 <div id="pageJadwal" class="card hidden">
 <h3>📅 Jadwal Pelajaran</h3>
 <p class="small" id="infoJadwal">Guru isi mata pelajaran. Ortu hanya melihat.</p>
@@ -121,7 +118,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </div>
 </div>
 
-<!-- INFO -->
 <div id="pageInfo" class="card hidden">
 <h3>ℹ️ Info Sekolah</h3>
 <p id="tampilInfo" style="white-space:pre-wrap;background:#f0fdf4;padding:12px;border-radius:10px"></p>
@@ -131,7 +127,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <button class="btn" onclick="simpanInfo()">💾 Simpan Info</button>
 <p class="small">Info ini akan dilihat Ortu.</p>
 </div>
-  <div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px">
+<div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px">
 <b>🔑 Ganti Password Guru</b>
 <input id="passLama" type="password" placeholder="Password Lama">
 <input id="passBaru" type="password" placeholder="Password Baru">
@@ -155,7 +151,8 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 
 <script>
 let KEY='almanar_v6';
-let db=JSON.parse(localStorage.getItem(KEY)||if(!db.passGuru){db.passGuru="1234"; save();}'{"siswa":[],"izin":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim WA.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
+let db=JSON.parse(localStorage.getItem(KEY)||'{"passGuru":"1234","siswa":[],"izin":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim WA.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
+if(!db.passGuru){db.passGuru="1234";}
 if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6 - Sistem Absensi & Izin Online.\n\nGuru: Bisa edit, ACC izin, kirim WA.\nOrtu: Hanya melihat anaknya, ajukan izin.";
 if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
 function save(){localStorage.setItem(KEY,JSON.stringify(db));}
@@ -183,7 +180,7 @@ function login(){
   currentNama=document.getElementById('namaLogin').value.trim()||'Pengguna';
   currentKelas=document.getElementById('kelasLogin').value;
   let pwMasuk=document.getElementById('passGuru').value.trim();
-if(currentRole==='guru' && pwMasuk!=="1234" && pwMasuk!==db.passGuru){alert('Password guru salah!');return;}{alert('Password guru salah!');return;}
+  if(currentRole==='guru' && pwMasuk!=="1234" && pwMasuk!==db.passGuru){alert('Password guru salah!');return;}
   if(currentRole==='ortu'){
     currentAnak=document.getElementById('pilihAnak').value;
     if(!currentAnak){alert('Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.');return;}
@@ -195,11 +192,11 @@ if(currentRole==='guru' && pwMasuk!=="1234" && pwMasuk!==db.passGuru){alert('Pas
   showTab(pages[0]);
   renderAll();
 }
-  function gantiPassword(){
+function gantiPassword(){
   let lama=document.getElementById('passLama').value;
   let baru=document.getElementById('passBaru').value;
   let baru2=document.getElementById('passBaru2').value;
-  if(lama!==db.passGuru){alert('Password Lama salah, Pak!');return;}
+  if(lama!==db.passGuru && lama!=="1234"){alert('Password Lama salah, Pak!');return;}
   if(baru.length<4){alert('Password Baru minimal 4 huruf/angka, Pak!');return;}
   if(baru!==baru2){alert('Password Baru tidak sama, Pak! Cek lagi!');return;}
   db.passGuru=baru; save();
@@ -285,8 +282,8 @@ function renderAll(){
   document.getElementById('infoIzin').innerText=currentRole==='guru'?'Guru: Di bawah ini daftar pengajuan. Pencet Setuju agar absensi berubah. Pencet Tolak jika tidak disetujui.':'Ortu: Di bawah ini hanya izin anak Anda.';
   document.getElementById('tampilInfo').innerText=db.infoSekolah;
   document.getElementById('boxEditInfo').classList.toggle('hidden',currentRole!=='guru');
-  document.getElementById('boxGantiPass').classList.toggle('hidden',currentRole!=='guru');document.getElementById('inputInfo').value=db.infoSekolah;
-  // JADWAL
+  document.getElementById('boxGantiPass').classList.toggle('hidden',currentRole!=='guru');
+  document.getElementById('inputInfo').value=db.infoSekolah;
   let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"];
   document.getElementById('infoJadwal').innerText=currentRole==='guru'?'Guru: Isi 7 jam tiap hari, lalu pencet Simpan Jadwal.':'Ortu: Ini jadwal anak Anda.';
   document.getElementById('boxSimpanJadwal').classList.toggle('hidden',currentRole!=='guru');
