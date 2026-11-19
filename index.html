@@ -17,12 +17,11 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 .guru{background:#dcfce7;color:#166534}.ortu{background:#dbeafe;color:#1e40af}
 .item{border:1px solid #eee;border-radius:12px;padding:12px;margin:8px 0;background:#fffbe6}
 .item b{font-size:16px}.small{font-size:13px;color:#555}
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;border-top:1px solid #ddd}
-.tabs button{flex:1;background:#fff;color:#333;border-radius:0;padding:12px 4px}
-.tabs button.on{color:#0f766e;border-top:3px solid #0f766e}
 .hidden{display:none!important}
-.notif{position:relative}.dot{position:absolute;top:-6px;right:22px;background:red;color:#fff;border-radius:50%;padding:2px 7px;font-size:12px}
 .flex{display:flex;gap:8px}.flex button{flex:1}
+.jadwal-hari{background:#f0fdf4;padding:10px;border-radius:10px;margin:10px 0}
+.jadwal-hari b{font-size:16px;color:#0f766e}
+.jadwal-input{margin:4px 0}
 </style>
 </head>
 <body>
@@ -49,7 +48,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="boxPass">
 <label>Password Guru</label>
 <input id="passGuru" type="password" placeholder="1234">
-<p class="small">Password: 1234</p>
 </div>
 <button class="btn" onclick="login()">Masuk</button>
 <p class="small" style="text-align:center">Guru dulu isi siswa di tab Absensi.</p>
@@ -74,14 +72,12 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </div>
 </div>
 
-<!-- NOTIF -->
 <div id="pageNotif" class="card hidden">
 <h3>🔔 Notifikasi</h3>
 <div id="listNotif"></div>
 <button class="btn2" onclick="tutupNotif()">Tutup</button>
 </div>
 
-<!-- ABSENSI -->
 <div id="pageAbsensi" class="card">
 <h3>✅ Absensi</h3>
 <div id="boxTambahSiswa" class="hidden" style="background:#f0fdf4;padding:10px;border-radius:10px">
@@ -95,7 +91,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="listSiswa"></div>
 </div>
 
-<!-- IZIN -->
 <div id="pageIzin" class="card hidden">
 <h3>📝 Izin Online / Buku Tamu</h3>
 <div id="formIzin" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px">
@@ -110,18 +105,35 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="listIzin"></div>
 </div>
 
-<!-- PESAN -->
 <div id="pagePesan" class="card hidden">
 <h3>💬 Pesan / WA</h3>
 <p class="small">Guru bisa kirim WA ke ortu. Ortu bisa liat info.</p>
 <div id="listPesan"></div>
 </div>
 
+<!-- JADWAL - BARU, PAK -->
+<div id="pageJadwal" class="card hidden">
+<h3>📅 Jadwal Pelajaran</h3>
+<p class="small" id="infoJadwal">Guru isi mata pelajaran. Ortu hanya melihat.</p>
+<div id="listJadwal"></div>
+<div id="boxSimpanJadwal" class="hidden" style="margin-top:10px">
+<button class="btn" onclick="simpanJadwal()">💾 Simpan Jadwal</button>
+</div>
+</div>
+
 <!-- INFO -->
 <div id="pageInfo" class="card hidden">
 <h3>ℹ️ Info Sekolah</h3>
-<p>SMKS Al Manar Islamic School<br>V6 - Sistem Absensi & Izin Online.<br><br>Guru: Bisa edit, ACC izin, kirim WA.<br>Ortu: Hanya melihat anaknya, ajukan izin.</p>
+<p id="tampilInfo" style="white-space:pre-wrap;background:#f0fdf4;padding:12px;border-radius:10px"></p>
+<div id="boxEditInfo" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px">
+<b>Tulis Info Sekolah (Guru)</b>
+<textarea id="inputInfo" rows="5" placeholder="Contoh: Besok Jumat libur... Ujian Senin... Tolong bawa..."></textarea>
+<button class="btn" onclick="simpanInfo()">💾 Simpan Info</button>
+<p class="small">Info ini akan dilihat Ortu.</p>
+</div>
+<div style="margin-top:10px">
 <button class="btn2" onclick="resetData()">Reset Semua Data (Guru)</button>
+</div>
 </div>
 <div style="height:80px"></div>
 </div>
@@ -135,7 +147,9 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 
 <script>
 let KEY='almanar_v6';
-let db=JSON.parse(localStorage.getItem(KEY)||'{"siswa":[],"izin":[],"absen":{}}');
+let db=JSON.parse(localStorage.getItem(KEY)||'{"siswa":[],"izin":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim WA.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
+if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6 - Sistem Absensi & Izin Online.\n\nGuru: Bisa edit, ACC izin, kirim WA.\nOrtu: Hanya melihat anaknya, ajukan izin.";
+if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
 function save(){localStorage.setItem(KEY,JSON.stringify(db));}
 let currentRole='guru', currentNama='', currentKelas='XI 1 TKJ', currentAnak='';
 
@@ -173,22 +187,31 @@ function login(){
   renderAll();
 }
 function logout(){location.reload();}
-let pages=['Absensi','Izin','Pesan','Info'];
+let pages=['Absensi','Izin','Pesan','Jadwal','Info'];
 let pageIdx=0;
 function showTab(n){
   pageIdx=pages.indexOf(n);
   pages.forEach(x=>{document.getElementById('page'+x).classList.toggle('hidden',x!==n);});
   document.getElementById('pageNotif').classList.add('hidden');
-  // ATUR TOMBOL BAWAH - INI PERBAIKANNYA PAK
-  // Halaman pertama: sembunyikan Kembali. Halaman terakhir: sembunyikan Berikutnya
   document.getElementById('btnPrev').style.display = (pageIdx===0) ? 'none' : 'block';
   document.getElementById('btnNext').style.display = (pageIdx===pages.length-1) ? 'none' : 'block';
 }
-function nextPage(){
-  if(pageIdx < pages.length-1){ pageIdx++; showTab(pages[pageIdx]); }
+function nextPage(){ if(pageIdx < pages.length-1){ pageIdx++; showTab(pages[pageIdx]); } }
+function prevPage(){ if(pageIdx > 0){ pageIdx--; showTab(pages[pageIdx]); } }
+function simpanInfo(){
+  let v=document.getElementById('inputInfo').value.trim();
+  if(!v){alert('Isi dulu infonya, Pak');return;}
+  db.infoSekolah=v; save(); renderAll(); alert('Info tersimpan, Pak!');
 }
-function prevPage(){
-  if(pageIdx > 0){ pageIdx--; showTab(pages[pageIdx]); }
+function simpanJadwal(){
+  let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"];
+  hariList.forEach(h=>{
+    for(let i=0;i<7;i++){
+      let el=document.getElementById('jadwal-'+h+'-'+i);
+      if(el) db.jadwal[h][i]=el.value.trim();
+    }
+  });
+  save(); renderAll(); alert('Jadwal tersimpan, Pak!');
 }
 function tambahSiswa(){
   let n=document.getElementById('namaBaru').value.trim();
@@ -201,9 +224,7 @@ function hapusSiswa(nama){
   if(!confirm('Hapus '+nama+'?'))return;
   db.siswa=db.siswa.filter(s=>s.nama!==nama); save(); renderAll();
 }
-function setAbsen(nama,status){
-  db.absen[nama]=status; save(); renderAll();
-}
+function setAbsen(nama,status){ db.absen[nama]=status; save(); renderAll(); }
 function ajukanIzin(){
   let jenis=document.getElementById('jenisIzin').value;
   let tgl=document.getElementById('tglIzin').value||new Date().toISOString().slice(0,10);
@@ -211,11 +232,8 @@ function ajukanIzin(){
   db.izin.unshift({nama:currentAnak,kelas:currentKelas,jenis:jenis,tanggal:tgl,alasan:alasan,pengaju:currentNama,status:'Menunggu'});
   save(); document.getElementById('alasanIzin').value=''; renderAll(); alert('Izin terkirim');
 }
-function accIzin(i,sts){
-  db.izin[i].status=sts; save(); renderAll();
-}
+function accIzin(i,sts){ db.izin[i].status=sts; save(); renderAll(); }
 function resetData(){if(confirm('Hapus semua data?')){localStorage.removeItem(KEY);location.reload();}}
-
 function siswaTerlihat(){
   if(currentRole==='ortu') return db.siswa.filter(s=>s.nama===currentAnak);
   let f=document.getElementById('filterKelas').value;
@@ -232,7 +250,6 @@ function bukaNotif(){
   document.getElementById('listNotif').innerHTML=list.length?list.map(x=>`<div class="item"><b>${currentRole==='guru'?'GURU': 'ORTU'} : Izin ${x.nama} - ${x.jenis} (${x.status})</b><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span></div>`).join(''):'<p class="small">Tidak ada notifikasi.</p>';
 }
 function tutupNotif(){document.getElementById('pageNotif').classList.add('hidden');}
-
 function renderAll(){
   document.getElementById('haloNama').innerText='Halo, '+currentNama;
   document.getElementById('haloKelas').innerText='Kelas: '+currentKelas+(currentRole==='ortu'?' | Anak: '+currentAnak:'');
@@ -244,6 +261,25 @@ function renderAll(){
   document.getElementById('boxTambahSiswa').classList.toggle('hidden',currentRole!=='guru');
   document.getElementById('formIzin').classList.toggle('hidden',currentRole!=='ortu');
   document.getElementById('infoIzin').innerText=currentRole==='guru'?'Guru: Di bawah ini daftar pengajuan. Pencet Setuju agar absensi berubah. Pencet Tolak jika tidak disetujui.':'Ortu: Di bawah ini hanya izin anak Anda.';
+  document.getElementById('tampilInfo').innerText=db.infoSekolah;
+  document.getElementById('boxEditInfo').classList.toggle('hidden',currentRole!=='guru');
+  document.getElementById('inputInfo').value=db.infoSekolah;
+  // JADWAL
+  let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"];
+  document.getElementById('infoJadwal').innerText=currentRole==='guru'?'Guru: Isi 7 jam tiap hari, lalu pencet Simpan Jadwal.':'Ortu: Ini jadwal anak Anda.';
+  document.getElementById('boxSimpanJadwal').classList.toggle('hidden',currentRole!=='guru');
+  document.getElementById('listJadwal').innerHTML=hariList.map(h=>{
+    let isi='';
+    for(let i=0;i<7;i++){
+      let val=(db.jadwal[h]&&db.jadwal[h][i])?db.jadwal[h][i]:'';
+      if(currentRole==='guru'){
+        isi+=`<input class="jadwal-input" id="jadwal-${h}-${i}" placeholder="Jam ${i+1} - Mata Pelajaran" value="${val.replace(/"/g,'&quot;')}">`;
+      } else {
+        isi+=`<div style="padding:8px;border:1px solid #eee;border-radius:8px;margin:4px 0;background:#fff"><b>Jam ${i+1}:</b> ${val||'-'}</div>`;
+      }
+    }
+    return `<div class="jadwal-hari"><b>📅 ${h}</b>${isi}</div>`;
+  }).join('');
   let sList=siswaTerlihat();
   document.getElementById('listSiswa').innerHTML=sList.length?sList.map(s=>{
     let st=db.absen[s.nama]||'Belum Absen';
