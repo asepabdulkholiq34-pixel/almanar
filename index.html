@@ -43,13 +43,19 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 4px;b
     <h3>Selamat Datang</h3>
     <label>Saya adalah</label><select id="role" onchange="cekRole()"><option value="guru">Guru / Wali Kelas</option><option value="ortu">Orang Tua / Wali Siswa</option></select>
     <label>Nama Lengkap</label><input id="namaLogin" placeholder="Contoh: Pak Asep / Ibu Siti">
-    <div id="boxPass"><label>Password Guru</label><input id="passGuru" type="password"></div>
+    
     <label>Pilih Kelas</label><select id="kelasLogin"><option>XI 1 TKJ</option><option>XI 1 AKL</option></select>
     <div id="boxAnak" class="hidden"><label>Pilih Nama Anak Anda</label><select id="pilihAnak"></select></div>
     <button class="btn btn-green" onclick="masuk()">Masuk Aplikasi →</button>
   </div>
 </div>
-
+<div id="page-pass" class="container hidden">
+<h2>Verifikasi Guru</h2>
+<p>Halo, silakan masukkan password untuk lanjut sebagai Guru.</p>
+<label>Password Guru</label><input id="passGuru" type="password" placeholder="Masukkan Password Guru">
+<button class="btn btn-green" onclick="cekPassGuru()">Masuk Sebagai Guru →</button>
+<button onclick="batalPass()">← Kembali</button>
+</div>
 <div id="page-app" class="container hidden">
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center"><div><h3 style="margin:0">👋 Halo, <span id="namaTampil"></span></h3><p style="font-size:13px;margin:4px 0">Kelas: <b id="kelasTampil"></b></p></div><span id="badgeRole"></span></div>
@@ -132,9 +138,9 @@ function save(){localStorage.setItem('almanar_v5',JSON.stringify(data));localSto
 function cekRole(){let r=document.getElementById('role').value;document.getElementById('boxPass').classList.toggle('hidden',r!=='guru');document.getElementById('boxAnak').classList.toggle('hidden',r!=='ortu');if(r==='ortu') isiPilihAnak();}
 function isiPilihAnak(){let k=document.getElementById('kelasLogin').value;let sel=document.getElementById('pilihAnak');sel.innerHTML=data[k].map(s=>`<option>${s.nama}</option>`).join('');}
 document.getElementById('kelasLogin').addEventListener('change',()=>{if(document.getElementById('role').value==='ortu') isiPilihAnak();});
-function masuk(){
+function masuk(sudahCek){
  let role=document.getElementById('role').value; namaUser=document.getElementById('namaLogin').value||'Asep'; kelasAktif=document.getElementById('kelasLogin').value; isGuru=(role==='guru');
- if(isGuru && document.getElementById('passGuru').value!=='almanar123'){alert('❌ Password Guru salah!');return;}
+ if(isGuru && !sudahCek){document.getElementById('page-login').classList.add('hidden');document.getElementById('page-pass').classList.remove('hidden');window.scrollTo(0,0);return;}
  if(!isGuru) anakDipilih=document.getElementById('pilihAnak').value;
  document.getElementById('namaTampil').innerText=namaUser + (!isGuru? ' (Ortu '+anakDipilih+')':'');
  document.getElementById('kelasTampil').innerText=kelasAktif; document.getElementById('badgeRole').innerHTML=isGuru?'<span class="guru-badge">👨‍🏫 GURU</span>':'<span class="ortu-badge">👪 ORANG TUA</span>';
@@ -146,6 +152,8 @@ function masuk(){
  if(!isGuru) document.getElementById('izinNama').value=anakDipilih;
  renderAll();
 }
+  function cekPassGuru(){if(document.getElementById('passGuru').value!=='almanar123'){alert('❌ Password Guru salah!');return;}document.getElementById('page-pass').classList.add('hidden');masuk(true);}
+function batalPass(){document.getElementById('page-pass').classList.add('hidden');document.getElementById('page-login').classList.remove('hidden');}
 function getSiswa(){let list=data[kelasAktif]||[]; if(!isGuru && anakDipilih) return list.filter(s=>s.nama===anakDipilih); return list;}
 function renderSiswa(){
  let cari=document.getElementById('cariSiswa').value.toLowerCase(); let list=getSiswa().filter(s=>s.nama.toLowerCase().includes(cari)); let html='';
