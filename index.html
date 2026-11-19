@@ -141,6 +141,8 @@ function isiPilihAnak(){let k=document.getElementById('kelasLogin').value;let se
 document.getElementById('kelasLogin').addEventListener('change',()=>{if(document.getElementById('role').value==='ortu') isiPilihAnak();});
 function masuk(sudahCek){
  let role=document.getElementById('role').value; namaUser=document.getElementById('namaLogin').value||'Asep'; kelasAktif=document.getElementById('kelasLogin').value; isGuru=(role==='guru');
+  document.getElementById('formIzinOrtu').style.display = isGuru ? 'none' : 'block';
+document.getElementById('infoIzinGuru').classList.toggle('hidden', !isGuru);
  if(isGuru && !sudahCek){document.getElementById('page-login').classList.add('hidden');document.getElementById('page-pass').classList.remove('hidden');window.scrollTo(0,0);return;}
  if(!isGuru) anakDipilih=document.getElementById('pilihAnak').value;
  document.getElementById('namaTampil').innerText=namaUser + (!isGuru? ' (Ortu '+anakDipilih+')':'');
