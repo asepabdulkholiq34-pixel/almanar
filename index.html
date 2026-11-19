@@ -127,9 +127,9 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </div>
 
 <div id="bottomNav" class="hidden" style="position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;gap:8px;padding:10px;border-top:1px solid #ddd">
-<button class="btn2" style="flex:1" onclick="prevPage()">← Kembali</button>
+<button id="btnPrev" class="btn2" style="flex:1" onclick="prevPage()">← Kembali</button>
 <button class="btn2" style="flex:1;background:#fee2e2" onclick="logout()">Keluar</button>
-<button class="btn" style="flex:1" onclick="nextPage()">Berikutnya →</button>
+<button id="btnNext" class="btn" style="flex:1" onclick="nextPage()">Berikutnya →</button>
 </div>
 </div>
 
@@ -168,6 +168,8 @@ function login(){
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('mainPage').classList.remove('hidden');
   document.getElementById('bottomNav').classList.remove('hidden');
+  pageIdx=0;
+  showTab(pages[0]);
   renderAll();
 }
 function logout(){location.reload();}
@@ -177,9 +179,17 @@ function showTab(n){
   pageIdx=pages.indexOf(n);
   pages.forEach(x=>{document.getElementById('page'+x).classList.toggle('hidden',x!==n);});
   document.getElementById('pageNotif').classList.add('hidden');
+  // ATUR TOMBOL BAWAH - INI PERBAIKANNYA PAK
+  // Halaman pertama: sembunyikan Kembali. Halaman terakhir: sembunyikan Berikutnya
+  document.getElementById('btnPrev').style.display = (pageIdx===0) ? 'none' : 'block';
+  document.getElementById('btnNext').style.display = (pageIdx===pages.length-1) ? 'none' : 'block';
 }
-function nextPage(){pageIdx=(pageIdx+1)%pages.length;showTab(pages[pageIdx]);}
-function prevPage(){pageIdx=(pageIdx-1+pages.length)%pages.length;showTab(pages[pageIdx]);}
+function nextPage(){
+  if(pageIdx < pages.length-1){ pageIdx++; showTab(pages[pageIdx]); }
+}
+function prevPage(){
+  if(pageIdx > 0){ pageIdx--; showTab(pages[pageIdx]); }
+}
 function tambahSiswa(){
   let n=document.getElementById('namaBaru').value.trim();
   let k=document.getElementById('kelasBaru').value;
@@ -234,30 +244,24 @@ function renderAll(){
   document.getElementById('boxTambahSiswa').classList.toggle('hidden',currentRole!=='guru');
   document.getElementById('formIzin').classList.toggle('hidden',currentRole!=='ortu');
   document.getElementById('infoIzin').innerText=currentRole==='guru'?'Guru: Di bawah ini daftar pengajuan. Pencet Setuju agar absensi berubah. Pencet Tolak jika tidak disetujui.':'Ortu: Di bawah ini hanya izin anak Anda.';
-  // siswa
   let sList=siswaTerlihat();
   document.getElementById('listSiswa').innerHTML=sList.length?sList.map(s=>{
     let st=db.absen[s.nama]||'Belum Absen';
     let btns=currentRole==='guru'?`<div class="flex" style="margin-top:8px"><button class="ok" onclick="setAbsen('${s.nama}','Hadir')">Hadir</button><button class="no" onclick="setAbsen('${s.nama}','Tidak Hadir')">Tidak Hadir</button><button class="btn2" onclick="hapusSiswa('${s.nama}')">Hapus</button></div>`:`<p class="small">Status: <b>${st}</b></p>`;
     return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">Status: ${st}</span>${btns}</div>`;
   }).join(''):'<p class="small">Belum ada siswa. Guru silakan tambah siswa dulu.</p>';
-  // izin
   let iList=izinTerlihat();
-  // cari index asli untuk ACC
   document.getElementById('listIzin').innerHTML=iList.length?iList.map(x=>{
     let idx=db.izin.indexOf(x);
     let btnGuru=(currentRole==='guru' && x.status==='Menunggu')?`<div class="flex" style="margin-top:8px"><button class="ok" onclick="accIzin(${idx},'Disetujui')">✅ Setuju</button><button class="no" onclick="accIzin(${idx},'Ditolak')">❌ Tolak</button></div>`:'';
     return `<div class="item"><b>📝 ${x.nama} - ${x.jenis}</b> <span style="float:right">⏳ ${x.status}</span><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span>${btnGuru}</div>`;
   }).join(''):'<p class="small">Belum ada pengajuan izin.</p>';
-  // hitung
   let hadir=Object.values(db.absen).filter(v=>v==='Hadir').length;
   let tidak=Object.values(db.absen).filter(v=>v==='Tidak Hadir').length;
   document.getElementById('cHadir').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Hadir'?1:0):hadir;
   document.getElementById('cTidak').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Tidak Hadir'?1:0):tidak;
   document.getElementById('cIzin').innerText=iList.length;
   document.getElementById('notifCount').innerText=iList.filter(x=>x.status==='Menunggu').length||'';
-  document.getElementById('badgeIzin').innerText=iList.filter(x=>x.status==='Menunggu').length? '('+iList.filter(x=>x.status==='Menunggu').length+')':'';
-  // pesan
   document.getElementById('listPesan').innerHTML=siswaTerlihat().map(s=>`<div class="item"><b>${s.nama}</b> - ${s.kelas}<br>${currentRole==='guru'?`<a href="https://wa.me/?text=${encodeURIComponent('Halo, info tentang '+s.nama)}" target="_blank"><button class="wa" style="margin-top:8px;width:100%">📱 Kirim WA</button></a>`: `<span class="small">Hubungi guru jika ada keperluan.</span>`}</div>`).join('')||'<p class="small">Belum ada siswa.</p>';
 }
 </script>
