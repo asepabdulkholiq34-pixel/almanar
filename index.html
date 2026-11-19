@@ -131,6 +131,14 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <button class="btn" onclick="simpanInfo()">💾 Simpan Info</button>
 <p class="small">Info ini akan dilihat Ortu.</p>
 </div>
+  <div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px">
+<b>🔑 Ganti Password Guru</b>
+<input id="passLama" type="password" placeholder="Password Lama">
+<input id="passBaru" type="password" placeholder="Password Baru">
+<input id="passBaru2" type="password" placeholder="Ulangi Password Baru">
+<button class="btn" onclick="gantiPassword()" style="background:#f59e0b">Simpan Password Baru</button>
+<p class="small">Hanya Guru yang bisa lihat ini.</p>
+</div>
 <div style="margin-top:10px">
 <button class="btn2" onclick="resetData()">Reset Semua Data (Guru)</button>
 </div>
@@ -174,7 +182,7 @@ function login(){
   currentRole=document.getElementById('role').value;
   currentNama=document.getElementById('namaLogin').value.trim()||'Pengguna';
   currentKelas=document.getElementById('kelasLogin').value;
-  if(currentRole==='guru' && document.getElementById('passGuru').value!=='1234'){alert('Password guru salah!');return;}
+  if(currentRole==='guru' && document.getElementById('passGuru').value!==db.passGuru){alert('Password guru salah!');return;}
   if(currentRole==='ortu'){
     currentAnak=document.getElementById('pilihAnak').value;
     if(!currentAnak){alert('Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.');return;}
@@ -185,6 +193,19 @@ function login(){
   pageIdx=0;
   showTab(pages[0]);
   renderAll();
+}
+  function gantiPassword(){
+  let lama=document.getElementById('passLama').value;
+  let baru=document.getElementById('passBaru').value;
+  let baru2=document.getElementById('passBaru2').value;
+  if(lama!==db.passGuru){alert('Password Lama salah, Pak!');return;}
+  if(baru.length<4){alert('Password Baru minimal 4 huruf/angka, Pak!');return;}
+  if(baru!==baru2){alert('Password Baru tidak sama, Pak! Cek lagi!');return;}
+  db.passGuru=baru; save();
+  document.getElementById('passLama').value='';
+  document.getElementById('passBaru').value='';
+  document.getElementById('passBaru2').value='';
+  alert('Password baru tersimpan, Pak! Besok login pakai password baru ya, Pak!');
 }
 function logout(){location.reload();}
 let pages=['Absensi','Izin','Pesan','Jadwal','Info'];
@@ -263,7 +284,7 @@ function renderAll(){
   document.getElementById('infoIzin').innerText=currentRole==='guru'?'Guru: Di bawah ini daftar pengajuan. Pencet Setuju agar absensi berubah. Pencet Tolak jika tidak disetujui.':'Ortu: Di bawah ini hanya izin anak Anda.';
   document.getElementById('tampilInfo').innerText=db.infoSekolah;
   document.getElementById('boxEditInfo').classList.toggle('hidden',currentRole!=='guru');
-  document.getElementById('inputInfo').value=db.infoSekolah;
+  document.getElementById('boxGantiPass').classList.toggle('hidden',currentRole!=='guru');document.getElementById('inputInfo').value=db.infoSekolah;
   // JADWAL
   let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"];
   document.getElementById('infoJadwal').innerText=currentRole==='guru'?'Guru: Isi 7 jam tiap hari, lalu pencet Simpan Jadwal.':'Ortu: Ini jadwal anak Anda.';
