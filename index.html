@@ -47,7 +47,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </div>
 <div id="boxPass">
 <label>Password Guru</label>
-<input id="passGuru" type="password" placeholder="1234">
+<input id="passGuru" type="password" placeholder="Masukkan Password">
 </div>
 <button class="btn" onclick="login()">Masuk</button>
 <p class="small" style="text-align:center">Guru dulu isi siswa di tab Absensi.</p>
@@ -174,7 +174,7 @@ function login(){
   currentRole=document.getElementById('role').value;
   currentNama=document.getElementById('namaLogin').value.trim()||'Pengguna';
   currentKelas=document.getElementById('kelasLogin').value;
-  if(currentRole==='guru' && document.getElementById('passGuru').value!=='1234'){alert('Password guru salah! (1234)');return;}
+  if(currentRole==='guru' && document.getElementById('passGuru').value!=='1234'){alert('Password guru salah!');return;}
   if(currentRole==='ortu'){
     currentAnak=document.getElementById('pilihAnak').value;
     if(!currentAnak){alert('Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.');return;}
