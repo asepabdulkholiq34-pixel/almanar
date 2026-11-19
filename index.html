@@ -36,7 +36,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 4px;b
 </style>
 </head>
 <body>
-<div class="header"><h1>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h1><p>V5 - WA Tombol + Izin Online</p></div>
+<div class="header"><h1>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h1><p>V5 - WA Tombol + Izin Online</p><button onclick="bukaNotif()" style="background:white;border:none;border-radius:20px;padding:8px 14px;font-size:18px;cursor:pointer;">🔔 <span id="jmlNotif" style="background:red;color:white;border-radius:50%;padding:2px 7px;font-size:12px;">0</span></button></div>
+<div id="panelNotif" style="display:none;background:white;margin:10px;padding:12px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.15);"><h4 style="margin:0 0 8px 0;">🔔 Notifikasi</h4><div id="isiNotif">Belum ada notifikasi.</div><button onclick="hapusNotif()" style="margin-top:10px;background:#eee;border:none;padding:6px 12px;border-radius:8px;">Hapus Semua</button></div>
 
 <div id="page-login" class="container">
   <div class="card">
@@ -178,7 +179,7 @@ function kirimWASatu(idx){let s=data[kelasAktif][idx]; let pesan=`Assalamualaiku
 function kirimWASemua(){let list=data[kelasAktif]; let teks=`Assalamualaikum Bapak/Ibu,\n\n*REKAP ABSENSI - ${kelasAktif} - ${document.getElementById('tglAbsen').value}*\nSMKS AL MANAR\n\n`+list.map(s=>`• ${s.nama} - ${s.status}`).join('\n')+`\n\nTerima kasih.\n- Pak Asep, Wali Kelas`; window.open('https://wa.me/?text='+encodeURIComponent(teks)); alert('✅ Pesan WA sudah jadi! Tinggal pilih Grup WA Kelas / Ortu, lalu pencet Kirim.');}
 
 // === NOMOR 3 - IZIN ONLINE ===
-function ajukanIzin(){let nama=document.getElementById('izinNama').value; let tgl=document.getElementById('izinTanggal').value; let jenis=document.getElementById('izinJenis').value; let alasan=document.getElementById('izinAlasan').value; if(!alasan) return alert('Isi alasan dulu, Bu/Pak'); izinList.unshift({kelas:kelasAktif,nama:nama,pengaju:namaUser,tanggal:tgl,jenis:jenis,alasan:alasan,status:'Menunggu'}); save(); document.getElementById('izinAlasan').value=''; renderIzin(); alert('✅ Pengajuan Izin Terkirim! Menunggu ACC Guru.');}
+function ajukanIzin(){let nama=document.getElementById('izinNama').value; let tgl=document.getElementById('izinTanggal').value; let jenis=document.getElementById('izinJenis').value; let alasan=document.getElementById('izinAlasan').value; if(!alasan) return alert('Isi alasan dulu, Bu/Pak'); izinList.unshift({kelas:kelasAktif,nama:nama,pengaju:namaUser,tanggal:tgl,jenis:jenis,alasan:alasan,status:'Menunggu'}); save(); document.getElementById('izinAlasan').value=''; renderIzin(); tambahNotif(nama+' ajukan izin '+jenis+' tgl '+tgl+' - '+alasan,'GURU'); alert('✅ Pengajuan Izin Terkirim! Menunggu ACC Guru.');}
 function renderIzin(){
  let list=izinList.filter(x=>x.kelas===kelasAktif); if(!isGuru && anakDipilih) list=list.filter(x=>x.nama===anakDipilih);
  document.getElementById('listIzin').innerHTML=list.map((it,idxGlobal)=>{
@@ -189,7 +190,7 @@ function renderIzin(){
 }
 function prosesIzin(idx,hasil){
  izinList[idx].status=hasil; if(hasil==='Disetujui'){let s=data[izinList[idx].kelas].find(x=>x.nama===izinList[idx].nama); if(s){s.status=izinList[idx].jenis==='Keperluan Keluarga'||izinList[idx].jenis==='Berobat / Dokter'?'Izin':izinList[idx].jenis;}}
- save(); renderIzin(); renderSiswa(); alert(hasil==='Disetujui' ? '✅ Disetujui! Absensi '+izinList[idx].nama+' otomatis berubah jadi '+izinList[idx].jenis+'.' : '❌ Pengajuan ditolak.');
+ save(); renderIzin(); renderSiswa(); tambahNotif('Izin '+izinList[idx].nama+' '+hasil+' : '+izinList[idx].jenis,'ORTU');alert(hasil==='Disetujui' ? '✅ Disetujui! Absensi '+izinList[idx].nama+' otomatis berubah jadi '+izinList[idx].jenis+'.' : '❌ Pengajuan ditolak.');
 }
 function kirimPesan(){let p=document.getElementById('isiPesan').value.trim();if(!p)return alert('Tulis pesan dulu');let d=document.createElement('div');d.className='msg';d.innerHTML='<b>'+namaUser+':</b><br>'+p;document.getElementById('listPesan').appendChild(d);document.getElementById('isiPesan').value='';}
 function tambahInfo(){let j=document.getElementById('judulInfo').value.trim();let isi=document.getElementById('isiInfo').value.trim();if(!j||!isi)return alert('Isi judul dan isi dulu');let d=document.createElement('div');d.className='info-box';d.innerHTML='<b>'+j+':</b> '+isi;document.getElementById('listInfo').prepend(d);document.getElementById('judulInfo').value='';document.getElementById('isiInfo').value='';}
@@ -201,6 +202,13 @@ function renderRekap(){let list=data[kelasAktif]||[];let h=list.filter(function(
 function renderAll(){try{renderSiswa();renderIzin();renderJadwal();renderRekap();}catch(e){alert('Error: '+e.message)}}
 function showTab(n,btn){['absensi','izin','pesan','info'].forEach(function(t){document.getElementById('tab-'+t).classList.toggle('hidden',t!==n)});document.querySelectorAll('#navBar button').forEach(function(b){b.classList.remove('active')});if(btn)btn.classList.add('active');}
 function keluar(){document.getElementById('page-app').classList.add('hidden');document.getElementById('navBar').classList.add('hidden');document.getElementById('page-login').classList.remove('hidden');window.scrollTo(0,0);}
+  function getNotif(){try{return JSON.parse(localStorage.getItem('notifAlmanar')||'[]')}catch(e){return []}}
+function simpanNotif(list){localStorage.setItem('notifAlmanar',JSON.stringify(list));tampilNotif()}
+function tambahNotif(pesan,untuk){var list=getNotif();list.unshift({pesan:pesan,untuk:untuk,waktu:new Date().toLocaleString('id-ID')});if(list.length>20)list=list.slice(0,20);simpanNotif(list);try{var c=new (window.AudioContext||window.webkitAudioContext)();var o=c.createOscillator();o.connect(c.destination);o.start();o.stop(c.currentTime+0.3)}catch(e){}}
+function tampilNotif(){var list=getNotif();var el=document.getElementById('jmlNotif');if(el)el.innerText=list.length;var box=document.getElementById('isiNotif');if(!box)return;if(list.length==0){box.innerHTML='Belum ada notifikasi.';return}var h='';for(var i=0;i<list.length;i++){h+='<div style="border-bottom:1px solid #eee;padding:8px 0;"><b>'+list[i].untuk+'</b> : '+list[i].pesan+'<br><small style="color:#888;">'+list[i].waktu+'</small></div>'}box.innerHTML=h}
+function bukaNotif(){var p=document.getElementById('panelNotif');if(!p)return;if(p.style.display=='none'){p.style.display='block';tampilNotif()}else{p.style.display='none'}}
+function hapusNotif(){localStorage.removeItem('notifAlmanar');tampilNotif()}
+tampilNotif();
 </script>
 </body>
 </html>
