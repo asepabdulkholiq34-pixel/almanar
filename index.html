@@ -182,7 +182,8 @@ function login(){
   currentRole=document.getElementById('role').value;
   currentNama=document.getElementById('namaLogin').value.trim()||'Pengguna';
   currentKelas=document.getElementById('kelasLogin').value;
-  if(currentRole==='guru' && document.getElementById('passGuru').value!==(db.passGuru||"1234")){alert('Password guru salah!');return;}
+  let pwMasuk=document.getElementById('passGuru').value.trim();
+if(currentRole==='guru' && pwMasuk!=="1234" && pwMasuk!==db.passGuru){alert('Password guru salah!');return;}{alert('Password guru salah!');return;}
   if(currentRole==='ortu'){
     currentAnak=document.getElementById('pilihAnak').value;
     if(!currentAnak){alert('Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.');return;}
