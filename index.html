@@ -115,7 +115,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 4px;b
 
 <script>
 let isGuru=true, kelasAktif='XI 1 TKJ', namaUser='Asep', anakDipilih='';
-  function aturTombolJadwal(){let t=document.body.innerText||'';let ortu=!isGuru||t.includes('Tidak bisa ubah')||t.includes('MODE LIHAT')||t.includes('ORANG TUA');if(ortu){let s=document.getElementById('btnSimpan7');if(s)s.style.display='none';let h=document.getElementById('btnHapus7');if(h)h.style.display='none';document.querySelectorAll('#tabel7 td').forEach(function(td){td.contentEditable='false';td.style.background='#eee'});}}
+  function aturTombolJadwal(){let t=document.body.innerText||'';let ortu=!isGuru||t.includes('Tidak bisa ubah');let s=document.getElementById('btnSimpan7');let h=document.getElementById('btnHapus7');if(ortu){if(s)s.style.display='none';if(h)h.style.display='none';document.querySelectorAll('#tabel7 td').forEach(function(td){td.contentEditable='false';td.style.background='#eee'});}else{if(s)s.style.display='';if(h)h.style.display='';document.querySelectorAll('#tabel7 td').forEach(function(td){td.contentEditable='true';td.style.background=''});}}
 setInterval(aturTombolJadwal,1000);
 let data = JSON.parse(localStorage.getItem('almanar_v5')||'null') || {
  'XI 1 TKJ': [{nama:'Ahmad Fauzi',status:'Hadir',wa:'628123456789'},{nama:'Siti Aisyah',status:'Izin',wa:'628123456790'},{nama:'Muhammad Rizki',status:'Hadir',wa:''},{nama:'Nurul Hidayah',status:'Hadir',wa:''},{nama:'Ali Akbar',status:'Sakit',wa:''}],
