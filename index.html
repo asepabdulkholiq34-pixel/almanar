@@ -186,7 +186,7 @@ function renderIzin(){
  let list=izinList.slice();
  document.getElementById('listIzin').innerHTML=list.map((it,idxGlobal)=>{
    let idx=izinList.indexOf(it); let warna=it.status==='Disetujui'?'#dcfce7':it.status==='Ditolak'?'#fee2e2':'#fffbeb';
-   let btnGuru= !anakDipilih && it.status==='Menunggu' ? `<div style="margin-top:8px;display:flex;gap:6px"><button class="small-btn" style="background:#16a34a;color:white;flex:1;padding:9px" onclick="prosesIzin(${idx},'Disetujui')">✅ Setuju - Ubah Jadi ${it.jenis}</button><button class="small-btn" style="background:#dc2626;color:white;flex:1;padding:9px" onclick="prosesIzin(${idx},'Ditolak')">❌ Tolak</button></div>` : '';
+   let btnGuru= document.body.innerText.includes('MODE GURU') && it.status==='Menunggu' ? `<div style="margin-top:8px;display:flex;gap:6px"><button class="small-btn" style="background:#16a34a;color:white;flex:1;padding:9px" onclick="prosesIzin(${idx},'Disetujui')">✅ Setuju - Ubah Jadi ${it.jenis}</button><button class="small-btn" style="background:#dc2626;color:white;flex:1;padding:9px" onclick="prosesIzin(${idx},'Ditolak')">❌ Tolak</button></div>` : '';
    return `<div class="izin-box" style="background:${warna}"><b>📝 ${it.nama} - ${it.jenis}</b> <span style="float:right;font-weight:800">${it.status==='Menunggu'?'⏳ Menunggu':it.status==='Disetujui'?'✅ Disetujui':'❌ Ditolak'}</span><br><span style="font-size:12px;color:#475569">Tanggal: ${it.tanggal} | Pengaju: ${it.pengaju}</span><br>Alasan: ${it.alasan}${btnGuru}${isGuru?`<button class="small-btn" style="background:#fee2e2;margin-top:6px" onclick="izinList.splice(${idx},1);save();renderIzin();renderSiswa()">Hapus</button>`:''}</div>`;
  }).join('')||'<p style="font-size:12px">Belum ada pengajuan izin.</p>';
 }
