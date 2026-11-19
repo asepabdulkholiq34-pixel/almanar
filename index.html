@@ -183,7 +183,7 @@ function kirimWASemua(){let list=data[kelasAktif]; let teks=`Assalamualaikum Bap
 // === NOMOR 3 - IZIN ONLINE ===
 function ajukanIzin(){let nama=document.getElementById('izinNama').value; let tgl=document.getElementById('izinTanggal').value; let jenis=document.getElementById('izinJenis').value; let alasan=document.getElementById('izinAlasan').value; if(!alasan) return alert('Isi alasan dulu, Bu/Pak'); izinList.unshift({kelas:kelasAktif,nama:nama,pengaju:namaUser,tanggal:tgl,jenis:jenis,alasan:alasan,status:'Menunggu'}); save(); document.getElementById('izinAlasan').value=''; renderIzin(); tambahNotif(nama+' ajukan izin '+jenis+' tgl '+tgl+' - '+alasan,'GURU'); alert('✅ Pengajuan Izin Terkirim! Menunggu ACC Guru.');}
 function renderIzin(){
- let list=izinList.filter(x=>isGuru||x.kelas===kelasAktif); if(!isGuru && anakDipilih) list=list.filter(x=>x.nama===anakDipilih);
+ let list=izinList.slice();
  document.getElementById('listIzin').innerHTML=list.map((it,idxGlobal)=>{
    let idx=izinList.indexOf(it); let warna=it.status==='Disetujui'?'#dcfce7':it.status==='Ditolak'?'#fee2e2':'#fffbeb';
    let btnGuru= !anakDipilih && it.status==='Menunggu' ? `<div style="margin-top:8px;display:flex;gap:6px"><button class="small-btn" style="background:#16a34a;color:white;flex:1;padding:9px" onclick="prosesIzin(${idx},'Disetujui')">✅ Setuju - Ubah Jadi ${it.jenis}</button><button class="small-btn" style="background:#dc2626;color:white;flex:1;padding:9px" onclick="prosesIzin(${idx},'Ditolak')">❌ Tolak</button></div>` : '';
