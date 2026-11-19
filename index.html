@@ -155,7 +155,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 
 <script>
 let KEY='almanar_v6';
-let db=JSON.parse(localStorage.getItem(KEY)||'{"siswa":[],"izin":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim WA.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
+let db=JSON.parse(localStorage.getItem(KEY)||if(!db.passGuru){db.passGuru="1234"; save();}'{"siswa":[],"izin":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim WA.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
 if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6 - Sistem Absensi & Izin Online.\n\nGuru: Bisa edit, ACC izin, kirim WA.\nOrtu: Hanya melihat anaknya, ajukan izin.";
 if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
 function save(){localStorage.setItem(KEY,JSON.stringify(db));}
@@ -182,7 +182,7 @@ function login(){
   currentRole=document.getElementById('role').value;
   currentNama=document.getElementById('namaLogin').value.trim()||'Pengguna';
   currentKelas=document.getElementById('kelasLogin').value;
-  if(currentRole==='guru' && document.getElementById('passGuru').value!==db.passGuru){alert('Password guru salah!');return;}
+  if(currentRole==='guru' && document.getElementById('passGuru').value!==(db.passGuru||"1234")){alert('Password guru salah!');return;}
   if(currentRole==='ortu'){
     currentAnak=document.getElementById('pilihAnak').value;
     if(!currentAnak){alert('Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.');return;}
