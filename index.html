@@ -22,6 +22,12 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 .jadwal-hari{background:#f0fdf4;padding:10px;border-radius:10px;margin:10px 0}
 .jadwal-hari b{font-size:16px;color:#0f766e}
 .jadwal-input{margin:4px 0}
+/* MATA PASSWORD BARU */
+.pass-wrap{position:relative;display:flex;align-items:center}
+.pass-wrap input{padding-right:48px}
+.eye-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;font-size:20px;padding:6px 10px;cursor:pointer;width:auto}
+.lihat-box{display:flex;align-items:center;gap:8px;margin:2px 0 8px;font-size:14px;color:#555}
+.lihat-box input{width:auto;margin:0;transform:scale(1.3)}
 </style>
 </head>
 <body>
@@ -46,7 +52,11 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </div>
 <div id="boxPass">
 <label>Password Guru</label>
+<div class="pass-wrap">
 <input id="passGuru" type="password" placeholder="Masukkan Password">
+<button type="button" class="eye-btn" onclick="togglePass('passGuru',this)">👁️</button>
+</div>
+<label class="lihat-box"><input type="checkbox" onclick="toggleSemuaLogin(this)"> Lihat Password</label>
 </div>
 <button class="btn" onclick="login()">Masuk</button>
 <p class="small" style="text-align:center">Guru dulu isi siswa di tab Absensi.</p>
@@ -135,9 +145,10 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </div>
 <div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px">
 <b>🔑 Ganti Password Guru</b>
-<input id="passLama" type="password" placeholder="Password Lama">
-<input id="passBaru" type="password" placeholder="Password Baru">
-<input id="passBaru2" type="password" placeholder="Ulangi Password Baru">
+<div class="pass-wrap"><input id="passLama" type="password" placeholder="Password Lama"><button type="button" class="eye-btn" onclick="togglePass('passLama',this)">👁️</button></div>
+<div class="pass-wrap"><input id="passBaru" type="password" placeholder="Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru',this)">👁️</button></div>
+<div class="pass-wrap"><input id="passBaru2" type="password" placeholder="Ulangi Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru2',this)">👁️</button></div>
+<label class="lihat-box"><input type="checkbox" onclick="toggleSemuaGanti(this)"> Lihat Password</label>
 <button class="btn" onclick="gantiPassword()" style="background:#f59e0b">Simpan Password Baru</button>
 <p class="small">Hanya Guru yang bisa lihat ini.</p>
 </div>
@@ -163,6 +174,22 @@ if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6 - Sistem Ab
 if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
 function save(){localStorage.setItem(KEY,JSON.stringify(db));}
 let currentRole='guru', currentNama='', currentKelas='XI 1 TKJ', currentAnak='';
+
+// FUNGSI MATA PASSWORD BARU
+function togglePass(id,btn){
+  let el=document.getElementById(id);
+  if(el.type==='password'){el.type='text';btn.innerText='🙈';}
+  else{el.type='password';btn.innerText='👁️';}
+}
+function toggleSemuaLogin(cb){
+  let el=document.getElementById('passGuru');
+  el.type=cb.checked?'text':'password';
+}
+function toggleSemuaGanti(cb){
+  ['passLama','passBaru','passBaru2'].forEach(id=>{
+    document.getElementById(id).type=cb.checked?'text':'password';
+  });
+}
 
 document.getElementById('role').addEventListener('change',cekRole);
 document.getElementById('kelasLogin').addEventListener('change',isiPilihAnak);
@@ -352,12 +379,15 @@ document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen 
 let sakit=Object.values(db.absen).filter(v=>v==='Sakit').length;
 let izinHitung=Object.values(db.absen).filter(v=>v==='Izin').length;
 let alpa=Object.values(db.absen).filter(v=>v==='Alpa'||v==='Tidak Hadir').length;
-  document.getElementById('cHadir').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Hadir'?1:0):hadir;
-document.getElementById('cSakit').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Sakit'?1:0):sakit;
-document.getElementById('cIzin').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Izin'?1:0):izinHitung;
-document.getElementById('cAlpa').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Alpa'||db.absen[currentAnak]==='Tidak Hadir'?1:0):alpa;
-  document.getElementById('notifCount').innerText=iList.filter(x=>x.status==='Menunggu').length||'';
-  document.getElementById('listPesan').innerHTML=siswaTerlihat().map(s=>`<div class="item"><b>${s.nama}</b> - ${s.kelas}<br>${currentRole==='guru'?`<a href="https://wa.me/?text=${encodeURIComponent('Halo, info tentang '+s.nama)}" target="_blank"><button class="wa" style="margin-top:8px;width:100%">📱 Kirim WA</button></a>`: `<span class="small">Hubungi guru jika ada keperluan.</span>`}</div>`).join('')||'<p class="small">Belum ada siswa.</p>';
+  document.getElementById('cHadir').innerText=hadir;
+  document.getElementById('cSakit').innerText=sakit;
+  document.getElementById('cIzin').innerText=izinHitung;
+  document.getElementById('cAlpa').innerText=alpa;
+  let totalHad=db.absen;let jmlSiswa=db.siswa.filter(s=>currentRole==='guru' ? true : s.nama===currentAnak);
+  let notif=document.getElementById('notifCount');
+  if(notif){notif.innerText = izinTerlihat().filter(x=>x.status==='Menunggu').length ? ' ('+izinTerlihat().filter(x=>x.status==='Menunggu').length+')' : '';}
+  let pesanList=db.siswa.map(s=>{return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">HP Ortu: ${s.hp||'-'}</span><br>${currentRole==='guru'?`<a href="https://wa.me/${s.hp}" target="_blank"><button class="wa" style="width:100%;margin-top:6px">💬 Kirim WA ke Ortu</button></a>`:'<span class="small">Hubungi Guru jika ada keperluan.</span>'}</div>`});
+  document.getElementById('listPesan').innerHTML=pesanList.length?pesanList.join(''):'<p class="small">Belum ada siswa.</p>';
 }
 </script>
 </body>
