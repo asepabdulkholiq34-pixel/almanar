@@ -397,7 +397,7 @@ let alpa=Object.values(db.absen).filter(v=>v==='Alpa'||v==='Tidak Hadir').length
   let totalHad=db.absen;let jmlSiswa=db.siswa.filter(s=>currentRole==='guru' ? true : s.nama===currentAnak);
   let notif=document.getElementById('notifCount');
   if(notif){notif.innerText = izinTerlihat().filter(x=>x.status==='Menunggu').length ? ' ('+izinTerlihat().filter(x=>x.status==='Menunggu').length+')' : '';}
-  let pesanList=db.siswa.map(s=>{return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">HP Ortu: ${s.hp||'-'}</span><br>${currentRole==='guru'?`<a href="https://wa.me/${s.hp}" target="_blank"><button class="wa" style="width:100%;margin-top:6px">💬 Kirim WA ke Ortu</button></a>`:'<span class="small">Hubungi Guru jika ada keperluan.</span>'}</div>`});
+  let pesanList=db.siswa.filter(s=>currentRole==='guru' ? true : s.nama===currentAnak).map(s=>{return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">HP Ortu: ${s.hp||'-'}</span><br>${currentRole==='guru'?`<a href="https://wa.me/${s.hp}" target="_blank"><button class="wa" style="width:100%;margin-top:6px">💬 Kirim WA ke Ortu</button></a>`:'<span class="small">Hubungi Guru jika ada keperluan.</span>'}</div>`});
   document.getElementById('listPesan').innerHTML=pesanList.length?pesanList.join(''):'<p class="small">Belum ada siswa.</p>';
 }
   // Cek tiap 1 detik, kalau ORTU umpetin reset
