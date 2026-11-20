@@ -318,7 +318,7 @@ document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen 
   let sList=siswaTerlihat();
   document.getElementById('listSiswa').innerHTML=sList.length?sList.map(s=>{
     let st=db.absen[s.nama]||'Belum Absen';
-    let btns=currentRole==='guru'?`<div class="flex" style="margin-top:8px"><button class="ok" onclick="setAbsen('${s.nama}','Hadir')">Hadir</button><button class="no" onclick="setAbsen('${s.nama}','Tidak Hadir')">Tidak Hadir</button><button class="btn2" onclick="hapusSiswa('${s.nama}')">Hapus</button></div>`:`<p class="small">Status: <b>${st}</b></p>`;
+    let btns=currentRole==='guru'?`<div class="flex" style="margin-top:8px;flex-wrap:wrap"><button class="ok" onclick="setAbsen('${s.nama}','Hadir')">Hadir</button><button onclick="setAbsen('${s.nama}','Sakit')" style="background:#facc15">Sakit</button><button onclick="setAbsen('${s.nama}','Izin')" style="background:#60a5fa;color:#fff">Izin</button><button class="no" onclick="setAbsen('${s.nama}','Alpa')">Alpa</button><button class="btn2" onclick="hapusSiswa('${s.nama}')">Hapus</button></div>`:`<p class="small">Status: <b>${st}</b></p>`;
     return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">Status: ${st}</span>${btns}</div>`;
   }).join(''):'<p class="small">Belum ada siswa. Guru silakan tambah siswa dulu.</p>';
   let iList=izinTerlihat();
