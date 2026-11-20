@@ -61,8 +61,9 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="modeLabel" style="margin-top:10px;padding:10px;border-radius:10px;background:#dcfce7;font-weight:700;text-align:center"></div>
 <div class="flex" style="margin-top:10px;text-align:center">
 <div style="flex:1;background:#dcfce7;border-radius:10px;padding:10px"><b id="cHadir">0</b><br><span class="small">Hadir</span></div>
-<div style="flex:1;background:#fee2e2;border-radius:10px;padding:10px"><b id="cTidak">0</b><br><span class="small">Tidak Hadir</span></div>
-<div style="flex:1;background:#fef9c3;border-radius:10px;padding:10px"><b id="cIzin">0</b><br><span class="small">Izin</span></div>
+<div style="flex:1;background:#fef9c3;border-radius:10px;padding:10px"><b id="cSakit">0</b><br><span class="small">Sakit</span></div>
+<div style="flex:1;background:#dbeafe;border-radius:10px;padding:10px"><b id="cIzin">0</b><br><span class="small">Izin</span></div>
+<div style="flex:1;background:#fee2e2;border-radius:10px;padding:10px"><b id="cAlpa">0</b><br><span class="small">Alpa</span></div>
 </div>
 <div class="flex" style="margin-top:10px">
 <button class="btn2" onclick="bukaNotif()">🔔 Notifikasi <span id="notifCount"></span></button>
@@ -327,10 +328,13 @@ document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen 
     return `<div class="item"><b>📝 ${x.nama} - ${x.jenis}</b> <span style="float:right">⏳ ${x.status}</span><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span>${btnGuru}</div>`;
   }).join(''):'<p class="small">Belum ada pengajuan izin.</p>';
   let hadir=Object.values(db.absen).filter(v=>v==='Hadir').length;
-  let tidak=Object.values(db.absen).filter(v=>v==='Tidak Hadir').length;
+let sakit=Object.values(db.absen).filter(v=>v==='Sakit').length;
+let izinHitung=Object.values(db.absen).filter(v=>v==='Izin').length;
+let alpa=Object.values(db.absen).filter(v=>v==='Alpa'||v==='Tidak Hadir').length;
   document.getElementById('cHadir').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Hadir'?1:0):hadir;
-  document.getElementById('cTidak').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Tidak Hadir'?1:0):tidak;
-  document.getElementById('cIzin').innerText=iList.length;
+document.getElementById('cSakit').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Sakit'?1:0):sakit;
+document.getElementById('cIzin').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Izin'?1:0):izinHitung;
+document.getElementById('cAlpa').innerText=currentRole==='ortu'?(db.absen[currentAnak]==='Alpa'||db.absen[currentAnak]==='Tidak Hadir'?1:0):alpa;
   document.getElementById('notifCount').innerText=iList.filter(x=>x.status==='Menunggu').length||'';
   document.getElementById('listPesan').innerHTML=siswaTerlihat().map(s=>`<div class="item"><b>${s.nama}</b> - ${s.kelas}<br>${currentRole==='guru'?`<a href="https://wa.me/?text=${encodeURIComponent('Halo, info tentang '+s.nama)}" target="_blank"><button class="wa" style="margin-top:8px;width:100%">📱 Kirim WA</button></a>`: `<span class="small">Hubungi guru jika ada keperluan.</span>`}</div>`).join('')||'<p class="small">Belum ada siswa.</p>';
 }
