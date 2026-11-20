@@ -144,6 +144,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <b>Tulis Info Sekolah (Guru)</b>
 <textarea id="inputInfo" rows="5" placeholder="Contoh: Besok Jumat libur... Ujian Senin... Tolong bawa..."></textarea>
 <button class="btn" onclick="simpanInfo()">💾 Simpan Info</button>
+  <button class="btn" onclick="hapusInfo()" style="background:#ffcccc;color:#cc0000;margin-top:8px">🗑️ Hapus Info</button>
 <p class="small">Info ini akan dilihat Ortu.</p>
 </div>
 <div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px">
@@ -258,6 +259,10 @@ function simpanInfo(){
   if(!v){alert('Isi dulu infonya, Pak');return;}
   db.infoSekolah=v; save(); renderAll(); alert('Info tersimpan, Pak!');
 }
+  function hapusInfo(){
+  if(!confirm('Hapus Info Sekolah ini, Pak?')){return;}
+  db.infoSekolah=''; document.getElementById('inputInfo').value=''; save(); renderAll(); alert('Info sudah dihapus, Pak!');
+  }
 function simpanJadwal(){
   let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"];
   hariList.forEach(h=>{
