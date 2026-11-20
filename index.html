@@ -239,11 +239,16 @@ function simpanJadwal(){
   save(); renderAll(); alert('Jadwal tersimpan, Pak!');
 }
 function tambahSiswa(){
+  function tambahSiswa(){
   let n=document.getElementById('namaBaru').value.trim();
   let k=document.getElementById('kelasBaru').value;
-  if(!n){alert('Isi nama siswa');return;}
-  db.siswa.push({nama:n,kelas:k}); save();
-  document.getElementById('namaBaru').value=''; renderAll(); alert('Siswa ditambahkan');
+  let hp=document.getElementById('hpBaru').value.trim();
+  if(!n) return alert('Isi nama dulu, Pak!');
+  if(hp.startsWith('08')){hp='62'+hp.slice(1);}
+  hp=hp.replace(/[^0-9]/g,'');
+  if(db.siswa.some(x=>x.nama===n)) return alert('Sudah ada, Pak!');
+  db.siswa.push({nama:n,kelas:k,hp:hp}); save();
+  document.getElementById('namaBaru').value=''; document.getElementById('hpBaru').value=''; renderAll();
 }
   function editSiswa(namaLama){
   let s=db.siswa.find(x=>x.nama===namaLama);
