@@ -329,13 +329,14 @@ function bukaNotif(){
   document.getElementById('listNotif').innerHTML=list.length?list.map(x=>`<div class="item"><b>${currentRole==='guru'?'GURU': 'ORTU'} : Izin ${x.nama} - ${x.jenis} (${x.status})</b><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span></div>`).join(''):'<p class="small">Tidak ada notifikasi.</p>';
 }
 function tutupNotif()
-function masukNotif(){
+{document.getElementById('pageNotif').classList.add('hidden');}
+  function masukNotif(){
   document.getElementById('pageNotif').classList.add('hidden');
   document.querySelectorAll('.tabPage').forEach(function(p){ p.classList.add('hidden'); });
   var izin = document.getElementById('pageIzin');
   if(izin){ izin.classList.remove('hidden'); }
   window.scrollTo(0,0);
-}{document.getElementById('pageNotif').classList.add('hidden');}
+  }
 function renderAll(){
   let now=new Date();
 let hariIndo=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][now.getDay()];
