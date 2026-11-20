@@ -244,6 +244,22 @@ function tambahSiswa(){
   db.siswa.push({nama:n,kelas:k}); save();
   document.getElementById('namaBaru').value=''; renderAll(); alert('Siswa ditambahkan');
 }
+  function editSiswa(namaLama){
+  let s=db.siswa.find(x=>x.nama===namaLama);
+  if(!s) return;
+  let namaBaru=prompt('Edit Nama Siswa:',s.nama);
+  if(!namaBaru) return;
+  namaBaru=namaBaru.trim();
+  let hpBaru=prompt('Edit No HP Ortu (kosongkan kalau tidak ada):',s.hp||'');
+  if(hpBaru===null) return;
+  hpBaru=hpBaru.trim();
+  if(hpBaru.startsWith('08')){hpBaru='62'+hpBaru.slice(1);}
+  hpBaru=hpBaru.replace(/[^0-9]/g,'');
+  if(namaBaru!==namaLama && db.absen[namaLama]!==undefined){db.absen[namaBaru]=db.absen[namaLama]; delete db.absen[namaLama];}
+  s.nama=namaBaru; s.hp=hpBaru;
+  db.izin.forEach(x=>{if(x.nama===namaLama) x.nama=namaBaru;});
+  save(); renderAll(); alert('Data sudah diperbaiki, Pak!');
+  }
 function hapusSiswa(nama){
   if(!confirm('Hapus '+nama+'?'))return;
   db.siswa=db.siswa.filter(s=>s.nama!==nama); save(); renderAll();
@@ -318,7 +334,7 @@ document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen 
   let sList=siswaTerlihat();
   document.getElementById('listSiswa').innerHTML=sList.length?sList.map(s=>{
     let st=db.absen[s.nama]||'Belum Absen';
-    let btns=currentRole==='guru'?`<div class="flex" style="margin-top:8px;flex-wrap:wrap"><button class="ok" onclick="setAbsen('${s.nama}','Hadir')">Hadir</button><button onclick="setAbsen('${s.nama}','Sakit')" style="background:#facc15">Sakit</button><button onclick="setAbsen('${s.nama}','Izin')" style="background:#60a5fa;color:#fff">Izin</button><button class="no" onclick="setAbsen('${s.nama}','Alpa')">Alpa</button><button class="btn2" onclick="hapusSiswa('${s.nama}')">Hapus</button></div>`:`<p class="small">Status: <b>${st}</b></p>`;
+    let btns=currentRole==='guru'?`<div class="flex" style="margin-top:8px;flex-wrap:wrap"><button class="ok" onclick="setAbsen('${s.nama}','Hadir')">Hadir</button><button onclick="setAbsen('${s.nama}','Sakit')" style="background:#facc15">Sakit</button><button onclick="setAbsen('${s.nama}','Izin')" style="background:#60a5fa;color:#fff">Izin</button><button class="no" onclick="setAbsen('${s.nama}','Alpa')">Alpa</button><button class="btn2" onclick="editSiswa('${s.nama}')" style="background:#f59e0b;color:#fff">✏️ Edit</button><button class="btn2" onclick="hapusSiswa('${s.nama}')">Hapus</button></div>`:`<p class="small">Status: <b>${st}</b></p>`;
     return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">Status: ${st}</span>${btns}</div>`;
   }).join(''):'<p class="small">Belum ada siswa. Guru silakan tambah siswa dulu.</p>';
   let iList=izinTerlihat();
