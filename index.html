@@ -156,7 +156,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <p class="small">Hanya Guru yang bisa lihat ini.</p>
 </div>
 <div style="margin-top:10px">
-<button class="btn2" onclick="resetData()">Reset Semua Data (Guru)</button>
+<button id="btnReset" class="btn2" onclick="resetData()">Reset Semua Data (Guru)</button>
 </div>
 </div>
 <div style="height:80px"></div>
@@ -400,6 +400,15 @@ let alpa=Object.values(db.absen).filter(v=>v==='Alpa'||v==='Tidak Hadir').length
   let pesanList=db.siswa.map(s=>{return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">HP Ortu: ${s.hp||'-'}</span><br>${currentRole==='guru'?`<a href="https://wa.me/${s.hp}" target="_blank"><button class="wa" style="width:100%;margin-top:6px">💬 Kirim WA ke Ortu</button></a>`:'<span class="small">Hubungi Guru jika ada keperluan.</span>'}</div>`});
   document.getElementById('listPesan').innerHTML=pesanList.length?pesanList.join(''):'<p class="small">Belum ada siswa.</p>';
 }
+  // Cek tiap 1 detik, kalau ORTU umpetin reset
+setInterval(function(){
+  var b = document.getElementById('btnReset');
+  var teksMode = document.body.innerText;
+  if(b){
+    if(teksMode.includes('MODE ORTU')){ b.style.display = 'none'; }
+    else { b.style.display = 'block'; }
+  }
+}, 1000);
 </script>
 </body>
 </html>
