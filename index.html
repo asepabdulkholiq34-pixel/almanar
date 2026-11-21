@@ -591,5 +591,27 @@ setInterval(function(){
   };
 })();
 </script>
+  <script>
+// === BENERIN ICON DISETUJUI JADI CEKLIS ===
+setInterval(function(){
+  let semua = document.querySelectorAll("div, span, p, li, td");
+  for(let i=0; i<semua.length; i++){
+    let el = semua[i];
+    // Cuma yang teks nya persis ada "Disetujui"
+    if(el.children.length === 0 && el.textContent.includes("Disetujui")){
+      el.textContent = el.textContent.replace("⏳", "✅").replace("⌛", "✅");
+    }
+    // Kalau ada "Menunggu" biarin tetap jam pasir, jangan diganti
+    // Kalau ada "Ditolak" biarin tetap silang
+  }
+  // Benerin juga kalau di dalam tombol / badge
+  let badges = document.querySelectorAll("*");
+  for(let i=0; i<badges.length; i++){
+    if(badges[i].innerText && badges[i].innerText.includes("⏳ Disetujui")){
+      badges[i].innerText = badges[i].innerText.replace("⏳ Disetujui", "✅ Disetujui");
+    }
+  }
+}, 1000);
+</script>
 </body>
 </html>
