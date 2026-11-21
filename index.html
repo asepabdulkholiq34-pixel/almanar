@@ -613,5 +613,47 @@ setInterval(function(){
   }
 }, 1000);
 </script>
+  <script>
+// === OTOMATIS: IZIN DISETUJUI -> ABSENSI BERUBAH ===
+setInterval(function(){
+  // 1. Cari semua izin yang sudah Disetujui
+  let semuaTeks = document.querySelectorAll("div, li, p, span");
+  let izinDisetujui = [];
+  for(let i=0; i<semuaTeks.length; i++){
+    let t = semuaTeks[i].innerText || "";
+    if(t.includes("Disetujui") && (t.includes("Sakit") || t.includes("Izin"))){
+      // Ambil nama di awal baris, contoh: "Adinda Kaya Dewi - Sakit"
+      let baris = t.split("\n")[0];
+      let nama = baris.split(" - ")[0].replace("📝","").replace("📌","").trim();
+      let jenis = "Sakit";
+      if(baris.toLowerCase().includes("izin") && !baris.toLowerCase().includes("sakit")) jenis = "Izin";
+      if(baris.toLowerCase().includes("sakit")) jenis = "Sakit";
+      if(nama.length > 3) izinDisetujui.push({nama: nama, jenis: jenis});
+    }
+  }
+  if(izinDisetujui.length === 0) return;
+
+  // 2. Cari kartu siswa di Absensi, kalau masih "Belum Absen", klik tombol Sakit / Izin nya
+  for(let j=0; j<izinDisetujui.length; j++){
+    let data = izinDisetujui[j];
+    let kartu = document.querySelectorAll("div");
+    for(let k=0; k<kartu.length; k++){
+      let c = kartu[k];
+      if(c.innerText && c.innerText.includes(data.nama) && c.innerText.includes("Belum Absen")){
+        // Cari tombol Sakit / Izin di dalam kartu itu
+        let tombol = c.querySelectorAll("button");
+        for(let b=0; b<tombol.length; b++){
+          if(tombol[b].innerText.trim() === data.jenis){
+            tombol[b].click();
+            console.log("Auto absen: " + data.nama + " -> " + data.jenis);
+            break;
+          }
+        }
+        break;
+      }
+    }
+  }
+}, 1500);
+</script>
 </body>
 </html>
