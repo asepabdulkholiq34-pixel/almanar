@@ -423,5 +423,81 @@ setInterval(function(){
   }
 }, 1000);
 </script>
+  <script>
+// === NOTIFIKASI + BUNYI CHAT ===
+let chatTerakhir = "";
+let sudahIzinNotif = false;
+
+// Minta izin notifikasi pas pertama buka
+if ("Notification" in window) {
+  if (Notification.permission === "default") {
+    Notification.requestPermission().then(function(izin){
+      if(izin === "granted") sudahIzinNotif = true;
+    });
+  }
+  if (Notification.permission === "granted") sudahIzinNotif = true;
+}
+
+function bunyiChat() {
+  try {
+    // Bikin bunyi TING pakai HP sendiri, nggak perlu file mp3
+    let ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let osc = ctx.createOscillator();
+    let gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.value = 880; // Nada tinggi
+    gain.gain.value = 0.3;
+    osc.start();
+    setTimeout(function(){ osc.frequency.value = 1100; }, 150);
+    setTimeout(function(){ osc.stop(); ctx.close(); }, 400);
+  } catch(e) {}
+  // Getar HP
+  try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch(e) {}
+}
+
+function tampilkanNotif(pesan) {
+  if (!sudahIzinNotif) return;
+  try {
+    let n = new Notification("💬 Chat Baru - SMKS Al Manar", {
+      body: pesan,
+      icon: "https://cdn-icons-png.flaticon.com/512/1946/1946429.png"
+    });
+    setTimeout(function(){ n.close(); }, 5000);
+  } catch(e) {}
+}
+
+// Pantau chat berubah setiap 2 detik
+setInterval(function(){
+  // Cari semua kotak chat
+  let semuaChat = document.body.innerText;
+  // Kalau ada tulisan baru, kita anggap pesan baru - cek via localStorage
+  let dataChat = localStorage.getItem("chatData") || localStorage.getItem("pesan") || "";
+  // Cara simpel: pantau jumlah huruf di halaman chat
+  let kotakChat = document.querySelectorAll("div");
+  let teksSekarang = "";
+  kotakChat.forEach(function(d){
+    if(d.innerText && d.innerText.includes("Guru:") || d.innerText.includes("Ortu:")) {
+      teksSekarang += d.innerText;
+    }
+  });
+  if(chatTerakhir !== "" && teksSekarang !== chatTerakhir && teksSekarang.length > chatTerakhir.length) {
+    // Ada pesan baru!
+    bunyiChat();
+    tampilkanNotif("Ada pesan Chat baru, silakan buka aplikasi.");
+    document.title = "🔔 PESAN BARU! - SMKS Al Manar";
+    setTimeout(function(){ document.title = "SMKS AL MANAR ISLAMIC SCHOOL"; }, 5000);
+  }
+  if(teksSekarang !== "") chatTerakhir = teksSekarang;
+}, 2000);
+
+// Bunyi juga pas kita klik Kirim Pesan, biar tau kekirim
+document.addEventListener("click", function(e){
+  if(e.target && e.target.innerText && e.target.innerText.includes("Kirim Pesan")) {
+    setTimeout(bunyiChat, 300);
+  }
+});
+</script>
 </body>
 </html>
