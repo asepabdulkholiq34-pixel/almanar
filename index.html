@@ -505,5 +505,36 @@ function cekChatBaru() {
 // Cek setiap 2 detik, tapi cuma kalau di halaman Chat
 setInterval(cekChatBaru, 2000);
 </script>
+  <script>
+// === SEMBUNYIKAN FILTER KELAS DI MODE ORTU ===
+setInterval(function(){
+  // Cek apakah lagi Mode Ortu?
+  let isOrtu = document.body.innerText.includes("MODE ORTU");
+  if(!isOrtu) return;
+
+  // Cari semua tulisan "Filter Kelas"
+  let semua = document.querySelectorAll("*");
+  for(let i=0; i<semua.length; i++){
+    let el = semua[i];
+    if(el.innerText && el.innerText.trim() === "Filter Kelas"){
+      // Sembunyikan tulisan nya + kotak pilih nya
+      el.style.display = "none";
+      if(el.nextElementSibling) el.nextElementSibling.style.display = "none";
+      if(el.parentElement) {
+        // Kalau parent nya cuma berisi filter, sembunyikan juga
+        let parent = el.parentElement;
+        // Cari select di dalam parent
+        let select = parent.querySelector("select");
+        if(select) select.style.display = "none";
+      }
+    }
+    // Sembunyikan juga select yang isinya Semua / XI 1 TKJ
+    if(el.tagName === "SELECT" && el.innerText.includes("XI 1 TKJ")){
+      el.style.display = "none";
+      if(el.previousElementSibling) el.previousElementSibling.style.display = "none";
+    }
+  }
+}, 1000);
+</script>
 </body>
 </html>
