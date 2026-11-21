@@ -575,5 +575,21 @@ setInterval(function(){
   }
 }, 1000);
 </script>
+  <script>
+// === LEWATI DIALOG EDIT NO HP ORTU ===
+(function(){
+  // Simpan prompt asli
+  let promptAsli = window.prompt;
+  window.prompt = function(pesan, isiAwal){
+    pesan = pesan || "";
+    // Kalau pesan nya tentang No HP / HP Ortu, langsung lewati, jangan tampilkan
+    if(pesan.toLowerCase().includes("no hp") || pesan.toLowerCase().includes("hp ortu") || pesan.toLowerCase().includes("nomor hp")){
+      return ""; // Balikin kosong, biar langsung lanjut ke "Data sudah diperbaiki"
+    }
+    // Kalau pesan lain (Edit Nama), tampilkan seperti biasa
+    return promptAsli(pesan, isiAwal);
+  };
+})();
+</script>
 </body>
 </html>
