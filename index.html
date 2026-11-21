@@ -34,7 +34,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 
 <div class="header">
 <h2>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h2>
-<p>V6 Baru - WA + Izin Online</p>
+<p>V6 Baru - Chat + Izin Online</p>
 </div>
 
 <div id="loginPage" class="card">
@@ -123,8 +123,8 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </div>
 
 <div id="pagePesan" class="card hidden">
-<h3>💬 Pesan / WA</h3>
-<p class="small">Guru bisa kirim WA ke ortu. Ortu bisa liat info.</p>
+<h3>💬 Pesan / Chat</h3>
+<p class="small">Guru bisa kirim Chat ke ortu. Ortu bisa liat info.</p>
 <div id="listPesan"></div>
 </div>
 
@@ -172,10 +172,10 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 
 <script>
 let KEY='almanar_v6';
-let db=JSON.parse(localStorage.getItem(KEY)||'{"passGuru":"1234","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim WA.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
+let db=JSON.parse(localStorage.getItem(KEY)||'{"passGuru":"1234","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim Chat.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
 if(!db.passGuru){db.passGuru="1234";}
   if(!db.pesan){db.pesan=[];}
-if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6 - Sistem Absensi & Izin Online.\n\nGuru: Bisa edit, ACC izin, kirim WA.\nOrtu: Hanya melihat anaknya, ajukan izin.";
+if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6 - Sistem Absensi & Izin Online.\n\nGuru: Bisa edit, ACC izin, kirim Chat.\nOrtu: Hanya melihat anaknya, ajukan izin.";
 if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
 function save(){localStorage.setItem(KEY,JSON.stringify(db));}
 let currentRole='guru', currentNama='', currentKelas='XI 1 TKJ', currentAnak='';
@@ -356,7 +356,7 @@ document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen 
   let badge=document.getElementById('haloBadge');
   badge.innerText=currentRole==='guru'?'👨‍🏫 GURU':'👪 ORTU';
   badge.className='badge '+(currentRole==='guru'?'guru':'ortu');
-  document.getElementById('modeLabel').innerText=currentRole==='guru'?'✅ MODE GURU - Bisa Edit, ACC Izin, Kirim WA':'👪 MODE ORTU - Hanya Lihat Anak Sendiri';
+  document.getElementById('modeLabel').innerText=currentRole==='guru'?'✅ MODE GURU - Bisa Edit, ACC Izin, Kirim Chat':'👪 MODE ORTU - Hanya Lihat Anak Sendiri';
   document.getElementById('modeLabel').style.background=currentRole==='guru'?'#dcfce7':'#dbeafe';
   document.getElementById('boxTambahSiswa').classList.toggle('hidden',currentRole!=='guru');
   document.getElementById('formIzin').classList.toggle('hidden',currentRole!=='ortu');
