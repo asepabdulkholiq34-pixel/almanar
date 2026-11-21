@@ -403,10 +403,11 @@ let alpa=Object.values(db.absen).filter(v=>v==='Alpa'||v==='Tidak Hadir').length
   let totalHad=db.absen;let jmlSiswa=db.siswa.filter(s=>currentRole==='guru' ? true : s.nama===currentAnak);
   let notif=document.getElementById('notifCount');
   if(notif){notif.innerText = izinTerlihat().filter(x=>x.status==='Menunggu').length ? ' ('+izinTerlihat().filter(x=>x.status==='Menunggu').length+')' : '';}
-  let pesanList=db.siswa.filter(s=>currentRole==='guru'?true:s.nama===currentAnak).map(s=>{let c=db.pesan.filter(p=>p.nama===s.nama);let isi=c.map(p=>`<div><b>${p.dari}:</b> ${p.isi}</div>`).join('');return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<div style="background:#f0f0f0;padding:8px;margin:6px 0;max-height:120px;overflow:auto">${isi||'Belum ada pesan'}</div><input id="in-${s.nama}" placeholder="Ketik pesan..." style="width:100%;padding:8px"><button onclick="kirimPesan('${s.nama}')" style="width:100%;margin-top:6px">Kirim Pesan</button></div>`});
+  let pesanList=db.siswa.filter(s=>currentRole==='guru'?true:s.nama===currentAnak).map(s=>{let c=db.pesan.filter(p=>p.nama===s.nama);let isi=c.map(p=>`<div><b>${p.dari}:</b> ${p.isi}</div>`).join('');return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<div style="background:#f0f0f0;padding:8px;margin:6px 0;max-height:120px;overflow:auto">${isi||'Belum ada pesan'}</div><input id="in-${s.nama}" placeholder="Ketik pesan..." style="width:100%;padding:8px"><button onclick="kirimPesan('${s.nama}')" style="width:100%;margin-top:6px">Kirim Pesan</button><button onclick="hapusPesan('${s.nama}')" style="width:100%;margin-top:6px;background:#ffcccc">🗑️ Hapus Chat</button></div>`});
   document.getElementById('listPesan').innerHTML=pesanList.length?pesanList.join(''):'<p class="small">Belum ada siswa.</p>';
 }
   function kirimPesan(nama){let inp=document.getElementById('in-'+nama);if(!inp||!inp.value.trim())return;db.pesan.push({nama:nama,dari:currentRole==='guru'?'Guru':'Ortu',isi:inp.value.trim()});save();location.reload();}
+  function hapusPesan(nama){if(!confirm('Hapus semua chat '+nama+'?'))return;db.pesan=db.pesan.filter(p=>p.nama!==nama);save();location.reload();}
   // Cek tiap 1 detik, kalau ORTU umpetin reset
 setInterval(function(){
   var b = document.getElementById('btnReset');
