@@ -554,20 +554,20 @@ setInterval(function(){
 }, 1000);
 </script>
   <script>
-// === SEMBUNYIKAN KOLOM NO HP ORTU ===
+// === SEMBUNYIKAN KOLOM NO HP ORTU - VERSI AMAN ===
 setInterval(function(){
-  // Cari semua input
+  // Cuma cari input yang placeholder nya PERSIS No HP Ortu
   let semuaInput = document.querySelectorAll("input");
   for(let i=0; i<semuaInput.length; i++){
     let inp = semuaInput[i];
-    let teks = (inp.placeholder || "") + " " + (inp.id || "") + " " + (inp.name || "");
-    // Kalau placeholder nya ada tulisan HP / WA / Ortu / No HP
-    if(teks.toLowerCase().includes("hp") || teks.toLowerCase().includes("ortu") || teks.toLowerCase().includes("wa") || teks.toLowerCase().includes("no hp")){
+    let ph = (inp.placeholder || "");
+    // Harus ada tulisan "No HP Ortu" lengkap, bukan cuma "hp"
+    if(ph.includes("No HP Ortu")){
       inp.style.display = "none";
     }
   }
-  // Cari juga label yang tulisan nya No HP
-  let semua = document.querySelectorAll("*");
+  // Sembunyikan label nya yang persis itu
+  let semua = document.querySelectorAll("label, div, span, p");
   for(let i=0; i<semua.length; i++){
     if(semua[i].innerText && semua[i].innerText.trim() === "No HP Ortu - Contoh: 081234567890"){
       semua[i].style.display = "none";
