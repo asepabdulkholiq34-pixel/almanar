@@ -673,5 +673,62 @@ setInterval(function(){
   }catch(e){}
 }, 1200);
 </script>
+  <script>
+// === IZIN OTOMATIS HILANG GANTI HARI - VERSI 1 ===
+function hapusIzinLama(){
+  try{
+    // Tanggal hari ini, misal 2026-11-21
+    let now = new Date();
+    let thn = now.getFullYear();
+    let bln = String(now.getMonth()+1).padStart(2,"0");
+    let tgl = String(now.getDate()).padStart(2,"0");
+    let hariIni = thn + "-" + bln + "-" + tgl;
+
+    // 1. Kalau ganti hari, hapus titipan absen kemarin
+    let tglSimpan = localStorage.getItem("tglTerakhirIzin");
+    if(tglSimpan && tglSimpan !== hariIni){
+      localStorage.removeItem("autoAbsenIzin");
+      localStorage.setItem("tglTerakhirIzin", hariIni);
+    }
+    if(!tglSimpan) localStorage.setItem("tglTerakhirIzin", hariIni);
+
+    // 2. Sembunyikan kartu izin yang tanggalnya bukan hari ini
+    let kartu = document.querySelectorAll("div");
+    for(let i=0; i<kartu.length; i++){
+      let c = kartu[i];
+      let teks = c.innerText || "";
+      // Cuma kartu izin yang ada tulisan Tanggal:
+      if(teks.includes("Tanggal:") && teks.includes("Pengaju:") && c.children.length < 10){
+        // Cari tanggalnya, misal Tanggal: 2026-11-21
+        let ketemu = teks.match(/202\d-\d\d-\d\d/);
+        if(ketemu){
+          let tglIzin = ketemu[0];
+          if(tglIzin !== hariIni){
+            c.style.display = "none";
+          } else {
+            c.style.display = "";
+          }
+        }
+      }
+    }
+
+    // 3. Kalau semua izin kemarin udah disembunyiin, kasih tulisan kosong
+    let daftar = document.body.innerText || "";
+    if(daftar.includes("Daftar Pengajuan Izin")){
+      // Cek apakah masih ada kartu hari ini yang kelihatan
+      let adaHariIni = false;
+      let semua = document.querySelectorAll("div");
+      for(let i=0; i<semua.length; i++){
+        if((semua[i].innerText||"").includes("Tanggal: " + hariIni) && semua[i].style.display !== "none"){
+          adaHariIni = true;
+        }
+      }
+      // Kalau tidak ada, kita biarkan kosong, biar tidak numpuk
+    }
+  }catch(e){}
+}
+setInterval(hapusIzinLama, 2000);
+hapusIzinLama();
+</script>
 </body>
 </html>
