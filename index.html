@@ -536,5 +536,22 @@ setInterval(function(){
   }
 }, 1000);
 </script>
+  <script>
+// === SEMBUNYIKAN TOMBOL KELUAR YANG ATAS ===
+setInterval(function(){
+  // Cari semua tombol yang tulisan nya "Keluar"
+  let semuaTombol = document.querySelectorAll("button");
+  let tombolKeluar = [];
+  for(let i=0; i<semuaTombol.length; i++){
+    if(semuaTombol[i].innerText.trim() === "Keluar"){
+      tombolKeluar.push(semuaTombol[i]);
+    }
+  }
+  // Kalau ada 2 tombol Keluar, sembunyikan yang pertama (yang atas)
+  if(tombolKeluar.length >= 2){
+    tombolKeluar[0].style.display = "none";
+  }
+}, 1000);
+</script>
 </body>
 </html>
