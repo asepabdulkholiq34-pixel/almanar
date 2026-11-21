@@ -424,80 +424,86 @@ setInterval(function(){
 }, 1000);
 </script>
   <script>
-// === NOTIFIKASI + BUNYI CHAT ===
+// === NOTIFIKASI + BUNYI CHAT - VERSI BENER ===
 let chatTerakhir = "";
-let sudahIzinNotif = false;
+let baruBuka = true;
 
-// Minta izin notifikasi pas pertama buka
+// 5 detik pertama jangan bunyi dulu, biar nggak bunyi pas login
+setTimeout(function(){ baruBuka = false; }, 5000);
+
 if ("Notification" in window) {
   if (Notification.permission === "default") {
-    Notification.requestPermission().then(function(izin){
-      if(izin === "granted") sudahIzinNotif = true;
-    });
+    Notification.requestPermission();
   }
-  if (Notification.permission === "granted") sudahIzinNotif = true;
 }
 
 function bunyiChat() {
+  if (baruBuka) return; // Kalau baru login, jangan bunyi
   try {
-    // Bikin bunyi TING pakai HP sendiri, nggak perlu file mp3
     let ctx = new (window.AudioContext || window.webkitAudioContext)();
     let osc = ctx.createOscillator();
     let gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.type = "sine";
-    osc.frequency.value = 880; // Nada tinggi
+    osc.frequency.value = 880;
     gain.gain.value = 0.3;
     osc.start();
     setTimeout(function(){ osc.frequency.value = 1100; }, 150);
     setTimeout(function(){ osc.stop(); ctx.close(); }, 400);
   } catch(e) {}
-  // Getar HP
   try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch(e) {}
 }
 
 function tampilkanNotif(pesan) {
-  if (!sudahIzinNotif) return;
+  if (baruBuka) return;
+  if (Notification.permission !== "granted") return;
   try {
-    let n = new Notification("💬 Chat Baru - SMKS Al Manar", {
-      body: pesan,
-      icon: "https://cdn-icons-png.flaticon.com/512/1946/1946429.png"
-    });
+    let n = new Notification("💬 Chat Baru - SMKS Al Manar", { body: pesan });
     setTimeout(function(){ n.close(); }, 5000);
   } catch(e) {}
 }
 
-// Pantau chat berubah setiap 2 detik
-setInterval(function(){
-  // Cari semua kotak chat
-  let semuaChat = document.body.innerText;
-  // Kalau ada tulisan baru, kita anggap pesan baru - cek via localStorage
-  let dataChat = localStorage.getItem("chatData") || localStorage.getItem("pesan") || "";
-  // Cara simpel: pantau jumlah huruf di halaman chat
-  let kotakChat = document.querySelectorAll("div");
-  let teksSekarang = "";
-  kotakChat.forEach(function(d){
-    if(d.innerText && d.innerText.includes("Guru:") || d.innerText.includes("Ortu:")) {
-      teksSekarang += d.innerText;
+function ambilIsiChat() {
+  // Cari HANYA kotak chat, bukan semua halaman
+  let el = document.querySelector("#chatBox") || document.querySelector("#daftarChat") || document.querySelector("#listChat");
+  if (el) return el.innerText;
+  // Kalau tidak ketemu ID nya, cari yang ada tulisan Kirim Pesan
+  let semua = document.querySelectorAll("div");
+  for (let i=0; i<semua.length; i++) {
+    if (semua[i].innerText && semua[i].innerText.includes("Kirim Pesan") && semua[i].innerText.length < 5000) {
+      return semua[i].innerText;
     }
-  });
-  if(chatTerakhir !== "" && teksSekarang !== chatTerakhir && teksSekarang.length > chatTerakhir.length) {
-    // Ada pesan baru!
+  }
+  return "";
+}
+
+function cekChatBaru() {
+  // Cek dulu: apakah kita lagi di halaman Chat?
+  // Kalau halaman nya tidak ada tombol Kirim Pesan, berarti bukan halaman Chat. JANGAN BUNYI.
+  let adaTombolKirim = document.body.innerText.includes("Kirim Pesan");
+  if (!adaTombolKirim) {
+    return;
+  }
+  let isiSekarang = ambilIsiChat();
+  if (isiSekarang === "") return;
+  // Pertama kali liat chat, simpan aja, jangan bunyi
+  if (chatTerakhir === "") {
+    chatTerakhir = isiSekarang;
+    return;
+  }
+  // Kalau isi chat nambah, berarti ada pesan baru
+  if (isiSekarang.length > chatTerakhir.length && isiSekarang !== chatTerakhir) {
     bunyiChat();
     tampilkanNotif("Ada pesan Chat baru, silakan buka aplikasi.");
     document.title = "🔔 PESAN BARU! - SMKS Al Manar";
     setTimeout(function(){ document.title = "SMKS AL MANAR ISLAMIC SCHOOL"; }, 5000);
   }
-  if(teksSekarang !== "") chatTerakhir = teksSekarang;
-}, 2000);
+  chatTerakhir = isiSekarang;
+}
 
-// Bunyi juga pas kita klik Kirim Pesan, biar tau kekirim
-document.addEventListener("click", function(e){
-  if(e.target && e.target.innerText && e.target.innerText.includes("Kirim Pesan")) {
-    setTimeout(bunyiChat, 300);
-  }
-});
+// Cek setiap 2 detik, tapi cuma kalau di halaman Chat
+setInterval(cekChatBaru, 2000);
 </script>
 </body>
 </html>
