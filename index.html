@@ -614,36 +614,37 @@ setInterval(function(){
 }, 1000);
 </script>
   <script>
-// === OTOMATIS IZIN -> ABSENSI - VERSI TITIPAN ===
+// === OTOMATIS IZIN -> ABSENSI - VERSI 3 - FIX TOMBOL ===
 setInterval(function(){
   try{
-    // LANGKAH 1: Kalau lagi di halaman Izin, titipin yang sudah Disetujui
-    let teksHalaman = document.body.innerText || "";
-    if(teksHalaman.includes("Daftar Pengajuan Izin")){
+    let teks = document.body.innerText || "";
+
+    // 1. TITIPIN: Kalau di halaman Izin, simpan yang Disetujui
+    if(teks.includes("Daftar Pengajuan Izin")){
       let titipan = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]");
       let berubah = false;
-      // Cari baris "Nama - Sakit ✅ Disetujui"
-      let semua = document.querySelectorAll("div");
-      for(let i=0; i<semua.length; i++){
-        let t = semua[i].innerText || "";
-        // Harus 1 kotak kecil aja, bukan halaman besar
-        if(t.includes("Disetujui") && t.length < 300 && t.includes(" - ")){
-          let barisPertama = t.split("\n")[0];
-          let nama = barisPertama.split(" - ")[0].replace(/[^A-Za-z ]/g,"").trim();
+      let kotak = document.querySelectorAll("div");
+      for(let i=0; i<kotak.length; i++){
+        let t = kotak[i].innerText || "";
+        if(t.includes("Disetujui") && t.includes(" - ") && t.length < 350 && t.length > 10){
+          let baris = t.split("\n")[0];
+          // Buang emoji di depan
+          let nama = baris.split(" - ")[0].replace(/[^A-Za-z ]/g,"").trim();
           let jenis = "Sakit";
-          if(barisPertama.toLowerCase().includes("izin") && !barisPertama.toLowerCase().includes("sakit")) jenis = "Izin";
+          if(baris.toLowerCase().includes("izin")) jenis = "Izin";
+          if(baris.toLowerCase().includes("sakit")) jenis = "Sakit";
           if(nama.length > 3){
-            let sudahAda = false;
-            for(let k=0; k<titipan.length; k++){ if(titipan[k].nama === nama) sudahAda = true; }
-            if(!sudahAda){ titipan.push({nama: nama, jenis: jenis}); berubah = true; }
+            let ada = false;
+            for(let k=0; k<titipan.length; k++){ if(titipan[k].nama === nama) ada = true; }
+            if(!ada){ titipan.push({nama: nama, jenis: jenis}); berubah = true; }
           }
         }
       }
       if(berubah) localStorage.setItem("autoAbsenIzin", JSON.stringify(titipan));
     }
 
-    // LANGKAH 2: Kalau lagi di halaman Absensi, buka titipan dan klik
-    if(teksHalaman.includes("Absensi") && teksHalaman.includes("Belum Absen")){
+    // 2. EKSEKUSI: Kalau di halaman Absensi, klik tombolnya
+    if(teks.includes("Absensi") && teks.includes("Belum Absen")){
       let titipan2 = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]");
       if(titipan2.length === 0) return;
       for(let j=0; j<titipan2.length; j++){
@@ -651,11 +652,16 @@ setInterval(function(){
         let kartu = document.querySelectorAll("div");
         for(let k=0; k<kartu.length; k++){
           let c = kartu[k];
-          if(c.innerText && c.innerText.includes(data.nama) && c.innerText.includes("Belum Absen") && c.innerText.length < 500){
+          // Cari kartu yang namanya pas dan masih Belum Absen
+          if(c.innerText && c.innerText.includes(data.nama) && c.innerText.includes("Belum Absen") && c.innerText.length < 400 && c.innerText.length > 20){
             let tombol = c.querySelectorAll("button");
             for(let b=0; b<tombol.length; b++){
-              if(tombol[b].innerText.trim() === data.jenis){
+              let isi = tombol[b].innerText || "";
+              // FIX DI SINI: pakai includes, bukan persis sama
+              // Jadi "🤒 Sakit" tetap ketemu
+              if(isi.includes(data.jenis) && !isi.includes("Hapus") && !isi.includes("Edit")){
                 tombol[b].click();
+                console.log("AUTO KLIK: " + data.nama + " -> " + data.jenis);
                 break;
               }
             }
@@ -665,7 +671,7 @@ setInterval(function(){
       }
     }
   }catch(e){}
-}, 1500);
+}, 1200);
 </script>
 </body>
 </html>
