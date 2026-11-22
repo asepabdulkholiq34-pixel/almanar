@@ -1,25 +1,52 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Siswa QR - Al Manar</title><style>body{font-family:sans-serif;padding:15px;background:#e8f0fe}input,button{width:100%;padding:12px;margin:5px 0;border-radius:8px;border:1px solid #ccc}button{background:#00a400;color:#fff;border:none;font-weight:bold}.soal{background:#fff;padding:12px;border-radius:10px;margin:10px 0}img{max-width:250px}</style></head><body>
-<h2>📚 Ujian Siswa - Scan QR</h2>
-<div id="login"><input id="nama" placeholder="Nama Lengkap"><p>Scan QR dari Guru, soal otomatis muncul di bawah. Atau buka link dari Guru langsung.</p></div>
-<div id="area"></div>
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Siswa QR - Al Manar</title><style>body{font-family:sans-serif;padding:15px;background:#e8f0fe}input,button{width:100%;padding:12px;margin:5px 0;border-radius:8px;border:1px solid #ccc}button{background:#00a400;color:#fff;border:none;font-weight:bold}.soal{background:#fff;padding:12px;border-radius:10px;margin:10px 0}#timer{position:sticky;top:0;background:#ff0000;color:#fff;padding:12px;text-align:center;font-size:20px;font-weight:bold;border-radius:10px;z-index:99}img{max-width:250px}</style></head><body>
+<h2>📚 Ujian Siswa - Al Manar</h2>
+<div id="login"><input id="nama" placeholder="Nama Lengkap Siswa"><p>Scan QR dari Guru, soal otomatis muncul & diacak!</p></div>
+<div id="timer" style="display:none"></div><div id="area"></div>
 <script>
-let soalData=[], judul="";
+let soalData=[], judul="", sisaDetik=0, timerInterval;
 window.onload=()=>{
   if(location.hash.length>10){
-    try{let data=JSON.parse(decodeURIComponent(escape(atob(location.hash.substring(1))))); soalData=data.s; judul=data.j; tampilSoal();}catch(e){document.getElementById('area').innerHTML="Link QR salah!";}
+    try{
+      let data=JSON.parse(decodeURIComponent(escape(atob(location.hash.substring(1))))); 
+      soalData=data.s; judul=data.j; sisaDetik=(data.t||30)*60;
+      // ACAK SOAL
+      soalData=soalData.sort(()=>Math.random()-0.5);
+      // ACAK JAWABAN TIAP SOAL
+      soalData=soalData.map(s=>{
+        let opts=[{k:'A',t:s.a},{k:'B',t:s.b},{k:'C',t:s.c},{k:'D',t:s.d}];
+        let benarTeks=s[{A:'a',B:'b',C:'c',D:'d'}[s.k]];
+        opts=opts.sort(()=>Math.random()-0.5);
+        let newK=['A','B','C','D'][opts.findIndex(o=>o.t==benarTeks)];
+        return {q:s.q, a:opts[0].t, b:opts[1].t, c:opts[2].t, d:opts[3].t, k:newK};
+      });
+      tampilSoal(); mulaiTimer();
+    }catch(e){document.getElementById('area').innerHTML="Link QR salah!";}
   } else { document.getElementById('area').innerHTML="<p>Belum ada soal. Scan QR Guru dulu ya!</p>"; }
 };
+function mulaiTimer(){
+  let el=document.getElementById('timer'); el.style.display='block';
+  timerInterval=setInterval(()=>{
+    let m=Math.floor(sisaDetik/60), d=sisaDetik%60;
+    el.innerText=`⏰ SISA WAKTU: ${m}:${d<10?'0':''}${d}`;
+    if(sisaDetik<=60) el.style.background='#ff0000';
+    if(sisaDetik<=0){clearInterval(timerInterval); alert("Waktu Habis! Jawaban otomatis dikirim!"); kirim();}
+    sisaDetik--;
+  },1000);
+}
 function tampilSoal(){
-  let h=`<h3>${judul}</h3>`;
+  let h=`<h3>${judul} - Soal diacak, tiap siswa beda urutan!</h3>`;
   soalData.forEach((s,i)=>{ h+=`<div class="soal"><b>${i+1}. ${s.q}</b><br><label><input type="radio" name="q${i}" value="A"> A. ${s.a}</label><br><label><input type="radio" name="q${i}" value="B"> B. ${s.b}</label><br><label><input type="radio" name="q${i}" value="C"> C. ${s.c}</label><br><label><input type="radio" name="q${i}" value="D"> D. ${s.d}</label></div>`});
   h+=`<button onclick="kirim()">KIRIM JAWABAN</button>`; document.getElementById('area').innerHTML=h;
 }
 function kirim(){
+  clearInterval(timerInterval);
   let benar=0; soalData.forEach((s,i)=>{let j=document.querySelector(`input[name="q${i}"]:checked`); if(j&&j.value==s.k) benar++});
   let nilai=Math.round(benar/soalData.length*100);
   let nama=document.getElementById('nama').value||"Tanpa Nama";
-  let hasil={nama:nama,nilai:nilai,benar:benar,total:soalData.length};
+  let hasil={nama:nama,nilai:nilai,benar:benar,total:soalData.length,waktu:new Date().toLocaleString('id-ID')};
   let code=btoa(JSON.stringify(hasil));
-  document.getElementById('area').innerHTML=`<div style="background:#fff;padding:15px;border-radius:12px;text-align:center"><h2>✅ Terkirim!</h2><h1>Nilai: ${nilai}</h1><p>Benar ${benar} dari ${soalData.length}</p><p>Tunjukkan QR ini ke Guru!</p><img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${code}"><p style="font-size:11px;word-break:break-all">${code}</p></div>`;
+  document.getElementById('timer').style.display='none';
+  document.getElementById('area').innerHTML=`<div style="background:#fff;padding:15px;border-radius:12px;text-align:center"><h2>✅ Terkirim!</h2><h1>Nilai: ${nilai}</h1><p>Benar ${benar} dari ${soalData.length}</p><p>Tunjukkan QR ini ke Guru!</p><img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${code}"></div>`;
+  document.getElementById('login').style.display='none';
 }
 </script></body></html>
