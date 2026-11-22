@@ -1,26 +1,30 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guru QR - Al Manar</title><script src="https://unpkg.com/html5-qrcode"></script><style>body{font-family:sans-serif;padding:15px;background:#f0f2f5}input,textarea,button{width:100%;padding:12px;margin:5px 0;border-radius:8px;border:1px solid #ccc}button{background:#1877f2;color:#fff;border:none;font-weight:bold}.card{background:#fff;padding:15px;border-radius:12px;margin-bottom:12px;text-align:center}img{max-width:250px}</style></head><body>
-<h2>👨‍🏫 Guru - Buat Ujian QR</h2>
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guru QR - Al Manar</title><script src="https://unpkg.com/html5-qrcode"></script><style>body{font-family:sans-serif;padding:15px;background:#f0f2f5}input,textarea,button{width:100%;padding:12px;margin:5px 0;border-radius:8px;border:1px solid #ccc}button{background:#1877f2;color:#fff;border:none;font-weight:bold}.card{background:#fff;padding:15px;border-radius:12px;margin-bottom:12px;text-align:center}img{max-width:250px}.btn-excel{background:#00a400}.btn-hapus{background:#e74c3c}</style></head><body>
+<h2>👨‍🏫 Guru - Ujian QR V2</h2>
 <div class="card"><input id="judul" placeholder="Judul: IPA Bab 1" value="IPA Bab 1">
-<textarea id="soal" rows="7" placeholder="Format: Soal | A | B | C | D | Kunci A/B/C/D
+<input id="waktu" type="number" value="30" placeholder="Waktu Menit">
+<textarea id="soal" rows="7" placeholder="Format: Soal | A | B | C | D | Kunci
 Contoh:
 Ibukota Indonesia? | Jakarta | Bandung | Surabaya | Medan | A"></textarea>
-<button onclick="buatQR()">BUAT QR UJIAN</button>
-<div id="qrArea"></div></div>
-<div class="card"><h3>📷 Scan QR Nilai Siswa</h3><button onclick="scanNilai()">BUKA KAMERA SCAN</button><div id="reader" style="width:100%"></div><div id="hasilScan"></div><h3>📋 Daftar Nilai</h3><div id="daftarNilai"></div></div>
+<button onclick="buatQR()">BUAT QR UJIAN</button><div id="qrArea"></div></div>
+<div class="card"><h3>📷 Scan QR Nilai Siswa</h3><button onclick="scanNilai()">BUKA KAMERA SCAN</button><div id="reader" style="width:100%"></div><div id="hasilScan"></div><h3>📋 Daftar Nilai (<span id="jml">0</span>)</h3><div id="daftarNilai"></div><button class="btn-excel" onclick="downloadExcel()">📊 DOWNLOAD EXCEL / CSV</button><button class="btn-hapus" onclick="hapusSemua()">🗑️ HAPUS SEMUA NILAI</button></div>
 <script>
-let daftar=[];
+let daftar=JSON.parse(localStorage.getItem('nilai_almanar')||'[]'); tampilDaftar();
 function buatQR(){
   let lines=document.getElementById('soal').value.trim().split('\n');
-  let soalArr=lines.map(l=>{let p=l.split('|'); return {q:p[0],a:p[1],b:p[2],c:p[3],d:p[4],k:p[5].trim()}});
-  let data={j:document.getElementById('judul').value, s:soalArr};
+  let soalArr=lines.map(l=>{let p=l.split('|'); return {q:p[0].trim(),a:p[1].trim(),b:p[2].trim(),c:p[3].trim(),d:p[4].trim(),k:p[5].trim()}});
+  let data={j:document.getElementById('judul').value, t:parseInt(document.getElementById('waktu').value)||30, s:soalArr};
   let encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   let link=location.href.replace('guru-qr.html','siswa-qr.html')+'#'+encoded;
-  document.getElementById('qrArea').innerHTML=`<p>Suruh siswa SCAN ini, Pak!</p><img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}"><p style="font-size:12px;word-break:break-all">${link}</p><button onclick="window.open('${link}')">Buka Link Siswa</button>`;
+  document.getElementById('qrArea').innerHTML=`<p>⏰ Waktu: ${data.t} Menit | Soal: ${soalArr.length} | Siswa SCAN ini!</p><img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}"><p style="font-size:12px;word-break:break-all">${link}</p>`;
 }
 function scanNilai(){
   let html5Qr=new Html5Qrcode("reader");
   html5Qr.start({facingMode:"environment"},{fps:10,qrbox:250},(text)=>{
-    try{let d=JSON.parse(atob(text)); daftar.push(d); document.getElementById('hasilScan').innerHTML=`✅ ${d.nama} - Nilai ${d.nilai}`; document.getElementById('daftarNilai').innerHTML=daftar.map(x=>`<p>👦 ${x.nama} : <b>${x.nilai}</b> (${x.benar}/${x.total})</p>`).join(''); html5Qr.stop();}catch(e){alert("QR bukan QR Nilai!")}
+    try{let d=JSON.parse(atob(text)); if(daftar.find(x=>x.nama==d.nama)) return alert("Nama "+d.nama+" sudah ada!");
+    daftar.push(d); localStorage.setItem('nilai_almanar',JSON.stringify(daftar)); tampilDaftar(); document.getElementById('hasilScan').innerHTML=`✅ ${d.nama} - Nilai ${d.nilai}`; html5Qr.stop();}catch(e){alert("QR bukan QR Nilai!")}
   });
 }
+function tampilDaftar(){ document.getElementById('jml').innerText=daftar.length; document.getElementById('daftarNilai').innerHTML=daftar.map((x,i)=>`<p>${i+1}. 👦 ${x.nama} : <b>${x.nilai}</b> (${x.benar}/${x.total}) - ${x.waktu||''}</p>`).join('')||"Belum ada nilai"; }
+function downloadExcel(){ if(!daftar.length) return alert("Belum ada nilai!"); let csv="No,Nama,Nilai,Benar,Total,Waktu\n"+daftar.map((x,i)=>`${i+1},"${x.nama}",${x.nilai},${x.benar},${x.total},"${x.waktu||''}"`).join("\n"); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:'text/csv'})); a.download='Nilai-'+document.getElementById('judul').value+'.csv'; a.click(); alert("Excel ke-download! Buka di Excel / Google Sheet, Pak!"); }
+function hapusSemua(){ if(confirm("Hapus semua nilai?")){daftar=[]; localStorage.removeItem('nilai_almanar'); tampilDaftar();} }
 </script></body></html>
