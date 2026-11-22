@@ -376,8 +376,8 @@ document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen 
         isi+=`<div style="padding:8px;border:1px solid #eee;border-radius:8px;margin:4px 0;background:#fff"><b>Jam ${i+1}:</b> ${val||'-'}</div>`;
       }
     }
-    let warnaStatus = st==='Hadir' ? 'background:#dcfce7;color:#166534' : st==='Sakit' ? 'background:#fef9c3;color:#854d0e' : st==='Izin' ? 'background:#dbeafe;color:#1e40af' : st==='Alpa' ? 'background:#fee2e2;color:#991b1b' : 'background:#eee;color:#555';
-return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span style="display:inline-block;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px;${warnaStatus}">Status: ${st}</span>${btns}</div>`;
+    return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">Status: ${st}</span>${btns}</div>`;
+
   }).join('');
   let sList=siswaTerlihat();
   document.getElementById('listSiswa').innerHTML=sList.length?sList.map(s=>{
