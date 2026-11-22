@@ -21,4 +21,8 @@ function masuk(){
   localStorage.setItem('siswa_kelas', document.getElementById('kelas').value.trim());
   location.href='siswa-soal.html';
 }
+  .opt{display:flex!important;align-items:center!important;gap:10px!important;padding:12px!important;border:1px solid #ddd!important;border-radius:10px!important;margin:6px 0!important;background:#fff!important;cursor:pointer}
+.opt input{width:22px!important;height:22px!important;flex-shrink:0!important;margin:0!important;accent-color:#1a73e8}
+.opt span{font-size:16px!important;line-height:1.3}
+.opt:has(input:checked){background:#e8f0fe!important;border-color:#1a73e8!important}
 </script></body></html>
