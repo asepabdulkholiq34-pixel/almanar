@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Buat Soal - Al Manar</title><style>body{font-family:sans-serif;padding:15px;background:#f0f2f5}input,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #ccc}button{background:#1877f2;color:#fff;border:none;font-weight:bold}.card{background:#fff;padding:15px;border-radius:12px}</style></head><body>
+<h2>📝 Halaman 1 - Buat Soal</h2>
+<div class="card">
+<input id="judul" placeholder="Judul Ujian" value="IPA Bab 1">
+<input id="waktu" type="number" value="30" placeholder="Waktu Menit">
+<textarea id="soal" rows="10" placeholder="Format: Soal | A | B | C | D | Kunci"></textarea>
+<button onclick="simpan()">SIMPAN & TAMPILKAN QR ➡️</button>
+<button style="background:#666" onclick="location.href='tampil-qr.html'">LIHAT QR YANG LAMA</button>
+</div>
+<script>
+function simpan(){
+  let lines=document.getElementById('soal').value.trim().split('\n');
+  let soalArr=lines.map(l=>{let p=l.split('|'); return {q:p[0].trim(),a:p[1].trim(),b:p[2].trim(),c:p[3].trim(),d:p[4].trim(),k:p[5].trim()}});
+  let data={j:document.getElementById('judul').value, t:parseInt(document.getElementById('waktu').value)||30, s:soalArr};
+  localStorage.setItem('ujian_aktif', JSON.stringify(data));
+  location.href='tampil-qr.html';
+}
+</script></body></html>
