@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guru QR - Al Manar</title><script src="https://unpkg.com/html5-qrcode"></script><style>body{font-family:sans-serif;padding:15px;background:#f0f2f5}input,textarea,button{width:100%;padding:12px;margin:5px 0;border-radius:8px;border:1px solid #ccc}button{background:#1877f2;color:#fff;border:none;font-weight:bold}.card{background:#fff;padding:15px;border-radius:12px;margin-bottom:12px;text-align:center}img{max-width:250px}</style></head><body>
+<h2>👨‍🏫 Guru - Buat Ujian QR</h2>
+<div class="card"><input id="judul" placeholder="Judul: IPA Bab 1" value="IPA Bab 1">
+<textarea id="soal" rows="7" placeholder="Format: Soal | A | B | C | D | Kunci A/B/C/D
+Contoh:
+Ibukota Indonesia? | Jakarta | Bandung | Surabaya | Medan | A"></textarea>
+<button onclick="buatQR()">BUAT QR UJIAN</button>
+<div id="qrArea"></div></div>
+<div class="card"><h3>📷 Scan QR Nilai Siswa</h3><button onclick="scanNilai()">BUKA KAMERA SCAN</button><div id="reader" style="width:100%"></div><div id="hasilScan"></div><h3>📋 Daftar Nilai</h3><div id="daftarNilai"></div></div>
+<script>
+let daftar=[];
+function buatQR(){
+  let lines=document.getElementById('soal').value.trim().split('\n');
+  let soalArr=lines.map(l=>{let p=l.split('|'); return {q:p[0],a:p[1],b:p[2],c:p[3],d:p[4],k:p[5].trim()}});
+  let data={j:document.getElementById('judul').value, s:soalArr};
+  let encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  let link=location.href.replace('guru-qr.html','siswa-qr.html')+'#'+encoded;
+  document.getElementById('qrArea').innerHTML=`<p>Suruh siswa SCAN ini, Pak!</p><img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}"><p style="font-size:12px;word-break:break-all">${link}</p><button onclick="window.open('${link}')">Buka Link Siswa</button>`;
+}
+function scanNilai(){
+  let html5Qr=new Html5Qrcode("reader");
+  html5Qr.start({facingMode:"environment"},{fps:10,qrbox:250},(text)=>{
+    try{let d=JSON.parse(atob(text)); daftar.push(d); document.getElementById('hasilScan').innerHTML=`✅ ${d.nama} - Nilai ${d.nilai}`; document.getElementById('daftarNilai').innerHTML=daftar.map(x=>`<p>👦 ${x.nama} : <b>${x.nilai}</b> (${x.benar}/${x.total})</p>`).join(''); html5Qr.stop();}catch(e){alert("QR bukan QR Nilai!")}
+  });
+}
+</script></body></html>
