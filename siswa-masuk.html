@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Masuk Ujian - Al Manar</title><style>body{font-family:sans-serif;padding:20px;background:#e8f0fe;text-align:center}input,button{width:100%;padding:15px;margin:8px 0;border-radius:10px;border:1px solid #ccc;font-size:16px}button{background:#00a400;color:#fff;border:none;font-weight:bold}.card{background:#fff;padding:20px;border-radius:15px;margin-top:20px}</style></head><body>
+<h1>🏫 Al Manar</h1><h2>📚 Masuk Ujian</h2>
+<div class="card"><p id="infoUjian">Memuat ujian...</p>
+<input id="nama" placeholder="Tulis Nama Lengkap Kamu">
+<input id="kelas" placeholder="Kelas, contoh: 7A">
+<button onclick="masuk()">MASUK & MULAI UJIAN ➡️</button></div>
+<script>
+let dataUjian=null;
+window.onload=()=>{
+  if(location.hash.length>10){
+    try{ dataUjian=JSON.parse(decodeURIComponent(escape(atob(location.hash.substring(1))))); 
+    document.getElementById('infoUjian').innerHTML=`<b>${dataUjian.j}</b><br>⏰ ${dataUjian.t} Menit | Soal: ${dataUjian.s.length}`;
+    localStorage.setItem('ujian_siswa', JSON.stringify(dataUjian));
+    }catch(e){ document.getElementById('infoUjian').innerText="Link QR salah!"; }
+  }
+};
+function masuk(){
+  let nama=document.getElementById('nama').value.trim();
+  if(!nama) return alert("Nama wajib diisi!");
+  localStorage.setItem('siswa_nama', nama);
+  localStorage.setItem('siswa_kelas', document.getElementById('kelas').value.trim());
+  location.href='siswa-soal.html';
+}
+</script></body></html>
