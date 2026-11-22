@@ -338,11 +338,9 @@ function tutupNotif()
 {document.getElementById('pageNotif').classList.add('hidden');}
   function masukNotif(){
   document.getElementById('pageNotif').classList.add('hidden');
-  document.querySelectorAll('.tabPage').forEach(function(p){ p.classList.add('hidden'); });
-  var izin = document.getElementById('pageIzin');
-  if(izin){ izin.classList.remove('hidden'); }
+  showTab('Izin');
   window.scrollTo(0,0);
-  }
+}
 function renderAll(){
   let now=new Date();
 let hariIndo=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][now.getDay()];
