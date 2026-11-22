@@ -376,7 +376,7 @@ document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen 
         isi+=`<div style="padding:8px;border:1px solid #eee;border-radius:8px;margin:4px 0;background:#fff"><b>Jam ${i+1}:</b> ${val||'-'}</div>`;
       }
     }
-return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span class="small">Status: ${st}</span>${btns}</div>`;
+return `<div class="jadwal-hari"><b>${h}</b>${isi}</div>`;
 
   }).join('');
   let sList=siswaTerlihat();
