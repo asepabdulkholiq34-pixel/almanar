@@ -691,7 +691,7 @@ function hapusIzinLama(){
     if(!tglSimpan) localStorage.setItem("tglTerakhirIzin", hariIni);
 
     // 2. Sembunyikan kartu izin yang tanggalnya bukan hari ini
-    let kartu = document.querySelectorAll("div");
+    let kartu = document.querySelectorAll("#listIzin div");
     for(let i=0; i<kartu.length; i++){
       let c = kartu[i];
       let teks = c.innerText || "";
