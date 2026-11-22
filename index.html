@@ -331,7 +331,7 @@ function izinTerlihat(){
 }
 function bukaNotif(){
   document.getElementById('pageNotif').classList.remove('hidden');
-  let list=izinTerlihat();
+  let list=izinTerlihat().filter(x=>x.status==='Menunggu');
   document.getElementById('listNotif').innerHTML=list.length?list.map(x=>`<div class="item"><b>${currentRole==='guru'?'GURU': 'ORTU'} : Izin ${x.nama} - ${x.jenis} (${x.status})</b><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span></div>`).join(''):'<p class="small">Tidak ada notifikasi.</p>';
 }
 function tutupNotif()
