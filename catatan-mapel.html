@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Catatan Mapel - Al Manar</title><style>body{font-family:sans-serif;padding:15px;background:#fff7e6}input,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #ccc;font-size:15px}button{background:#ff9800;color:#fff;border:none;font-weight:bold}.card{background:#fff;padding:15px;border-radius:12px;border:1px solid #ffe0b2}.contoh{background:#fff3cd;padding:10px;border-radius:8px;font-size:13px}</style></head><body>
+<h2>📒 Halaman 3 - Catatan Mapel</h2>
+<p>Tulis catatan / soal + jawaban, Pak. Nanti otomatis jadi soal pilihan ganda.</p>
+<div class="card">
+<input id="judul" placeholder="Judul Ujian" value="IPA Bab 1">
+<input id="waktu" type="number" value="30" placeholder="Waktu Menit">
+<textarea id="catatan" rows="15" placeholder="Cara nulis, Pak. 1 baris = 1 soal. Format: Soal = Jawaban Benar
+
+Contoh:
+Ibukota Indonesia? = Jakarta
+Ibukota Jawa Barat? = Bandung
+2+2? = 4
+Planet terdekat matahari? = Merkurius"></textarea>
+<div class="contoh"><b>Contoh nulisnya, Pak:</b><br>Ibukota Indonesia? = Jakarta<br>2+2? = 4<br><br>Pengecoh A B C D nya otomatis diambil dari jawaban soal lain, Pak. Bapak gak usah ngetik.</div>
+<button onclick="jadikanSoal()">✨ JADIKAN SOAL ➡️</button>
+<button style="background:#666" onclick="location.href='buat-soal.html'">⬅️ KEMBALI KE HALAMAN 1 - BUAT SOAL</button>
+<p id="info" style="font-size:13px;color:#666"></p>
+</div>
+<script>
+window.onload=()=>{
+  let lama=JSON.parse(localStorage.getItem('ujian_aktif')||'null');
+  if(lama){ document.getElementById('judul').value=lama.j; document.getElementById('waktu').value=lama.t; }
+};
+function jadikanSoal(){
+  let teks=document.getElementById('catatan').value.trim();
+  if(!teks) return alert("Catatan masih kosong, Pak!");
+  let lines=teks.split('\n').filter(l=>l.trim()!='' && l.includes('='));
+  if(!lines.length) return alert("Format salah, Pak! Harus pakai tanda = . Contoh: Ibukota Indonesia? = Jakarta");
+  // Ambil semua jawaban benar dulu, buat jadi pengecoh
+  let semuaJawaban=lines.map(l=>l.split('=').slice(1).join('=').trim());
+  let soalArr=lines.map(l=>{
+    let parts=l.split('=');
+    let q=parts[0].trim();
+    let benar=parts.slice(1).join('=').trim();
+    // Ambil 3 pengecoh dari jawaban lain, acak
+    let pengecoh=semuaJawaban.filter(j=>j!=benar).sort(()=>Math.random()-0.5).slice(0,3);
+    while(pengecoh.length<3) pengecoh.push("Salah "+(pengecoh.length+1));
+    let opts=[benar, ...pengecoh].sort(()=>Math.random()-0.5);
+    let kunci=['A','B','C','D'][opts.indexOf(benar)];
+    return {q:q, a:opts[0], b:opts[1], c:opts[2], d:opts[3], k:kunci};
+  });
+  let data={j:document.getElementById('judul').value||"Ujian", t:parseInt(document.getElementById('waktu').value)||30, s:soalArr};
+  localStorage.setItem('ujian_aktif', JSON.stringify(data));
+  alert("Berhasil! "+soalArr.length+" soal dibuat dari catatan, Pak! Sekarang pindah ke Halaman 1.");
+  location.href='buat-soal.html';
+}
+</script></body></html>
