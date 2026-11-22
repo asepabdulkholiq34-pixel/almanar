@@ -94,7 +94,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <h3>✅ Absensi</h3>
   <p class="small" id="tglAbsenTampil" style="font-weight:700"></p>
 <div class="flex">
-<button id="btnResetAbsen" class="btn2" onclick="resetAbsenHariIni()" style="background:#fee2e2">🔄 Reset Absen Hari Ini</button>
+
 </div>
 <div id="boxTambahSiswa" class="hidden" style="background:#f0fdf4;padding:10px;border-radius:10px">
 <b>Tambah Siswa (Guru)</b>
@@ -347,7 +347,7 @@ let hariIndo=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][now.getD
 let bulanIndo=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"][now.getMonth()];
 let tglCantik=hariIndo+", "+now.getDate()+" "+bulanIndo+" "+now.getFullYear();
 let hariIni=now.toISOString().slice(0,10);
-if(db.tglAbsen!==hariIni){db.absen={}; db.tglAbsen=hariIni; save();}
+if(db.tglAbsen!==hariIni){db.absen={}; db.tglAbsen=hariIni; localStorage.removeItem("autoAbsenIzin"); save();}
 document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen reset otomatis tiap ganti hari.';
   document.getElementById('haloNama').innerText='Halo, '+currentNama;
   document.getElementById('haloKelas').innerText='Kelas: '+currentKelas+(currentRole==='ortu'?' | Anak: '+currentAnak:'');
@@ -612,56 +612,43 @@ setInterval(function(){
 }, 1000);
 </script>
   <script>
-// === OTOMATIS IZIN -> ABSENSI - VERSI 3 - FIX TOMBOL ===
+// === OTOMATIS IZIN -> ABSENSI - VERSI BENER, CUMA HARI INI ===
 setInterval(function(){
   try{
+    let now = new Date();
+    let hariIni = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0");
     let teks = document.body.innerText || "";
-
-    // 1. TITIPIN: Kalau di halaman Izin, simpan yang Disetujui
+    // 1. TITIPIN: cuma kalau izin nya tanggal hari ini
     if(teks.includes("Daftar Pengajuan Izin")){
       let titipan = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]");
+      titipan = titipan.filter(x => x.tanggal === hariIni);
       let berubah = false;
-      let kotak = document.querySelectorAll("div");
+      let kotak = document.querySelectorAll("#listIzin div");
       for(let i=0; i<kotak.length; i++){
         let t = kotak[i].innerText || "";
-        if(t.includes("Disetujui") && t.includes(" - ") && t.length < 350 && t.length > 10){
+        if(t.includes("Disetujui") && t.includes("Tanggal: " + hariIni) && t.length < 350){
           let baris = t.split("\n")[0];
-          // Buang emoji di depan
           let nama = baris.split(" - ")[0].replace(/[^A-Za-z ]/g,"").trim();
-          let jenis = "Sakit";
-          if(baris.toLowerCase().includes("izin")) jenis = "Izin";
-          if(baris.toLowerCase().includes("sakit")) jenis = "Sakit";
-          if(nama.length > 3){
-            let ada = false;
-            for(let k=0; k<titipan.length; k++){ if(titipan[k].nama === nama) ada = true; }
-            if(!ada){ titipan.push({nama: nama, jenis: jenis}); berubah = true; }
+          let jenis = baris.toLowerCase().includes("izin") ? "Izin" : "Sakit";
+          if(nama.length > 3 && !titipan.some(k => k.nama === nama)){
+            titipan.push({nama: nama, jenis: jenis, tanggal: hariIni}); berubah = true;
           }
         }
       }
       if(berubah) localStorage.setItem("autoAbsenIzin", JSON.stringify(titipan));
     }
-
-    // 2. EKSEKUSI: Kalau di halaman Absensi, klik tombolnya
+    // 2. EKSEKUSI: cuma kalau titipan hari ini
     if(teks.includes("Absensi") && teks.includes("Belum Absen")){
-      let titipan2 = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]");
-      if(titipan2.length === 0) return;
+      let titipan2 = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]").filter(x => x.tanggal === hariIni);
       for(let j=0; j<titipan2.length; j++){
         let data = titipan2[j];
         let kartu = document.querySelectorAll("div");
         for(let k=0; k<kartu.length; k++){
           let c = kartu[k];
-          // Cari kartu yang namanya pas dan masih Belum Absen
-          if(c.innerText && c.innerText.includes(data.nama) && c.innerText.includes("Belum Absen") && c.innerText.length < 400 && c.innerText.length > 20){
+          if(c.innerText && c.innerText.includes(data.nama) && c.innerText.includes("Belum Absen") && c.innerText.length < 400){
             let tombol = c.querySelectorAll("button");
             for(let b=0; b<tombol.length; b++){
-              let isi = tombol[b].innerText || "";
-              // FIX DI SINI: pakai includes, bukan persis sama
-              // Jadi "🤒 Sakit" tetap ketemu
-              if(isi.includes(data.jenis) && !isi.includes("Hapus") && !isi.includes("Edit")){
-                tombol[b].click();
-                console.log("AUTO KLIK: " + data.nama + " -> " + data.jenis);
-                break;
-              }
+              if((tombol[b].innerText||"").includes(data.jenis) && !(tombol[b].innerText||"").includes("Hapus") && !(tombol[b].innerText||"").includes("Edit")){ tombol[b].click(); break; }
             }
             break;
           }
