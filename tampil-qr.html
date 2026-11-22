@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QR Ujian - Al Manar</title><script src="https://unpkg.com/html5-qrcode"></script><style>body{font-family:sans-serif;padding:15px;background:#111;color:#fff;text-align:center}button{width:100%;padding:14px;margin:6px 0;border-radius:8px;border:none;font-weight:bold;background:#1877f2;color:#fff}.card{background:#fff;color:#000;padding:15px;border-radius:15px;margin:10px 0}img{width:90%;max-width:380px;background:#fff;padding:10px;border-radius:12px}.btn-excel{background:#00a400}.btn-hapus{background:#e74c3c}</style></head><body>
+<h2 id="judulTampil">QR UJIAN</h2><p id="infoTampil"></p>
+<div class="card"><div id="qrBox"></div><p style="font-size:13px;color:#555">Siswa scan QR ini / klik link WA.</p></div>
+<button style="background:#25D366" onclick="shareWA()">📲 SHARE LINK KE WA GROUP</button>
+<button onclick="location.href='buat-soal.html'">⬅️ KEMBALI EDIT SOAL</button>
+<button onclick="scanNilai()">📷 SCAN QR NILAI SISWA</button>
+<div id="reader" style="width:100%"></div><div id="hasilScan"></div>
+<div class="card"><h3>📋 Daftar Nilai (<span id="jml">0</span>)</h3><div id="daftarNilai"></div>
+<button class="btn-excel" onclick="downloadExcel()">📊 DOWNLOAD EXCEL / CSV</button>
+<button class="btn-hapus" onclick="hapusSemua()">🗑️ HAPUS SEMUA NILAI</button></div>
+<script>
+let daftar=JSON.parse(localStorage.getItem('nilai_almanar')||'[]');
+let data=JSON.parse(localStorage.getItem('ujian_aktif')||'null');
+if(!data){ document.getElementById('qrBox').innerHTML="<p>Belum ada soal. Buat soal dulu, Pak!</p>"; }
+else{
+  document.getElementById('judulTampil').innerText="📚 "+data.j;
+  document.getElementById('infoTampil').innerText=`⏰ ${data.t} Menit | Soal: ${data.s.length} | Diacak`;
+  let encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  let link=location.href.replace('tampil-qr.html','siswa-masuk.html')+'#'+encoded;
+  document.getElementById('qrBox').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(link)}"><p style="font-size:11px;word-break:break-all;color:#888">${link}</p>`;
+}
+tampilDaftar();
+function shareWA(){
+  if(!data) return alert("Buat soal dulu, Pak!");
+  let encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  let link=location.href.replace('tampil-qr.html','siswa-masuk.html')+'#'+encoded;
+  let pesan=`Assalamu'alaikum anak-anak, silahkan kerjakan ujian:\n\n📚 ${data.j}\n⏰ Waktu: ${data.t} Menit\nSoal: ${data.s.length} soal (diacak)\n\nKlik link ini:\n${link}\n\nIsi Nama & Kelas dulu ya!`;
+  window.open('https://wa.me/?text='+encodeURIComponent(pesan), '_blank');
+}
+function scanNilai(){
+  let html5Qr=new Html5Qrcode("reader");
+  html5Qr.start({facingMode:"environment"},{fps:10,qrbox:250},(text)=>{
+    try{let d=JSON.parse(atob(text)); if(daftar.find(x=>x.nama==d.nama)) return alert("Nama "+d.nama+" sudah ada!");
+    daftar.push(d); localStorage.setItem('nilai_almanar',JSON.stringify(daftar)); tampilDaftar(); document.getElementById('hasilScan').innerHTML=`<p style="color:#00ff00">✅ ${d.nama} - Nilai ${d.nilai}</p>`; html5Qr.stop();}catch(e){alert("QR bukan QR Nilai!")}
+  });
+}
+function tampilDaftar(){ document.getElementById('jml').innerText=daftar.length; document.getElementById('daftarNilai').innerHTML=daftar.map((x,i)=>`<p>${i+1}. 👦 ${x.nama} : <b>${x.nilai}</b> (${x.benar}/${x.total})</p>`).join('')||"Belum ada nilai"; }
+function downloadExcel(){ if(!daftar.length) return alert("Belum ada nilai!"); let csv="No,Nama,Nilai,Benar,Total,Waktu\n"+daftar.map((x,i)=>`${i+1},"${x.nama}",${x.nilai},${x.benar},${x.total},"${x.waktu||''}"`).join("\n"); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:'text/csv'})); a.download='Nilai-'+(data?data.j:'Ujian')+'.csv'; a.click(); }
+function hapusSemua(){ if(confirm("Hapus semua nilai?")){daftar=[]; localStorage.removeItem('nilai_almanar'); tampilDaftar();} }
+</script></body></html>
