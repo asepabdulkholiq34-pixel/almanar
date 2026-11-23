@@ -2,153 +2,154 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ujian QR - Aqidah Akhlak</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buat Ujian - Pak Guru</title>
 <style>
-body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:12px;background:#f6f6f6}
-.card{background:#fff;padding:14px;border-radius:12px;margin-bottom:12px;box-shadow:0 1px 4px #ccc}
-input,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;font-size:15px}
-textarea{min-height:220px}
-button{width:100%;padding:13px;margin:6px 0;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;color:#fff}
-.biru{background:#1a73e8}.hijau{background:#0f9d58}.abu{background:#5f6368}.orange{background:#f29900}.merah{background:#d93025}.hitam{background:#333}
-.hidden{display:none}
-.center{text-align:center}
-#qrcode{width:260px;height:260px;margin:10px auto;background:#fff;padding:10px;border:1px solid #ddd}
-#qrcode img{width:100%;height:100%}
-small{color:#555}
+body{font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:12px}
+.card{background:#fff;padding:16px;border-radius:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+h2{margin:0 0 10px}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border:1px solid #cbd5e1;border-radius:10px;box-sizing:border-box;font-size:15px}
+button{width:100%;padding:14px;border:none;border-radius:10px;font-weight:bold;font-size:16px;margin-top:8px;cursor:pointer}
+.btn-hijau{background:#16a34a;color:#fff}
+.btn-biru{background:#2563eb;color:#fff}
+.btn-ungu{background:#7c3aed;color:#fff}
+.btn-hitam{background:#111827;color:#fff}
+.btn-abu{background:#e2e8f0}
+.soal-item{background:#f8fafc;border:1px solid #e2e8f0;padding:10px;border-radius:10px;margin-top:8px}
+#qrBox{text-align:center}
+#qrBox img{width:260px;height:260px;margin:10px auto;display:block}
+#kotakScan{display:none;background:#000;padding:10px;border-radius:12px;margin-top:10px}
 </style>
 </head>
 <body>
 
-<!-- HALAMAN 1 -->
+<!-- HALAMAN 1 : BUAT SOAL -->
 <div id="hal1">
 <div class="card">
-<h2>📝 Halaman 1 - Buat Soal</h2>
-<label>Nama Mapel</label>
-<input id="mapel" value="Aqidah akhlak">
-<label>Jumlah Soal (otomatis)</label>
-<input id="jml" readonly value="15">
-<p><small>Format: Soal | A | B | C | D | Kunci - 1 baris 1 soal</small></p>
-<textarea id="soalBox">Apa arti dari Husnudzon? | Berbaik sangka | Tasbih | Dengan menjaga hak orang lain | akhlak terpuji | A
-Husnudzon kepada Allah sangat diperlukan dalam rangka meningkatkan... | kepada Allah | Kebebasan menjalankan ajaran agama | Berbaik sangka | keimanan | Selalu optimis | C
-Orang yang mempunyai sifat husnudzon dapat dilihat dari tingkah lakunya sehari-hari, diantaranya... | Dengan menjaga hak-hak orang lain | Tasbih | Tahmid | akhlak terpuji | A
-Salah satu bacaan yang diajarkan oleh Nabi Muhammad SAW kepada kita adalah... | Tasbih | keimanan | Selalu optimis | Berbaik sangka | A
-Husnudzon kepada sesama manusia dapat dilakukan dengan cara... | Berbaik sangka | Tasbih | Tahmid | Takbir | A
-Lawan dari husnudzon adalah... | Suudzon | Tasbih | Tahmid | Takbir | A
-Manfaat berbaik sangka kepada Allah adalah... | Hati menjadi tenang | Hati gelisah | Mudah marah | Sombong | A
-Contoh perilaku husnudzon di sekolah adalah... | Berbaik sangka kepada teman | Mengejek teman | Mengganggu teman | Memfitnah teman | A
-Orang yang selalu berprasangka baik pada sesama akan... | Disukai teman | Dijauhi teman | Dimusuhi | Dibenci | A
-Husnudzon kepada guru ditunjukkan dengan... | Mendengarkan penjelasan guru | Mengabaikan guru | Mengejek guru | Tidur di kelas | A
-Sikap suudzon dapat menyebabkan... | Permusuhan | Persahabatan | Kerukunan | Kedamaian | A
-Contoh suudzon adalah... | Menuduh teman mencuri tanpa bukti | Membantu teman | Memuji teman | Menolong teman | A
-Agar terhindar dari suudzon kita harus... | Berbaik sangka | Berburuk sangka | Iri hati | Dengki | A
-Manfaat husnudzon bagi diri sendiri adalah... | Hati tenang | Hati gelisah | Mudah marah | Stress | A
-Husnudzon termasuk akhlak... | Mahmudah | Mazmumah | Tercela | Buruk | A</textarea>
-<button class="biru" onclick="simpanDanKeHal2()">💾 SIMPAN & BUKA HALAMAN 2 - TAMPILKAN QR</button>
-<button class="hijau" onclick="simpanSaja()">💾 SIMPAN SAJA</button>
-<button class="abu" onclick="bukaHal2()">👀 BUKA HALAMAN 2 - LIHAT QR / NILAI</button>
+<h2>📝 Buat Ujian Baru, Pak</h2>
+<input id="judul" placeholder="Judul Ujian, contoh: Aqidah Akhlak - Bab 1" value="Aqidah Akhlak">
+<input id="mapel" placeholder="Mapel" value="Aqidah Akhlak">
+<input id="kelasUjian" placeholder="Kelas, contoh: XI AKL" value="XI AKL">
+<input id="waktu" type="number" placeholder="Waktu (menit)" value="15">
 </div>
 
 <div class="card">
-<h3>📦 BACKUP - BIAR TIDAK HILANG LAGI</h3>
-<button class="hijau" onclick="exportCSV()">📥 EXPORT EXCEL (CSV)</button>
-<button class="biru" onclick="exportJSON()">💾 BACKUP FILE JSON</button>
-<button class="orange" onclick="salinSheet()">📋 SALIN UNTUK GOOGLE SHEET</button>
-<p><b>📤 IMPORT:</b></p>
-<input type="file" id="fileInput" accept=".json,.csv,.txt" onchange="importFile(event)">
-<p><small>✅ 15 soal tersimpan.</small></p>
+<h2>➕ Tambah Soal</h2>
+<textarea id="tanya" rows="2" placeholder="Tulis pertanyaan..."></textarea>
+<input id="optA" placeholder="Jawaban A">
+<input id="optB" placeholder="Jawaban B">
+<input id="optC" placeholder="Jawaban C">
+<input id="optD" placeholder="Jawaban D">
+<select id="kunci"><option value="0">Kunci: A</option><option value="1">Kunci: B</option><option value="2">Kunci: C</option><option value="3">Kunci: D</option></select>
+<button class="btn-biru" onclick="tambahSoal()">➕ TAMBAH SOAL</button>
+<div id="listSoal"></div>
 </div>
 
 <div class="card">
-<button class="merah" onclick="buatBaru()">🗑️ BUAT UJIAN BARU (HAPUS SEMUA)</button>
-<p><small>Nilai siswa hanya ada di Halaman 2 ya, Pak. Biar tidak dobel.</small></p>
+<button class="btn-hijau" onclick="buatQR()">✅ BUAT QR UJIAN & LANJUT KE HALAMAN 2</button>
+<button class="btn-abu" onclick="hapusSemua()">🗑️ Hapus Semua Soal</button>
 </div>
 </div>
 
-<!-- HALAMAN 2 -->
-<div id="hal2" class="hidden">
-<div class="card center">
-<h2>📱 Halaman 2 - QR Untuk Siswa</h2>
-<p><b id="mapel2">Aqidah akhlak</b> - <span id="jml2">15</span> Soal</p>
-<p>Siswa scan QR ini. Soal TIDAK kelihatan di sini, Pak. Aman.</p>
-<div id="qrcode"></div>
-<p id="statusQR"><small>QR sedang dibuat...</small></p>
-<button class="hijau" onclick="salinLink()">📋 SALIN LINK UJIAN</button>
-<button class="biru" onclick="bukaHal1()">⬅️ KEMBALI KE HALAMAN 1</button>
-<button class="abu" onclick="window.print()">🖨️ PRINT / SIMPAN QR JADI PDF</button>
-</div>
-<div class="card"><h3>📊 Nilai Siswa - Hanya Di Sini, Pak</h3><p id="nilaiList">Belum ada nilai.</p><button class="hitam" onclick="exportNilai()">📥 Export Nilai ke Excel</button></div>
+<!-- HALAMAN 2 : QR + NILAI -->
+<div id="hal2" style="display:none">
+<div class="card" id="qrBox">
+<h2>✅ QR Berhasil Dibuat, Pak. Silakan tampilkan.</h2>
+<div id="infoUjian"></div>
+<img id="imgQR">
+<button class="btn-hijau" onclick="salinLink()">📋 SALIN LINK UJIAN</button>
+<button class="btn-biru" onclick="keHal1()">⬅️ KEMBALI KE HALAMAN 1</button>
+<button class="btn-abu" onclick="window.print()">🖨️ PRINT / SIMPAN QR JADI PDF</button>
 </div>
 
+<div class="card">
+<h2>📋 Nilai Siswa - Hanya Di Sini, Pak</h2>
+<div id="listNilai">Belum ada nilai.</div>
+<button class="btn-ungu" onclick="bukaScan()">📷 SCAN QR NILAI SISWA</button>
+<div id="kotakScan">
+<div id="reader" style="width:100%"></div>
+<button style="background:#ef4444;color:#fff" onclick="tutupScan()">❌ TUTUP KAMERA</button>
+<p style="color:#fff;text-align:center;font-size:13px">Arahkan kamera ke QR Nilai di HP siswa, Pak.</p>
+</div>
+<button class="btn-hitam" onclick="exportExcel()">📦 Export Nilai ke Excel</button>
+<button class="btn-abu" onclick="hapusNilai()">🗑️ Hapus Semua Nilai</button>
+</div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-let dataSoal=[], linkUjian="";
-function parseSoal(){
-  let lines=document.getElementById('soalBox').value.trim().split('\n');
-  dataSoal=[];
-  lines.forEach(l=>{ let p=l.split('|').map(s=>s.trim()); if(p.length>=6) dataSoal.push({soal:p[0],a:p[1],b:p[2],c:p[3],d:p[4],kunci:p[5].toUpperCase()}); });
-  document.getElementById('jml').value=dataSoal.length;
-  document.getElementById('mapel2').innerText=document.getElementById('mapel').value;
-  document.getElementById('jml2').innerText=dataSoal.length;
-  return dataSoal;
+let soalList = JSON.parse(localStorage.getItem("soalList")||"[]");
+let daftarNilai = JSON.parse(localStorage.getItem("daftarNilai")||"[]");
+let linkUjian = "";
+let html5Qr = null;
+
+function renderSoal(){
+  document.getElementById("listSoal").innerHTML = soalList.map((s,i)=>`<div class="soal-item"><b>${i+1}. ${s.q}</b><br>A. ${s.opts[0]}<br>B. ${s.opts[1]}<br>C. ${s.opts[2]}<br>D. ${s.opts[3]}<br>🔑 Kunci: ${"ABCD"[s.kunci]} <button style="width:auto;padding:6px 10px;background:#ef4444;color:#fff" onclick="hapusSoal(${i})">Hapus</button></div>`).join("") || "<p style='color:#64748b'>Belum ada soal, Pak.</p>";
 }
-function buatLink(){
-  parseSoal();
-  // FORMAT PENDEK - Hemat 40% : Mapel~Soal|A|B|C|D|Kunci~Soal2|...
-  // Kunci diubah jadi angka 0=A,1=B,2=C,3=D biar pendek
-  let mapKunci={A:0,B:1,C:2,D:3};
-  let parts=dataSoal.map(s=> s.soal+"|"+s.a+"|"+s.b+"|"+s.c+"|"+s.d+"|"+(mapKunci[s.kunci]??0) );
-  let teks=document.getElementById('mapel').value+"~"+parts.join("~");
-  // Pakai encodeURI saja, lebih pendek dari base64
-  let base=window.location.href.split('buat-soal.html')[0];
-  linkUjian=base+'siswa-soal.html?d='+encodeURIComponent(teks);
-  return linkUjian;
+function tambahSoal(){
+  let q=document.getElementById("tanya").value.trim();
+  let opts=[optA.value.trim(),optB.value.trim(),optC.value.trim(),optD.value.trim()];
+  if(!q||opts.some(o=>!o)){alert("Lengkapi soal & 4 jawaban dulu, Pak.");return;}
+  soalList.push({q,opts,kunci:parseInt(kunci.value)});
+  localStorage.setItem("soalList",JSON.stringify(soalList));
+  tanya.value="";optA.value="";optB.value="";optC.value="";optD.value="";
+  renderSoal();
 }
+function hapusSoal(i){ soalList.splice(i,1); localStorage.setItem("soalList",JSON.stringify(soalList)); renderSoal(); }
+function hapusSemua(){ if(confirm("Hapus semua soal, Pak?")){soalList=[];localStorage.removeItem("soalList");renderSoal();} }
+
 function buatQR(){
-  try{
-    let link=buatLink();
-    document.getElementById('qrcode').innerHTML='';
-    document.getElementById('statusQR').innerHTML='<small>QR dibuat... Panjang link: '+link.length+' huruf</small>';
-    // CorrectLevel L = paling hemat, bisa muat data paling banyak
-    new QRCode(document.getElementById('qrcode'), {text:link, width:260, height:260, correctLevel:QRCode.CorrectLevel.L});
-    document.getElementById('statusQR').innerHTML='<small style="color:green">✅ QR Berhasil Dibuat, Pak! Silakan tampilkan.</small>';
-    localStorage.setItem('ujian_terakhir', JSON.stringify({mapel:document.getElementById('mapel').value, teks:document.getElementById('soalBox').value}));
-    return true;
-  }catch(e){
-    document.getElementById('statusQR').innerHTML='<small style="color:red">❌ QR gagal. Soal terlalu panjang. Kurangi kata soal, Pak.</small>';
-    alert('QR gagal dibuat, Pak. Coba persingkat soal nya sedikit, Pak.');
-    return false;
-  }
-}
-function simpanDanKeHal2(){
-  // 1. Pindah dulu, biar tidak kelihatan diam
-  document.getElementById('hal1').classList.add('hidden');
-  document.getElementById('hal2').classList.remove('hidden');
+  if(soalList.length==0){alert("Belum ada soal, Pak. Tambah dulu, Pak.");return;}
+  let data={judul:judul.value,mapel:mapel.value,kelas:kelasUjian.value,waktu:parseInt(waktu.value)||15,soal:soalList};
+  localStorage.setItem("ujianAktif",JSON.stringify(data));
+  let base = location.href.replace("buat-soal.html","").replace("buat-soal","").split("?")[0];
+  if(!base.endsWith("/")) base+="/";
+  // Link siswa bawa data ujian di URL, jadi siswa tidak perlu login
+  linkUjian = base + "siswa-soal.html?ujian=" + encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(data)))));
+  document.getElementById("infoUjian").innerHTML = `<b>${data.judul}</b><br>${data.mapel} | Kelas ${data.kelas} | ${data.soal.length} Soal | ${data.waktu} Menit`;
+  document.getElementById("imgQR").src = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="+encodeURIComponent(linkUjian);
+  document.getElementById("hal1").style.display="none";
+  document.getElementById("hal2").style.display="block";
+  tampilNilai();
   window.scrollTo(0,0);
-  // 2. Baru bikin QR, kasih jeda 300ms biar halaman kebuka dulu
-  setTimeout(()=>{ buatQR(); alert('Tersimpan! QR sudah dibuat di Halaman 2, Pak.'); }, 300);
 }
-function simpanSaja(){ if(buatQR()) alert('Tersimpan, Pak! QR sudah siap di Halaman 2.'); }
-function bukaHal2(){
-  parseSoal();
-  if(dataSoal.length==0){ alert('Soal kosong, Pak.'); return; }
-  document.getElementById('hal1').classList.add('hidden');
-  document.getElementById('hal2').classList.remove('hidden');
-  window.scrollTo(0,0);
-  setTimeout(()=>{ buatQR(); }, 300);
+function keHal1(){ document.getElementById("hal1").style.display="block"; document.getElementById("hal2").style.display="none"; }
+function salinLink(){ navigator.clipboard.writeText(linkUjian).then(()=>alert("Link tersalin, Pak!")); }
+
+function tampilNilai(){
+  let el=document.getElementById("listNilai");
+  if(daftarNilai.length==0){el.innerHTML="Belum ada nilai.";return;}
+  el.innerHTML = daftarNilai.map((n,i)=>`${i+1}. <b>${n.nama}</b> (${n.kelas}) - ${n.mapel} : <b>${n.nilai}</b> (${n.benar}/${n.total})`).join("<br>");
 }
-function bukaHal1(){ document.getElementById('hal2').classList.add('hidden'); document.getElementById('hal1').classList.remove('hidden'); window.scrollTo(0,0); }
-function salinLink(){ if(!linkUjian) buatLink(); navigator.clipboard.writeText(linkUjian).then(()=>alert('Link tersalin, Pak!')); }
-function exportCSV(){ parseSoal(); let csv='No,Soal,A,B,C,D,Kunci\n'; dataSoal.forEach((s,i)=>{ csv+=(i+1)+',"'+s.soal.replace(/"/g,'""')+'","'+s.a+'","'+s.b+'","'+s.c+'","'+s.d+'","'+s.kunci+'"\n'; }); download(csv,'soal.csv','text/csv'); }
-function exportJSON(){ parseSoal(); download(JSON.stringify({mapel:document.getElementById('mapel').value, soal:dataSoal},null,2),'backup.json','application/json'); }
-function exportNilai(){ download('Nama,Nilai\nBelum ada nilai\n','nilai.csv','text/csv'); }
-function download(c,n,t){ let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([c],{type:t})); a.download=n; a.click(); }
-function salinSheet(){ parseSoal(); let txt='No\tSoal\tA\tB\tC\tD\tKunci\n'; dataSoal.forEach((s,i)=>{ txt+=(i+1)+'\t'+s.soal+'\t'+s.a+'\t'+s.b+'\t'+s.c+'\t'+s.d+'\t'+s.kunci+'\n'; }); navigator.clipboard.writeText(txt).then(()=>alert('Tersalin! Buka sheets.google.com > Paste.')); }
-function importFile(e){ let f=e.target.files[0]; if(!f) return; let r=new FileReader(); r.onload=function(){ try{ let j=JSON.parse(r.result); document.getElementById('mapel').value=j.mapel||'Aqidah akhlak'; document.getElementById('soalBox').value=j.soal.map(s=>s.soal+' | '+s.a+' | '+s.b+' | '+s.c+' | '+s.d+' | '+s.kunci).join('\n'); parseSoal(); alert('Berhasil Import! '+dataSoal.length+' soal.'); }catch(err){ alert('Pakai file BACKUP FILE JSON, Pak.'); } }; r.readAsText(f); }
-function buatBaru(){ if(!confirm('Hapus semua? EXPORT dulu, Pak!')) return; document.getElementById('soalBox').value=''; document.getElementById('mapel').value=''; parseSoal(); }
-let last=localStorage.getItem('ujian_terakhir');
-if(last){ try{ let j=JSON.parse(last); document.getElementById('mapel').value=j.mapel; document.getElementById('soalBox').value=j.teks; }catch(e){} }
-parseSoal();
+function hapusNilai(){ if(confirm("Hapus semua nilai, Pak?")){daftarNilai=[];localStorage.removeItem("daftarNilai");tampilNilai();} }
+
+function bukaScan(){
+  document.getElementById("kotakScan").style.display="block";
+  html5Qr = new Html5Qrcode("reader");
+  html5Qr.start({facingMode:"environment"},{fps:10,qrbox:250},
+    (teks)=>{
+      if(teks.startsWith("NILAI|")){
+        let p=teks.split("|");
+        let baru={nama:p[1],kelas:p[2],mapel:p[3],nilai:p[4],benar:p[5],total:p[6]};
+        if(!daftarNilai.find(x=>x.nama==baru.nama && x.kelas==baru.kelas && x.mapel==baru.mapel)){
+          daftarNilai.push(baru); localStorage.setItem("daftarNilai",JSON.stringify(daftarNilai)); tampilNilai();
+          alert("✅ Masuk, Pak! "+baru.nama+" - Nilai "+baru.nilai);
+        } else alert("⚠️ Sudah di-scan, Pak! "+baru.nama);
+        tutupScan();
+      }
+    },()=>{}
+  ).catch(e=>alert("Kamera tidak bisa dibuka, Pak. Cek izin kamera di Chrome, harus Allow, Pak. Jangan pakai Mode Desktop, pakai Mode HP biasa, Pak."));
+}
+function tutupScan(){
+  if(html5Qr){ html5Qr.stop().then(()=>{html5Qr.clear();document.getElementById("kotakScan").style.display="none";}).catch(()=>{document.getElementById("kotakScan").style.display="none";}); }
+  else document.getElementById("kotakScan").style.display="none";
+}
+function exportExcel(){
+  if(daftarNilai.length==0){alert("Belum ada nilai, Pak.");return;}
+  let csv="No,Nama,Kelas,Mapel,Nilai,Benar,Total\n"+daftarNilai.map((n,i)=>(i+1)+","+n.nama+","+n.kelas+","+n.mapel+","+n.nilai+","+n.benar+","+n.total).join("\n");
+  let blob=new Blob(["\ufeff"+csv],{type:"text/csv"}); let a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="Nilai-Ujian.csv"; a.click();
+}
+renderSoal(); tampilNilai();
 </script>
 </body>
 </html>
