@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ujian QR - Aqidah Akhlak</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:12px;background:#f6f6f6}
 .card{background:#fff;padding:14px;border-radius:12px;margin-bottom:12px;box-shadow:0 1px 4px #ccc}
@@ -12,14 +13,15 @@ textarea{min-height:220px}
 button{width:100%;padding:13px;margin:6px 0;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;color:#fff}
 .biru{background:#1a73e8}.hijau{background:#0f9d58}.abu{background:#5f6368}.orange{background:#f29900}.merah{background:#d93025}.hitam{background:#333}
 .hidden{display:none}
-#qrImg{width:260px;height:260px;border:1px solid #ddd}
 .center{text-align:center}
+#qrcode{width:260px;height:260px;margin:10px auto;background:#fff;padding:10px;border:1px solid #ddd}
+#qrcode img{width:100%;height:100%}
 small{color:#555}
 </style>
 </head>
 <body>
 
-<!-- ============ HALAMAN 1 ============ -->
+<!-- HALAMAN 1 -->
 <div id="hal1">
 <div class="card">
 <h2>📝 Halaman 1 - Buat Soal</h2>
@@ -27,7 +29,7 @@ small{color:#555}
 <input id="mapel" value="Aqidah akhlak">
 <label>Jumlah Soal (otomatis)</label>
 <input id="jml" readonly value="15">
-<p><small>Format Soal: Soal | A | B | C | D | Kunci (A/B/C/D) - 1 baris 1 soal</small></p>
+<p><small>Format: Soal | A | B | C | D | Kunci - 1 baris 1 soal</small></p>
 <textarea id="soalBox">Apa arti dari Husnudzon? | Berbaik sangka | Tasbih | Dengan menjaga hak orang lain | akhlak terpuji | A
 Husnudzon kepada Allah sangat diperlukan dalam rangka meningkatkan... | kepada Allah | Kebebasan menjalankan ajaran agama | Berbaik sangka | keimanan | Selalu optimis | C
 Orang yang mempunyai sifat husnudzon dapat dilihat dari tingkah lakunya sehari-hari, diantaranya... | Dengan menjaga hak-hak orang lain | Tasbih | Tahmid | akhlak terpuji | A
@@ -44,7 +46,7 @@ Agar terhindar dari suudzon kita harus... | Berbaik sangka | Berburuk sangka | I
 Manfaat husnudzon bagi diri sendiri adalah... | Hati tenang | Hati gelisah | Mudah marah | Stress | A
 Husnudzon termasuk akhlak... | Mahmudah | Mazmumah | Tercela | Buruk | A</textarea>
 <button class="biru" onclick="simpanDanKeHal2()">💾 SIMPAN & BUKA HALAMAN 2 - TAMPILKAN QR</button>
-<button class="hijau" onclick="simpanSaja()">💾 SIMPAN SAJA (Tetap di Halaman 1)</button>
+<button class="hijau" onclick="simpanSaja()">💾 SIMPAN SAJA</button>
 <button class="abu" onclick="bukaHal2()">👀 BUKA HALAMAN 2 - LIHAT QR / NILAI</button>
 </div>
 
@@ -53,147 +55,84 @@ Husnudzon termasuk akhlak... | Mahmudah | Mazmumah | Tercela | Buruk | A</textar
 <button class="hijau" onclick="exportCSV()">📥 EXPORT EXCEL (CSV)</button>
 <button class="biru" onclick="exportJSON()">💾 BACKUP FILE JSON</button>
 <button class="orange" onclick="salinSheet()">📋 SALIN UNTUK GOOGLE SHEET</button>
-<p><b>📤 IMPORT - Kembalikan soal yang hilang:</b></p>
+<p><b>📤 IMPORT:</b></p>
 <input type="file" id="fileInput" accept=".json,.csv,.txt" onchange="importFile(event)">
-<p><small>✅ Soal dimuat 15 soal. Cara Google Sheet: Klik SALIN > Buka sheets.google.com > Paste.<br>✅ File JSON untuk backup lengkap.</small></p>
-</div>
-
-<div class="card">
-<h3>🖨️ QR Ujian (Preview)</h3>
-<div class="center"><div id="qrPreview"><p style="color:#888">Belum ada QR. Pencet SIMPAN dulu, Pak.</p></div></div>
-<p class="center"><small>Link siswa: <span id="linkSiswa">-</span></small></p>
+<p><small>✅ 15 soal tersimpan. Klik SALIN > Buka sheets.google.com > Paste.</small></p>
 </div>
 
 <div class="card">
 <button class="merah" onclick="buatBaru()">🗑️ BUAT UJIAN BARU (HAPUS SEMUA)</button>
 <h3>📊 Nilai Siswa</h3>
-<p id="nilaiList">Belum ada nilai.</p>
+<p>Belum ada nilai.</p>
 <button class="hitam" onclick="exportNilai()">📥 Export Nilai ke Excel</button>
 </div>
 </div>
 
-<!-- ============ HALAMAN 2 ============ -->
+<!-- HALAMAN 2 -->
 <div id="hal2" class="hidden">
 <div class="card center">
 <h2>📱 Halaman 2 - QR Untuk Siswa</h2>
 <p><b id="mapel2">Aqidah akhlak</b> - <span id="jml2">15</span> Soal</p>
-<p>Siswa scan QR ini. Siswa TIDAK melihat soal di sini, Pak. Soal muncul setelah scan di HP siswa.</p>
-<img id="qrImg" src="">
-<p><b>Link Ujian:</b><br><small id="link2" style="word-break:break-all"></small></p>
+<p>Siswa scan QR ini. Soal TIDAK kelihatan di sini, Pak. Aman.</p>
+<div id="qrcode"></div>
+<p><small>Link sudah di dalam QR. Pencet SALIN kalau mau kirim via WA.</small></p>
 <button class="hijau" onclick="salinLink()">📋 SALIN LINK UJIAN</button>
-<button class="biru" onclick="bukaHal1()">⬅️ KEMBALI KE HALAMAN 1 - BUAT SOAL</button>
+<button class="biru" onclick="bukaHal1()">⬅️ KEMBALI KE HALAMAN 1</button>
 <button class="abu" onclick="window.print()">🖨️ PRINT / SIMPAN QR JADI PDF</button>
 </div>
-<div class="card">
-<h3>📊 Nilai Siswa</h3>
-<p id="nilaiList2">Belum ada nilai.</p>
-<button class="hitam" onclick="exportNilai()">📥 Export Nilai ke Excel</button>
-</div>
+<div class="card"><h3>📊 Nilai Siswa</h3><p>Belum ada nilai.</p><button class="hitam" onclick="exportNilai()">📥 Export Nilai ke Excel</button></div>
 </div>
 
 <script>
-let dataSoal = [];
+let dataSoal=[], linkUjian="";
 function parseSoal(){
-  let lines = document.getElementById('soalBox').value.trim().split('\n');
-  dataSoal = [];
-  lines.forEach(l=>{
-    let p = l.split('|').map(s=>s.trim());
-    if(p.length>=6) dataSoal.push({soal:p[0],a:p[1],b:p[2],c:p[3],d:p[4],kunci:p[5].toUpperCase()});
-  });
-  document.getElementById('jml').value = dataSoal.length;
-  document.getElementById('mapel2').innerText = document.getElementById('mapel').value;
-  document.getElementById('jml2').innerText = dataSoal.length;
+  let lines=document.getElementById('soalBox').value.trim().split('\n');
+  dataSoal=[];
+  lines.forEach(l=>{ let p=l.split('|').map(s=>s.trim()); if(p.length>=6) dataSoal.push({soal:p[0],a:p[1],b:p[2],c:p[3],d:p[4],kunci:p[5].toUpperCase()}); });
+  document.getElementById('jml').value=dataSoal.length;
+  document.getElementById('mapel2').innerText=document.getElementById('mapel').value;
+  document.getElementById('jml2').innerText=dataSoal.length;
   return dataSoal;
 }
 function buatLink(){
   parseSoal();
-  let data = {mapel:document.getElementById('mapel').value, soal:dataSoal};
-  let encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-  // Link ke halaman siswa - file siswa-soal.html di folder yang sama
-  let base = window.location.href.split('buat-soal.html')[0];
-  let link = base + 'siswa-soal.html?data=' + encoded;
-  return link;
+  // Format pendek: array [soal,A,B,C,D,kunci] biar QR lebih kecil
+  let pendek = dataSoal.map(s=>[s.soal,s.a,s.b,s.c,s.d,s.kunci]);
+  let data={m:document.getElementById('mapel').value, s:pendek};
+  let encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  let base=window.location.href.split('buat-soal.html')[0];
+  linkUjian=base+'siswa-soal.html?data='+encoded;
+  return linkUjian;
 }
-function tampilkanQR(){
-  let link = buatLink();
-  let qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(link);
-  document.getElementById('qrPreview').innerHTML = '<img src="'+qrUrl+'" style="width:200px;height:200px">';
-  document.getElementById('linkSiswa').innerText = link;
-  document.getElementById('qrImg').src = qrUrl;
-  document.getElementById('link2').innerText = link;
+function buatQR(){
+  let link=buatLink();
+  document.getElementById('qrcode').innerHTML='';
+  // Bikin QR di HP sendiri, tidak pakai web luar, jadi tidak ERROR
+  new QRCode(document.getElementById('qrcode'), {text:link, width:260, height:260, correctLevel:QRCode.CorrectLevel.M});
   localStorage.setItem('ujian_terakhir', JSON.stringify({mapel:document.getElementById('mapel').value, teks:document.getElementById('soalBox').value}));
-  alert('Tersimpan! QR sudah dibuat. Silakan buka Halaman 2, Pak.');
 }
-function simpanDanKeHal2(){ tampilkanQR(); bukaHal2(); }
-function simpanSaja(){ tampilkanQR(); }
+function simpanDanKeHal2(){ buatQR(); bukaHal2(); alert('QR berhasil dibuat, Pak! Silakan tampilkan ke siswa.'); }
+function simpanSaja(){ buatQR(); alert('Tersimpan, Pak! QR sudah siap di Halaman 2.'); }
 function bukaHal2(){
   parseSoal();
-  if(dataSoal.length==0){ alert('Soal masih kosong, Pak. Isi dulu.'); return; }
-  // Kalau belum pernah simpan, buatkan QR dulu
-  if(!document.getElementById('qrImg').src){ tampilkanQR(); }
+  if(dataSoal.length==0){ alert('Soal kosong, Pak.'); return; }
+  if(!linkUjian) buatQR();
   document.getElementById('hal1').classList.add('hidden');
   document.getElementById('hal2').classList.remove('hidden');
   window.scrollTo(0,0);
 }
-function bukaHal1(){
-  document.getElementById('hal2').classList.add('hidden');
-  document.getElementById('hal1').classList.remove('hidden');
-  window.scrollTo(0,0);
-}
-function salinLink(){
-  let link = document.getElementById('link2').innerText;
-  navigator.clipboard.writeText(link).then(()=>alert('Link tersalin, Pak!'));
-}
-function exportCSV(){
-  parseSoal();
-  let csv = 'No,Soal,A,B,C,D,Kunci\n';
-  dataSoal.forEach((s,i)=>{ csv += (i+1)+',"'+s.soal.replace(/"/g,'""')+'","'+s.a+'","'+s.b+'","'+s.c+'","'+s.d+'","'+s.kunci+'"\n'; });
-  download(csv, 'soal-'+document.getElementById('mapel').value+'.csv', 'text/csv');
-}
-function exportJSON(){
-  parseSoal();
-  let j = JSON.stringify({mapel:document.getElementById('mapel').value, soal:dataSoal}, null, 2);
-  download(j, 'backup-'+document.getElementById('mapel').value+'.json', 'application/json');
-}
-function exportNilai(){
-  let csv = 'Nama,Nilai,Benar,Total\nBelum ada nilai\n';
-  download(csv, 'nilai.csv', 'text/csv');
-}
-function download(content, name, type){
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], {type:type}));
-  a.download = name; a.click();
-}
-function salinSheet(){
-  parseSoal();
-  let txt = 'No\tSoal\tA\tB\tC\tD\tKunci\n';
-  dataSoal.forEach((s,i)=>{ txt += (i+1)+'\t'+s.soal+'\t'+s.a+'\t'+s.b+'\t'+s.c+'\t'+s.d+'\t'+s.kunci+'\n'; });
-  navigator.clipboard.writeText(txt).then(()=>alert('Tersalin! Buka sheets.google.com > Sheet Baru > Paste, Pak.'));
-}
-function importFile(e){
-  let f = e.target.files[0]; if(!f) return;
-  let r = new FileReader();
-  r.onload = function(){
-    try{
-      let j = JSON.parse(r.result);
-      document.getElementById('mapel').value = j.mapel || 'Aqidah akhlak';
-      let teks = j.soal.map(s=> s.soal+' | '+s.a+' | '+s.b+' | '+s.c+' | '+s.d+' | '+s.kunci).join('\n');
-      document.getElementById('soalBox').value = teks;
-      parseSoal(); alert('Berhasil Import! '+dataSoal.length+' soal kembali, Pak.');
-    }catch(err){ alert('File bukan JSON, Pak. Pakai file BACKUP FILE JSON.'); }
-  };
-  r.readAsText(f);
-}
-function buatBaru(){
-  if(!confirm('Hapus semua soal ini dan buat ujian baru, Pak? EXPORT dulu ya, Pak!')) return;
-  document.getElementById('soalBox').value=''; document.getElementById('mapel').value=''; parseSoal();
-}
-// Load terakhir
-let last = localStorage.getItem('ujian_terakhir');
+function bukaHal1(){ document.getElementById('hal2').classList.add('hidden'); document.getElementById('hal1').classList.remove('hidden'); window.scrollTo(0,0); }
+function salinLink(){ if(!linkUjian) buatLink(); navigator.clipboard.writeText(linkUjian).then(()=>alert('Link tersalin, Pak!')); }
+function exportCSV(){ parseSoal(); let csv='No,Soal,A,B,C,D,Kunci\n'; dataSoal.forEach((s,i)=>{ csv+=(i+1)+',"'+s.soal.replace(/"/g,'""')+'","'+s.a+'","'+s.b+'","'+s.c+'","'+s.d+'","'+s.kunci+'"\n'; }); download(csv,'soal.csv','text/csv'); }
+function exportJSON(){ parseSoal(); download(JSON.stringify({mapel:document.getElementById('mapel').value, soal:dataSoal},null,2),'backup.json','application/json'); }
+function exportNilai(){ download('Nama,Nilai\nBelum ada nilai\n','nilai.csv','text/csv'); }
+function download(c,n,t){ let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([c],{type:t})); a.download=n; a.click(); }
+function salinSheet(){ parseSoal(); let txt='No\tSoal\tA\tB\tC\tD\tKunci\n'; dataSoal.forEach((s,i)=>{ txt+=(i+1)+'\t'+s.soal+'\t'+s.a+'\t'+s.b+'\t'+s.c+'\t'+s.d+'\t'+s.kunci+'\n'; }); navigator.clipboard.writeText(txt).then(()=>alert('Tersalin! Buka sheets.google.com > Paste.')); }
+function importFile(e){ let f=e.target.files[0]; if(!f) return; let r=new FileReader(); r.onload=function(){ try{ let j=JSON.parse(r.result); document.getElementById('mapel').value=j.mapel||'Aqidah akhlak'; document.getElementById('soalBox').value=j.soal.map(s=>s.soal+' | '+s.a+' | '+s.b+' | '+s.c+' | '+s.d+' | '+s.kunci).join('\n'); parseSoal(); alert('Berhasil Import! '+dataSoal.length+' soal.'); }catch(err){ alert('Pakai file BACKUP FILE JSON, Pak.'); } }; r.readAsText(f); }
+function buatBaru(){ if(!confirm('Hapus semua? EXPORT dulu, Pak!')) return; document.getElementById('soalBox').value=''; document.getElementById('mapel').value=''; parseSoal(); }
+let last=localStorage.getItem('ujian_terakhir');
 if(last){ try{ let j=JSON.parse(last); document.getElementById('mapel').value=j.mapel; document.getElementById('soalBox').value=j.teks; }catch(e){} }
 parseSoal();
-// Kalau dibuka dengan ?halaman2 langsung ke Hal 2
-if(window.location.search.includes('halaman2')){ bukaHal2(); }
 </script>
 </body>
 </html>
