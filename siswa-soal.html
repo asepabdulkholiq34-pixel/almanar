@@ -5,18 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ujian Siswa</title>
 <style>
-body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:12px;background:#f6f6f6}
-.card{background:#fff;padding:14px;border-radius:12px;margin-bottom:12px;box-shadow:0 1px 4px #ccc}
-input{width:100%;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;font-size:16px}
-button{width:100%;padding:14px;margin:6px 0;border:none;border-radius:10px;font-size:17px;font-weight:bold;cursor:pointer;color:#fff}
-.biru{background:#1a73e8}.hijau{background:#0f9d58}.abu{background:#5f6368}
-.soal{border:1px solid #ddd;border-radius:10px;padding:12px;margin-bottom:12px;background:#fff}
-.soal p{font-weight:bold;margin:0 0 8px 0}
-label{display:block;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px;cursor:pointer}
-label:has(input:checked){background:#e8f0fe;border-color:#1a73e8}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:10px;background:#f0f2f5;padding-bottom:80px}
+.card{background:#fff;padding:14px;border-radius:12px;margin-bottom:10px;box-shadow:0 1px 3px #ccc}
+h2{font-size:19px;margin:0 0 6px 0}
+p{font-size:14px;color:#444;margin:4px 0}
+input[type=text]{width:100%;padding:10px;margin:4px 0 8px 0;border:1px solid #ccc;border-radius:8px;font-size:15px}
+label{font-size:14px}
+.soal{border:1px solid #e0e0e0;border-radius:10px;padding:10px;margin-bottom:10px;background:#fff}
+.soal b{font-size:15px;display:block;margin-bottom:8px;line-height:1.4}
+.pilihan{display:flex;align-items:flex-start;gap:8px;padding:9px 10px;margin:5px 0;border:1px solid #ddd;border-radius:8px;cursor:pointer;font-size:14px;line-height:1.35;background:#fff}
+.pilihan input{margin:2px 0 0 0;min-width:16px;min-height:16px;accent-color:#1a73e8}
+.pilihan:has(input:checked){background:#e8f0fe;border-color:#1a73e8;font-weight:bold}
+.sticky{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:10px;border-top:1px solid #ddd;box-shadow:0 -2px 8px rgba(0,0,0,0.1);z-index:10}
+.sticky-inner{max-width:600px;margin:0 auto}
+button{width:100%;padding:13px;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;color:#fff}
+.hijau{background:#0f9d58}.biru{background:#1a73e8}.abu{background:#5f6368}
 .hidden{display:none}
 .center{text-align:center}
-.nilai{font-size:48px;font-weight:bold;color:#0f9d58}
+.nilai{font-size:52px;font-weight:bold;color:#0f9d58;line-height:1}
 </style>
 </head>
 <body>
@@ -25,11 +32,17 @@ label:has(input:checked){background:#e8f0fe;border-color:#1a73e8}
 <h2 id="judul">📝 Ujian</h2>
 <p>Isi Nama Lengkap, Pakai Huruf Besar Semua Ya.</p>
 <label>Nama Siswa</label>
-<input id="nama" placeholder="Contoh: AHMAD FAUZI">
+<input type="text" id="nama" placeholder="Contoh: AHMAD FAUZI">
 <label>Kelas</label>
-<input id="kelas" placeholder="Contoh: 7A">
+<input type="text" id="kelas" placeholder="Contoh: XI - AKL">
 <div id="daftarSoal"></div>
+<p style="text-align:center;color:#888">— Selesai? Pencet tombol hijau di bawah ya —</p>
+</div>
+
+<div class="sticky" id="tombolKumpul">
+<div class="sticky-inner">
 <button class="hijau" onclick="kumpul()">✅ KUMPULKAN JAWABAN</button>
+</div>
 </div>
 
 <div id="halHasil" class="card hidden center">
@@ -38,20 +51,18 @@ label:has(input:checked){background:#e8f0fe;border-color:#1a73e8}
 <div class="nilai" id="nilaiAngka">0</div>
 <p id="detailNilai"></p>
 <p><small>📸 Screenshot halaman ini, kirim ke Pak Guru via WA ya.</small></p>
-<button class="biru" onclick="salinNilai()">📋 SALIN NILAI - KIRIM KE WA GURU</button>
-<button class="abu" onclick="location.reload()">🔄 ULANGI</button>
+<button class="biru" onclick="salinNilai()" style="margin-top:10px">📋 SALIN NILAI - KIRIM KE WA GURU</button>
+<button class="abu" onclick="location.reload()" style="margin-top:8px">🔄 ULANGI</button>
 </div>
 
 <script>
 let soalList=[], mapel="Ujian";
 function getParam(n){ return new URLSearchParams(window.location.search).get(n); }
-
 function loadSoal(){
   let d = getParam('d');
   let dataLama = getParam('data');
   try{
     if(d){
-      // FORMAT BARU PENDEK: Mapel~Soal|A|B|C|D|KunciAngka~Soal2|...
       let teks = decodeURIComponent(d);
       let parts = teks.split('~');
       mapel = parts[0] || "Ujian";
@@ -64,7 +75,6 @@ function loadSoal(){
         }
       }
     } else if(dataLama){
-      // FORMAT LAMA - Buat jaga-jaga kalau QR lama
       let j = JSON.parse(decodeURIComponent(escape(atob(dataLama))));
       mapel = j.m || j.mapel || "Ujian";
       let arr = j.s || j.soal || [];
@@ -77,24 +87,21 @@ function loadSoal(){
     document.getElementById('daftarSoal').innerHTML='<p style="color:red">❌ Link soal tidak terbaca. Minta Pak Guru buat QR baru ya.</p>';
     return;
   }
-
   if(soalList.length==0){
     document.getElementById('daftarSoal').innerHTML='<p>❌ Soal tidak ditemukan. Scan QR lagi ya.</p>';
     return;
   }
-
   document.getElementById('judul').innerText = "📝 Ujian - " + mapel + " (" + soalList.length + " Soal)";
   let html="";
   soalList.forEach((s,i)=>{
-    html += '<div class="soal"><p>'+(i+1)+'. '+s.soal+'</p>'
-    + '<label><input type="radio" name="q'+i+'" value="A"> A. '+s.a+'</label>'
-    + '<label><input type="radio" name="q'+i+'" value="B"> B. '+s.b+'</label>'
-    + '<label><input type="radio" name="q'+i+'" value="C"> C. '+s.c+'</label>'
-    + '<label><input type="radio" name="q'+i+'" value="D"> D. '+s.d+'</label></div>';
+    html += '<div class="soal"><b>'+(i+1)+'. '+s.soal+'</b>'
+    + '<label class="pilihan"><input type="radio" name="q'+i+'" value="A"><span><b>A.</b> '+s.a+'</span></label>'
+    + '<label class="pilihan"><input type="radio" name="q'+i+'" value="B"><span><b>B.</b> '+s.b+'</span></label>'
+    + '<label class="pilihan"><input type="radio" name="q'+i+'" value="C"><span><b>C.</b> '+s.c+'</span></label>'
+    + '<label class="pilihan"><input type="radio" name="q'+i+'" value="D"><span><b>D.</b> '+s.d+'</span></label></div>';
   });
   document.getElementById('daftarSoal').innerHTML=html;
 }
-
 function kumpul(){
   let nama=document.getElementById('nama').value.trim();
   let kelas=document.getElementById('kelas').value.trim();
@@ -106,6 +113,7 @@ function kumpul(){
   });
   let nilai=Math.round(benar/soalList.length*100);
   document.getElementById('halIsi').classList.add('hidden');
+  document.getElementById('tombolKumpul').classList.add('hidden');
   document.getElementById('halHasil').classList.remove('hidden');
   document.getElementById('namaHasil').innerText=nama+" - Kelas "+kelas+" - "+mapel;
   document.getElementById('nilaiAngka').innerText=nilai;
