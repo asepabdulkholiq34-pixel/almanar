@@ -57,14 +57,12 @@ Husnudzon termasuk akhlak... | Mahmudah | Mazmumah | Tercela | Buruk | A</textar
 <button class="orange" onclick="salinSheet()">📋 SALIN UNTUK GOOGLE SHEET</button>
 <p><b>📤 IMPORT:</b></p>
 <input type="file" id="fileInput" accept=".json,.csv,.txt" onchange="importFile(event)">
-<p><small>✅ 15 soal tersimpan. Klik SALIN > Buka sheets.google.com > Paste.</small></p>
+<p><small>✅ 15 soal tersimpan.</small></p>
 </div>
 
 <div class="card">
 <button class="merah" onclick="buatBaru()">🗑️ BUAT UJIAN BARU (HAPUS SEMUA)</button>
-<h3>📊 Nilai Siswa</h3>
-<p>Belum ada nilai.</p>
-<button class="hitam" onclick="exportNilai()">📥 Export Nilai ke Excel</button>
+<p><small>Nilai siswa hanya ada di Halaman 2 ya, Pak. Biar tidak dobel.</small></p>
 </div>
 </div>
 
@@ -75,12 +73,12 @@ Husnudzon termasuk akhlak... | Mahmudah | Mazmumah | Tercela | Buruk | A</textar
 <p><b id="mapel2">Aqidah akhlak</b> - <span id="jml2">15</span> Soal</p>
 <p>Siswa scan QR ini. Soal TIDAK kelihatan di sini, Pak. Aman.</p>
 <div id="qrcode"></div>
-<p><small>Link sudah di dalam QR. Pencet SALIN kalau mau kirim via WA.</small></p>
+<p id="statusQR"><small>QR sedang dibuat...</small></p>
 <button class="hijau" onclick="salinLink()">📋 SALIN LINK UJIAN</button>
 <button class="biru" onclick="bukaHal1()">⬅️ KEMBALI KE HALAMAN 1</button>
 <button class="abu" onclick="window.print()">🖨️ PRINT / SIMPAN QR JADI PDF</button>
 </div>
-<div class="card"><h3>📊 Nilai Siswa</h3><p>Belum ada nilai.</p><button class="hitam" onclick="exportNilai()">📥 Export Nilai ke Excel</button></div>
+<div class="card"><h3>📊 Nilai Siswa - Hanya Di Sini, Pak</h3><p id="nilaiList">Belum ada nilai.</p><button class="hitam" onclick="exportNilai()">📥 Export Nilai ke Excel</button></div>
 </div>
 
 <script>
@@ -96,30 +94,48 @@ function parseSoal(){
 }
 function buatLink(){
   parseSoal();
-  // Format pendek: array [soal,A,B,C,D,kunci] biar QR lebih kecil
-  let pendek = dataSoal.map(s=>[s.soal,s.a,s.b,s.c,s.d,s.kunci]);
-  let data={m:document.getElementById('mapel').value, s:pendek};
-  let encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  // FORMAT PENDEK - Hemat 40% : Mapel~Soal|A|B|C|D|Kunci~Soal2|...
+  // Kunci diubah jadi angka 0=A,1=B,2=C,3=D biar pendek
+  let mapKunci={A:0,B:1,C:2,D:3};
+  let parts=dataSoal.map(s=> s.soal+"|"+s.a+"|"+s.b+"|"+s.c+"|"+s.d+"|"+(mapKunci[s.kunci]??0) );
+  let teks=document.getElementById('mapel').value+"~"+parts.join("~");
+  // Pakai encodeURI saja, lebih pendek dari base64
   let base=window.location.href.split('buat-soal.html')[0];
-  linkUjian=base+'siswa-soal.html?data='+encoded;
+  linkUjian=base+'siswa-soal.html?d='+encodeURIComponent(teks);
   return linkUjian;
 }
 function buatQR(){
-  let link=buatLink();
-  document.getElementById('qrcode').innerHTML='';
-  // Bikin QR di HP sendiri, tidak pakai web luar, jadi tidak ERROR
-  new QRCode(document.getElementById('qrcode'), {text:link, width:260, height:260, correctLevel:QRCode.CorrectLevel.M});
-  localStorage.setItem('ujian_terakhir', JSON.stringify({mapel:document.getElementById('mapel').value, teks:document.getElementById('soalBox').value}));
+  try{
+    let link=buatLink();
+    document.getElementById('qrcode').innerHTML='';
+    document.getElementById('statusQR').innerHTML='<small>QR dibuat... Panjang link: '+link.length+' huruf</small>';
+    // CorrectLevel L = paling hemat, bisa muat data paling banyak
+    new QRCode(document.getElementById('qrcode'), {text:link, width:260, height:260, correctLevel:QRCode.CorrectLevel.L});
+    document.getElementById('statusQR').innerHTML='<small style="color:green">✅ QR Berhasil Dibuat, Pak! Silakan tampilkan.</small>';
+    localStorage.setItem('ujian_terakhir', JSON.stringify({mapel:document.getElementById('mapel').value, teks:document.getElementById('soalBox').value}));
+    return true;
+  }catch(e){
+    document.getElementById('statusQR').innerHTML='<small style="color:red">❌ QR gagal. Soal terlalu panjang. Kurangi kata soal, Pak.</small>';
+    alert('QR gagal dibuat, Pak. Coba persingkat soal nya sedikit, Pak.');
+    return false;
+  }
 }
-function simpanDanKeHal2(){ buatQR(); bukaHal2(); alert('QR berhasil dibuat, Pak! Silakan tampilkan ke siswa.'); }
-function simpanSaja(){ buatQR(); alert('Tersimpan, Pak! QR sudah siap di Halaman 2.'); }
-function bukaHal2(){
-  parseSoal();
-  if(dataSoal.length==0){ alert('Soal kosong, Pak.'); return; }
-  if(!linkUjian) buatQR();
+function simpanDanKeHal2(){
+  // 1. Pindah dulu, biar tidak kelihatan diam
   document.getElementById('hal1').classList.add('hidden');
   document.getElementById('hal2').classList.remove('hidden');
   window.scrollTo(0,0);
+  // 2. Baru bikin QR, kasih jeda 300ms biar halaman kebuka dulu
+  setTimeout(()=>{ buatQR(); alert('Tersimpan! QR sudah dibuat di Halaman 2, Pak.'); }, 300);
+}
+function simpanSaja(){ if(buatQR()) alert('Tersimpan, Pak! QR sudah siap di Halaman 2.'); }
+function bukaHal2(){
+  parseSoal();
+  if(dataSoal.length==0){ alert('Soal kosong, Pak.'); return; }
+  document.getElementById('hal1').classList.add('hidden');
+  document.getElementById('hal2').classList.remove('hidden');
+  window.scrollTo(0,0);
+  setTimeout(()=>{ buatQR(); }, 300);
 }
 function bukaHal1(){ document.getElementById('hal2').classList.add('hidden'); document.getElementById('hal1').classList.remove('hidden'); window.scrollTo(0,0); }
 function salinLink(){ if(!linkUjian) buatLink(); navigator.clipboard.writeText(linkUjian).then(()=>alert('Link tersalin, Pak!')); }
