@@ -6,14 +6,16 @@
 <button onclick="masuk()">MASUK & MULAI UJIAN ➡️</button></div>
 <script>
 let dataUjian=null;
-window.onload=()=>{
+document.addEventListener('DOMContentLoaded',()=>{
   if(location.hash.length>10){
     try{ dataUjian=JSON.parse(decodeURIComponent(escape(atob(location.hash.substring(1))))); 
     document.getElementById('infoUjian').innerHTML=`<b>${dataUjian.j}</b><br>⏰ ${dataUjian.t} Menit | Soal: ${dataUjian.s.length}`;
     localStorage.setItem('ujian_siswa', JSON.stringify(dataUjian));
     }catch(e){ document.getElementById('infoUjian').innerText="Link QR salah!"; }
+    }else{
+    document.getElementById('infoUjian').innerText="Link QR salah! Scan ulang QR dari Bapak/Ibu Guru!";
   }
-};
+});
 function masuk(){
   let nama=document.getElementById('nama').value.trim();
   if(!nama) return alert("Nama wajib diisi!");
