@@ -8,10 +8,14 @@
 let dataUjian=null;
 document.addEventListener('DOMContentLoaded',()=>{
   if(location.hash.length>10){
-    try{ dataUjian=JSON.parse(decodeURIComponent(escape(atob(location.hash.substring(1))))); 
+      try{
+    let txt=new TextDecoder().decode(Uint8Array.from(atob(location.hash.substring(1)),c=>c.charCodeAt(0)));
+    dataUjian=JSON.parse(txt);
     document.getElementById('infoUjian').innerHTML=`<b>${dataUjian.j}</b><br>⏰ ${dataUjian.t} Menit | Soal: ${dataUjian.s.length}`;
-    localStorage.setItem('ujian_siswa', JSON.stringify(dataUjian));
-    }catch(e){ document.getElementById('infoUjian').innerText="Link QR salah!"; }
+    localStorage.setItem('ujian_siswa',JSON.stringify(dataUjian));
+  }catch(e){
+    document.getElementById('infoUjian').innerText="Gagal buka soal! "+e.message+" - Scan ulang QR!";
+  }
     }else{
     document.getElementById('infoUjian').innerText="Link QR salah! Scan ulang QR dari Bapak/Ibu Guru!";
   }
