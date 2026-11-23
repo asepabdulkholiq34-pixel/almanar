@@ -58,7 +58,12 @@ try{
   if(p) data=JSON.parse(decodeURIComponent(escape(atob(p))));
   if(!data) data=JSON.parse(localStorage.getItem("ujianAktif")||"null");
 }catch(e){}
-if(data){ document.getElementById("judulLogin").textContent=data.judul; document.getElementById("infoLogin").textContent="Kelas "+data.kelas+" | "+data.soal.length+" Soal | "+data.waktu+" Menit";else{
+
+// --- INI YANG SAYA BETULIN, PAK. KURUNG NYA UDAH LENGKAP, PAK ---
+if(data){
+  document.getElementById("judulLogin").textContent=data.judul;
+  document.getElementById("infoLogin").textContent="Kelas "+data.kelas+" | "+data.soal.length+" Soal | "+data.waktu+" Menit";
+} else {
   document.getElementById("infoLogin").innerHTML="<b style='color:red'>⚠️ LINK SALAH, PAK! Jangan buka langsung.<br>Scan QR dari Pak Guru / Pencet SALIN LINK UJIAN.</b>";
   document.getElementById("judulLogin").textContent="Link Kosong - Tidak Ada Soal";
 }
@@ -90,7 +95,6 @@ function kumpul(){
   document.getElementById("namaHasil").textContent=nama+" - Kelas "+kelas+" - "+data.mapel;
   document.getElementById("nilaiHasil").textContent=nilai;
   document.getElementById("benarHasil").textContent="Benar "+benar+" dari "+data.soal.length+" soal";
-  // QR NILAI untuk di-scan guru - format: NILAI|Nama|Kelas|Mapel|Nilai|Benar|Total
   let dataQR="NILAI|"+nama+"|"+kelas+"|"+data.mapel+"|"+nilai+"|"+benar+"|"+data.soal.length;
   document.getElementById("qrNilai").src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="+encodeURIComponent(dataQR);
   window._teksNilai=`Nilai Ujian\nNama: ${nama}\nKelas: ${kelas}\nMapel: ${data.mapel}\nNilai: ${nilai}\nBenar: ${benar}/${data.soal.length}`;
