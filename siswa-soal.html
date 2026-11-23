@@ -5,15 +5,14 @@
 <div id="timer"></div><h2 id="judulSoal"></h2><p id="namaSiswa"></p><div id="area"></div>
 <script>
 let soalData=[], judul="", sisaDetik=0, timerInterval;
-window.onload=()=>{
+document.addEventListener('DOMContentLoaded',()=>{
   let data=JSON.parse(localStorage.getItem('ujian_siswa')||'null');
   let nama=localStorage.getItem('siswa_nama')||"Tanpa Nama";
   let kelas=localStorage.getItem('siswa_kelas')||"";
-  if(!data) return document.getElementById('area').innerHTML="Ujian tidak ditemukan!";
+  if(!data) return document.getElementById('area').innerHTML="Ujian tidak ditemukan! Kembali ke halaman masuk.";
   soalData=data.s; judul=data.j; sisaDetik=(data.t||30)*60;
   document.getElementById('judulSoal').innerText="📚 "+judul;
-  document.getElementById('namaSiswa').innerText="👦 "+nama+" | Kelas: "+kelas;
-  soalData=soalData.sort(()=>Math.random()-0.5);
+  document.getElementById('namaSiswa').innerText="🧑 "+nama+" | Kelas: "+kelas;
   soalData=soalData.map(s=>{
     let opts=[{k:'A',t:s.a},{k:'B',t:s.b},{k:'C',t:s.c},{k:'D',t:s.d}];
     let benarTeks=s[{A:'a',B:'b',C:'c',D:'d'}[s.k]];
@@ -22,7 +21,7 @@ window.onload=()=>{
     return {q:s.q, a:opts[0].t, b:opts[1].t, c:opts[2].t, d:opts[3].t, k:newK};
   });
   tampilSoal(); mulaiTimer();
-};
+});
 function mulaiTimer(){
   timerInterval=setInterval(()=>{
     let m=Math.floor(sisaDetik/60), d=sisaDetik%60;
