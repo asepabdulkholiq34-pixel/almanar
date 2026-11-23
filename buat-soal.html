@@ -1,54 +1,73 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Buat Soal - Al Manar</title><style>body{font-family:sans-serif;padding:15px;background:#f0f2f5}input,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #ccc}button{background:#1877f2;color:#fff;border:none;font-weight:bold}.card{background:#fff;padding:15px;border-radius:12px}</style></head><body>
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ujian QR - Aqidah Akhlak</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>body{font-family:Arial;padding:12px;max-width:700px;margin:auto;background:#f8f9fa}input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box}button{width:100%;padding:12px;margin:5px 0;border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer}.biru{background:#0F4C81}.hijau{background:#1A9A4A}.abu{background:#555}.orange{background:#E67E22}.merah{background:#C0392B}.card{background:#fff;padding:14px;border-radius:12px;margin:10px 0;box-shadow:0 2px 6px #0001}.opt{display:block;background:#eef;padding:10px;margin:6px 0;border-radius:8px;cursor:pointer}.opt:hover{background:#dbeafe}table{width:100%;border-collapse:collapse;font-size:13px}td,th{border:1px solid #ddd;padding:6px}</style></head>
+<body>
+
+<div id="guru">
 <h2>📝 Halaman 1 - Buat Soal</h2>
 <div class="card">
-<input id="judul" placeholder="Judul Ujian" value="IPA Bab 1">
-<input id="waktu" type="number" value="30" placeholder="Waktu Menit">
-<textarea id="soal" rows="12" placeholder="Format: Soal | A | B | C | D | Kunci"></textarea>
-<button onclick="simpan()">SIMPAN & TAMPILKAN QR ➡️</button>
-<button style="background:#00a400" onclick="tambahSoal()">➕ TAMBAH SOAL & BUAT QR BARU</button>
-<button style="background:#666" onclick="location.href='tampil-qr.html'">👀 LIHAT QR / NILAI</button>
-  <button style="background:#ff9800" onclick="location.href='catatan-mapel.html'">📒 BUKA HALAMAN 3 - CATATAN MAPEL</button>
-<button style="background:#e74c3c" onclick="buatBaru()">🗑️ BUAT UJIAN BARU (HAPUS SEMUA)</button>
-<p id="info" style="font-size:13px;color:#666"></p>
+<label>Nama Mapel</label><input id="mapel" value="Aqidah akhlak">
+<label>Jumlah Soal (otomatis)</label><input id="jml" value="15" readonly>
+<label>Format: Soal | A | B | C | D | Kunci(A/B/C/D) - 1 baris 1 soal</label>
+<textarea id="soalBox" rows="12">Apa arti dari Husnudzon? | Berbaik sangka | Tasbih | Dengan menjaga hak orang lain | akhlak terpuji | A
+Husnudzon kepada Allah sangat diperlukan dalam rangka meningkatkan.... kepada Allah | Kebebasan menjalankan ajaran agama | Berbaik sangka | keimanan | Selalu optimis | C
+Orang yang mempunyai sifat husnudzon dapat dilihat dari tingkah lakunya sehari-hari, diantaranya... | Dengan menjaga hak-hak orang lain | Tasbih | Tahmid | akhlak terpuji | A
+Salah satu bacaan yang diajarkan oleh Nabi Muhammad SAW kepada kita adalah... | Tasbih | keimanan | Selalu optimis | Dengan menjaga hak orang lain | A
+Ucapan yang berdampingan dengan Tasbih adalah.. | Tahmid | Berbaik sangka | Kebebasan menjalankan ajaran agama | Takbir | A
+Ucapan tasbih dan tahmid, dikaitkan pula dengan ucapan... | Dengan menjaga hak-hak orang lain | keimanan | Takbir | Berbaik sangka | C
+Orang yang selalu berprasangka baik kepada Allah akan mendatangkan.... pada dirinya sendiri | Kebebasan menjalankan ajaran agama | Tahmid | akhlak terpuji | keimanan | C
+Bagaimana cara berakhlak baik kepada sesama manusia? | Dengan menjaga hak-hak orang lain | Keimanan | Berbaik sangka | Takbir | A
+Berakhlak baik kepada sesama manusia yaitu memenuhi kewajiban... | Tasbih | Kebebasan menjalankan ajaran agama | Tahmid | akhlak terpuji | D
+Orang yang selalu berprasangka baik kepada sesama manusia akan... | Disenangi | Dijauhi | Dimusuhi | Dibenci | A
+Salah satu contoh husnudzon kepada Allah adalah... | Selalu optimis | Berbaik sangka | keimanan | Takbir | A
+Husnudzon kepada sesama manusia dapat dilakukan dengan cara... | Berbaik sangka | Tasbih | Tahmid | Takbir | A
+Lawan dari husnudzon adalah... | Suudzon | Tasbih | Tahmid | Takbir | A
+Manfaat berbaik sangka kepada Allah adalah... | Hati menjadi tenang | Hati gelisah | Mudah marah | Sombong | A
+Contoh perilaku husnudzon di sekolah adalah... | Berbaik sangka kepada teman | Mengejek teman | Mengganggu teman | Memfitnah teman | A</textarea>
+
+<button class="biru" onclick="simpan()">💾 SIMPAN & TAMPILKAN QR</button>
+<button class="hijau" onclick="tambah()">➕ TAMBAH SOAL & BUAT QR BARU</button>
+<button class="abu" onclick="lihatNilai()">👀 LIHAT QR / NILAI</button>
 </div>
+
+<div class="card" style="border:2px solid #1A9A4A">
+<h3>📥 BACKUP - BIAR TIDAK HILANG LAGI</h3>
+<button class="hijau" onclick="exportCSV()">📥 EXPORT EXCEL (CSV) - Simpan ke HP/Drive</button>
+<button class="biru" onclick="exportJSON()">💾 BACKUP FILE JSON</button>
+<button class="orange" onclick="copySheet()">📋 SALIN UNTUK GOOGLE SHEET</button>
+<label>📤 IMPORT - Kembalikan soal yang hilang:</label>
+<input type="file" id="fileIn" accept=".csv,.json,.txt" onchange="importFile(event)">
+<p style="font-size:12px;color:#555">✅ Soal lama dimuat 15 soal. Cara Google Sheet: Klik SALIN > Buka sheets.google.com > Paste (Ctrl+V) > Jadi tabel otomatis.<br>✅ File CSV bisa dibuka di Excel / Google Sheet. File JSON untuk backup lengkap.</p>
+</div>
+
+<div class="card"><h3>🖨️ QR Ujian</h3><div id="qrcode"></div><p id="linkTxt" style="font-size:12px;word-break:break-all"></p>
+<button class="merah" onclick="buatBaru()">🗑️ BUAT UJIAN BARU (HAPUS SEMUA)</button></div>
+<div class="card"><h3>📊 Nilai Siswa</h3><div id="nilaiList"></div><button class="abu" onclick="exportNilai()">📥 Export Nilai ke Excel</button></div>
+</div>
+
+<div id="siswa" style="display:none">
+<h2 id="judulUjian"></h2><div class="card"><label>Nama Siswa:</label><input id="namaSiswa" placeholder="Tulis nama lengkap"><div id="soalSiswa"></div><button class="hijau" onclick="kirimJawaban()">✅ KIRIM JAWABAN</button><div id="hasil"></div></div>
+</div>
+
 <script>
-// PAS BUKA HALAMAN, CEK ADA SOAL LAMA GAK?
-window.onload=()=>{
-  let lama=JSON.parse(localStorage.getItem('ujian_aktif')||'null');
-  if(lama){
-    document.getElementById('judul').value=lama.j;
-    document.getElementById('waktu').value=lama.t;
-    // UBAH LAGI JADI TEKS: Soal | A | B | C | D | Kunci
-    let teks=lama.s.map(s=>{
-      let kunciHuruf = s.k;
-      // Cari teks jawaban yang benar, biar balik ke format awal
-      return `${s.q} | ${s.a} | ${s.b} | ${s.c} | ${s.d} | ${kunciHuruf}`;
-    }).join('\n');
-    document.getElementById('soal').value=teks;
-    document.getElementById('info').innerText=`✅ Soal lama dimuat: ${lama.s.length} soal. Tinggal tambah di bawah, lalu SIMPAN!`;
-  }
-};
-function ambilData(){
-  let lines=document.getElementById('soal').value.trim().split('\n').filter(l=>l.trim()!='');
-  let soalArr=lines.map(l=>{let p=l.split('|'); return {q:p[0].trim(),a:p[1].trim(),b:p[2].trim(),c:p[3].trim(),d:p[4].trim(),k:p[5].trim()}});
-  return {j:document.getElementById('judul').value, t:parseInt(document.getElementById('waktu').value)||30, s:soalArr};
-}
-function simpan(){
-  let data=ambilData();
-  if(!data.s.length) return alert("Soal masih kosong, Pak!");
-  localStorage.setItem('ujian_aktif', JSON.stringify(data));
-  location.href='tampil-qr.html';
-}
-function tambahSoal(){
-  let data=ambilData();
-  localStorage.setItem('ujian_aktif', JSON.stringify(data));
-  alert("Soal disimpan! Sekarang Bapak bisa tambah soal lagi di bawah, lalu SIMPAN lagi!");
-}
-function buatBaru(){
-  if(confirm("Hapus soal lama & nilai lama, buat ujian baru?")){
-    localStorage.removeItem('ujian_aktif');
-    localStorage.removeItem('nilai_almanar');
-    location.reload();
-  }
-}
+let soalArr=[];
+function parseText(t){return t.split('\n').filter(x=>x.trim()).map(baris=>{let p=baris.split('|').map(s=>s.trim());return {soal:p[0]||'',a:p[1]||'',b:p[2]||'',c:p[3]||'',d:p[4]||'',kunci:(p[5]||'A').toUpperCase()}})}
+function load(){let s=localStorage.getItem('bank_soal');if(s){soalArr=JSON.parse(s);let m=localStorage.getItem('mapel');if(m)document.getElementById('mapel').value=m;document.getElementById('soalBox').value=soalArr.map(x=>[x.soal,x.a,x.b,x.c,x.d,x.kunci].join(' | ')).join('\n');document.getElementById('jml').value=soalArr.length}else{soalArr=parseText(document.getElementById('soalBox').value);}}
+function simpan(){soalArr=parseText(document.getElementById('soalBox').value);localStorage.setItem('bank_soal',JSON.stringify(soalArr));localStorage.setItem('mapel',document.getElementById('mapel').value);document.getElementById('jml').value=soalArr.length;buatQR();alert('Tersimpan! '+soalArr.length+' soal. Jangan lupa EXPORT ya Pak!');}
+function tambah(){simpan();}
+function buatQR(){let data={mapel:document.getElementById('mapel').value,soal:soalArr};let url=location.href.split('#')[0]+'#data='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(data)))));document.getElementById('qrcode').innerHTML='';new QRCode(document.getElementById('qrcode'),{text:url,width:220,height:220});document.getElementById('linkTxt').innerText=url;}
+function exportCSV(){simpan();let csv='Soal;A;B;C;D;Kunci\n'+soalArr.map(x=>[x.soal,x.a,x.b,x.c,x.d,x.kunci].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');download(csv,'soal-'+document.getElementById('mapel').value+'.csv','text/csv');}
+function exportJSON(){simpan();download(JSON.stringify({mapel:document.getElementById('mapel').value,soal:soalArr},null,2),'backup-soal.json','application/json');}
+function exportNilai(){let n=JSON.parse(localStorage.getItem('nilai')||'[]');let csv='Nama;Benar;Total;Nilai;Waktu\n'+n.map(x=>[x.nama,x.benar,x.total,x.nilai,x.waktu].join(';')).join('\n');download(csv,'nilai-'+document.getElementById('mapel').value+'.csv','text/csv');}
+function download(txt,name,type){let b=new Blob(['\ufeff'+txt],{type});let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();}
+function copySheet(){simpan();let tsv='Soal\tA\tB\tC\tD\tKunci\n'+soalArr.map(x=>[x.soal,x.a,x.b,x.c,x.d,x.kunci].join('\t')).join('\n');navigator.clipboard.writeText(tsv).then(()=>alert('Tersalin! Tinggal Paste di Google Sheet (Ctrl+V)'));}
+function importFile(e){let f=e.target.files[0];let r=new FileReader();r.onload=()=>{try{if(f.name.endsWith('.json')){let j=JSON.parse(r.result);soalArr=j.soal||j;document.getElementById('mapel').value=j.mapel||document.getElementById('mapel').value;}else{let lines=r.result.split('\n').filter(x=>x.trim());if(lines[0].toLowerCase().includes('soal'))lines.shift();soalArr=lines.map(l=>{let p=l.split(';').map(s=>s.replace(/^"|"$/g,'').trim());if(p.length<6)p=l.split('|').map(s=>s.trim());return {soal:p[0],a:p[1],b:p[2],c:p[3],d:p[4],kunci:(p[5]||'A').toUpperCase()}});}document.getElementById('soalBox').value=soalArr.map(x=>[x.soal,x.a,x.b,x.c,x.d,x.kunci].join(' | ')).join('\n');simpan();alert('Berhasil Import! '+soalArr.length+' soal kembali!');}catch(err){alert('File tidak bisa dibaca: '+err.message)}};r.readAsText(f);}
+function lihatNilai(){let n=JSON.parse(localStorage.getItem('nilai')||'[]');document.getElementById('nilaiList').innerHTML=n.length?'<table><tr><th>Nama</th><th>Benar</th><th>Nilai</th></tr>'+n.map(x=>`<tr><td>${x.nama}</td><td>${x.benar}/${x.total}</td><td><b>${x.nilai}</b></td></tr>`).join('')+'</table>':'Belum ada nilai.';buatQR();}
+function buatBaru(){if(confirm('Yakin hapus semua? EXPORT dulu ya Pak!')){localStorage.clear();location.reload();}}
+// SISWA
+function cekHash(){if(location.hash.includes('data=')){try{let d=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(location.hash.split('data=')[1])))));document.getElementById('guru').style.display='none';document.getElementById('siswa').style.display='block';document.getElementById('judulUjian').innerText='Ujian: '+d.mapel;window._soal=d.soal;document.getElementById('soalSiswa').innerHTML=d.soal.map((s,i)=>`<div class="card"><b>${i+1}. ${s.soal}</b>${['a','b','c','d'].map(k=>`<label class="opt"><input type="radio" name="q${i}" value="${k.toUpperCase()}"> ${k.toUpperCase()}. ${s[k]}</label>`).join('')}</div>`).join('');}catch(e){}}}
+function kirimJawaban(){let nama=document.getElementById('namaSiswa').value.trim();if(!nama)return alert('Isi nama dulu!');let benar=0;window._soal.forEach((s,i)=>{let el=document.querySelector(`input[name="q${i}"]:checked`);if(el&&el.value===s.kunci)benar++;});let nilai=Math.round(benar/window._soal.length*100);let data={nama,benar,total:window._soal.length,nilai,waktu:new Date().toLocaleString('id-ID')};let n=JSON.parse(localStorage.getItem('nilai')||'[]');n.push(data);localStorage.setItem('nilai',JSON.stringify(n));document.getElementById('hasil').innerHTML=`<h3>✅ Selesai, ${nama}!</h3><p>Benar: ${benar}/${window._soal.length}</p><h2>Nilai: ${nilai}</h2><p>Screenshot hasil ini ya!</p>`;}
+load();cekHash();lihatNilai();
 </script></body></html>
