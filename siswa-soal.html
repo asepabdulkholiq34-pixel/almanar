@@ -58,13 +58,15 @@ try{
   if(p) data=JSON.parse(decodeURIComponent(escape(atob(p))));
   if(!data) data=JSON.parse(localStorage.getItem("ujianAktif")||"null");
 }catch(e){}
-if(data){ document.getElementById("judulLogin").textContent=data.judul; document.getElementById("infoLogin").textContent="Kelas "+data.kelas+" | "+data.soal.length+" Soal | "+data.waktu+" Menit";
-else document.getElementById("infoLogin").textContent="Link ujian tidak ditemukan, Pak. Scan ulang QR dari Pak Guru.";
+if(data){ document.getElementById("judulLogin").textContent=data.judul; document.getElementById("infoLogin").textContent="Kelas "+data.kelas+" | "+data.soal.length+" Soal | "+data.waktu+" Menit";else{
+  document.getElementById("infoLogin").innerHTML="<b style='color:red'>⚠️ LINK SALAH, PAK! Jangan buka langsung.<br>Scan QR dari Pak Guru / Pencet SALIN LINK UJIAN.</b>";
+  document.getElementById("judulLogin").textContent="Link Kosong - Tidak Ada Soal";
+}
 
 function masuk(){
   nama=document.getElementById("nama").value.trim(); kelas=document.getElementById("kelas").value.trim();
   if(!nama||!kelas){alert("Isi Nama & Kelas dulu.");return;}
-  if(!data){alert("Ujian tidak ditemukan.");return;}
+  if(!data){alert("⚠️ LINK SALAH, PAK! Ini Link kosong, tidak ada soal.\n\nJangan buka siswa-soal.html langsung, Pak.\nBuka lewat QR / SALIN LINK UJIAN di HP Pak Guru, Pak.");return;}
   document.getElementById("login").style.display="none";
   document.getElementById("ujian").style.display="block";
   document.getElementById("judulUjian").textContent=data.judul;
