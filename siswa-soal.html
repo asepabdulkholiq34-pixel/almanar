@@ -58,7 +58,7 @@ try{
   if(p) data=JSON.parse(decodeURIComponent(escape(atob(p))));
   if(!data) data=JSON.parse(localStorage.getItem("ujianAktif")||"null");
 }catch(e){}
-if(data){ document.getElementById("judulLogin").textContent=data.judul; document.getElementById("infoLogin").textContent=data.mapel+" | Kelas "+data.kelas+" | "+data.soal.length+" Soal | "+data.waktu+" Menit"; }
+if(data){ document.getElementById("judulLogin").textContent=data.judul; document.getElementById("infoLogin").textContent="Kelas "+data.kelas+" | "+data.soal.length+" Soal | "+data.waktu+" Menit";
 else document.getElementById("infoLogin").textContent="Link ujian tidak ditemukan, Pak. Scan ulang QR dari Pak Guru.";
 
 function masuk(){
@@ -67,7 +67,7 @@ function masuk(){
   if(!data){alert("Ujian tidak ditemukan.");return;}
   document.getElementById("login").style.display="none";
   document.getElementById("ujian").style.display="block";
-  document.getElementById("judulUjian").textContent=data.judul+" - "+data.mapel;
+  document.getElementById("judulUjian").textContent=data.judul;
   sisa=data.waktu*60;
   renderSoal();
   timer=setInterval(()=>{ sisa--; let m=Math.floor(sisa/60), d=sisa%60; document.getElementById("sisaWaktu").textContent="⏰ Sisa: "+m+":"+String(d).padStart(2,"0"); if(sisa<=0){clearInterval(timer); kumpul();} },1000);
