@@ -28,7 +28,7 @@ button{width:100%;padding:14px;border:none;border-radius:10px;font-weight:bold;f
 <div class="card">
 <h2>📝 Buat Ujian Baru, Pak</h2>
 <input id="judul" placeholder="Judul Ujian, contoh: Aqidah Akhlak - Bab 1" value="Aqidah Akhlak">
-<input id="mapel" placeholder="Mapel" value="Aqidah Akhlak">
+
 <input id="kelasUjian" placeholder="Kelas, contoh: XI AKL" value="XI AKL">
 <input id="waktu" type="number" placeholder="Waktu (menit)" value="15">
 </div>
@@ -100,7 +100,7 @@ function hapusSemua(){ if(confirm("Hapus semua soal, Pak?")){soalList=[];localSt
 
 function buatQR(){
   if(soalList.length==0){alert("Belum ada soal, Pak. Tambah dulu, Pak.");return;}
-  let data={judul:judul.value,mapel:mapel.value,kelas:kelasUjian.value,waktu:parseInt(waktu.value)||15,soal:soalList};
+  let data={judul:judul.value,mapel:judul.value,kelas:kelasUjian.value,waktu:parseInt(waktu.value)||15,soal:soalList};
   localStorage.setItem("ujianAktif",JSON.stringify(data));
   let base = location.href.replace("buat-soal.html","").replace("buat-soal","").split("?")[0];
   if(!base.endsWith("/")) base+="/";
