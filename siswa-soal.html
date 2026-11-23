@@ -2,132 +2,98 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ujian Siswa</title>
 <style>
-*{box-sizing:border-box}
-body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:10px;background:#f0f2f5;padding-bottom:80px}
-.card{background:#fff;padding:14px;border-radius:12px;margin-bottom:10px;box-shadow:0 1px 3px #ccc}
-h2{font-size:19px;margin:0 0 6px 0}
-p{font-size:14px;color:#444;margin:4px 0}
-input[type=text]{width:100%;padding:10px;margin:4px 0 8px 0;border:1px solid #ccc;border-radius:8px;font-size:15px}
-label{font-size:14px}
-.soal{border:1px solid #e0e0e0;border-radius:10px;padding:10px;margin-bottom:10px;background:#fff}
-.soal b{font-size:15px;display:block;margin-bottom:8px;line-height:1.4}
-.pilihan{display:flex;align-items:flex-start;gap:8px;padding:9px 10px;margin:5px 0;border:1px solid #ddd;border-radius:8px;cursor:pointer;font-size:14px;line-height:1.35;background:#fff}
-.pilihan input{margin:2px 0 0 0;min-width:16px;min-height:16px;accent-color:#1a73e8}
-.pilihan:has(input:checked){background:#e8f0fe;border-color:#1a73e8;font-weight:bold}
-.sticky{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:10px;border-top:1px solid #ddd;box-shadow:0 -2px 8px rgba(0,0,0,0.1);z-index:10}
-.sticky-inner{max-width:600px;margin:0 auto}
-button{width:100%;padding:13px;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;color:#fff}
-.hijau{background:#0f9d58}.biru{background:#1a73e8}.abu{background:#5f6368}
-.hidden{display:none}
-.center{text-align:center}
-.nilai{font-size:52px;font-weight:bold;color:#0f9d58;line-height:1}
+body{font-family:Arial,sans-serif;background:#eef2ff;margin:0;padding:12px}
+.card{background:#fff;padding:16px;border-radius:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+input{width:100%;padding:12px;margin:6px 0;border:1px solid #cbd5e1;border-radius:10px;box-sizing:border-box;font-size:15px}
+button{width:100%;padding:14px;border:none;border-radius:10px;font-weight:bold;font-size:16px;margin-top:8px;cursor:pointer}
+.btn-hijau{background:#16a34a;color:#fff}
+.btn-biru{background:#2563eb;color:#fff}
+.opt{display:block;background:#f8fafc;border:2px solid #e2e8f0;padding:12px;border-radius:10px;margin:6px 0;cursor:pointer}
+.opt.aktif{background:#dbeafe;border-color:#2563eb}
+#hasil{text-align:center}
+#qrNilai{width:210px;height:210px;margin:10px auto;display:block}
 </style>
 </head>
 <body>
 
-<div id="halIsi" class="card">
-<h2 id="judul">📝 Ujian</h2>
-<p>Isi Nama Lengkap, Pakai Huruf Besar Semua Ya.</p>
-<label>Nama Siswa</label>
-<input type="text" id="nama" placeholder="Contoh: AHMAD FAUZI">
-<label>Kelas</label>
-<input type="text" id="kelas" placeholder="Contoh: XI - AKL">
-<div id="daftarSoal"></div>
-<p style="text-align:center;color:#888">— Selesai? Pencet tombol hijau di bawah ya —</p>
+<!-- LOGIN -->
+<div id="login" class="card">
+<h2>🏫 <span id="judulLogin">Masuk Ujian</span></h2>
+<p id="infoLogin" style="color:#475569"></p>
+<input id="nama" placeholder="Tulis Nama Lengkap Kamu">
+<input id="kelas" placeholder="Kelas, contoh: XI AKL">
+<button class="btn-hijau" onclick="masuk()">MASUK & MULAI UJIAN</button>
 </div>
 
-<div class="sticky" id="tombolKumpul">
-<div class="sticky-inner">
-<button class="hijau" onclick="kumpul()">✅ KUMPULKAN JAWABAN</button>
-</div>
+<!-- SOAL -->
+<div id="ujian" class="card" style="display:none">
+<h3 id="judulUjian"></h3>
+<p id="sisaWaktu" style="color:#dc2626;font-weight:bold"></p>
+<div id="soalBox"></div>
+<button class="btn-biru" onclick="kumpul()">✅ KUMPULKAN</button>
 </div>
 
-<div id="halHasil" class="card hidden center">
+<!-- HASIL + QR NILAI -->
+<div id="hasil" class="card" style="display:none">
 <h2>✅ Sudah Terkumpul!</h2>
 <p id="namaHasil"></p>
-<div class="nilai" id="nilaiAngka">0</div>
-<p id="detailNilai"></p>
-<p><small>📸 Screenshot halaman ini, kirim ke Pak Guru via WA ya.</small></p>
-<button class="biru" onclick="salinNilai()" style="margin-top:10px">📋 SALIN NILAI - KIRIM KE WA GURU</button>
-
+<h1 id="nilaiHasil" style="font-size:56px;color:#16a34a;margin:5px 0">0</h1>
+<p id="benarHasil"></p>
+<div style="background:#f0fdf4;border:2px dashed #22c55e;padding:12px;border-radius:12px">
+<b>📷 TUNJUKKAN QR INI KE PAK GURU</b><br>
+<img id="qrNilai">
+<small>Bapak scan, nilai langsung masuk</small>
+</div>
+<button class="btn-biru" onclick="salinNilai()">📋 SALIN NILAI - KIRIM WA GURU</button>
+<p style="color:#64748b;font-size:13px">📸 Screenshot halaman ini, kirim ke Pak Guru juga boleh.</p>
 </div>
 
 <script>
-let soalList=[], mapel="Ujian";
-function getParam(n){ return new URLSearchParams(window.location.search).get(n); }
-function loadSoal(){
-  let d = getParam('d');
-  let dataLama = getParam('data');
-  try{
-    if(d){
-      let teks = decodeURIComponent(d);
-      let parts = teks.split('~');
-      mapel = parts[0] || "Ujian";
-      for(let i=1;i<parts.length;i++){
-        let p = parts[i].split('|');
-        if(p.length>=6){
-          let idx = parseInt(p[5]) || 0;
-          let kunciHuruf = ["A","B","C","D"][idx];
-          soalList.push({soal:p[0], a:p[1], b:p[2], c:p[3], d:p[4], kunci:kunciHuruf});
-        }
-      }
-    } else if(dataLama){
-      let j = JSON.parse(decodeURIComponent(escape(atob(dataLama))));
-      mapel = j.m || j.mapel || "Ujian";
-      let arr = j.s || j.soal || [];
-      arr.forEach(s=>{
-        if(Array.isArray(s)) soalList.push({soal:s[0],a:s[1],b:s[2],c:s[3],d:s[4],kunci:s[5]});
-        else soalList.push(s);
-      });
-    }
-  }catch(e){
-    document.getElementById('daftarSoal').innerHTML='<p style="color:red">❌ Link soal tidak terbaca. Minta Pak Guru buat QR baru ya.</p>';
-    return;
-  }
-  if(soalList.length==0){
-    document.getElementById('daftarSoal').innerHTML='<p>❌ Soal tidak ditemukan. Scan QR lagi ya.</p>';
-    return;
-  }
-  document.getElementById('judul').innerText = "📝 Ujian - " + mapel + " (" + soalList.length + " Soal)";
-  let html="";
-  soalList.forEach((s,i)=>{
-    html += '<div class="soal"><b>'+(i+1)+'. '+s.soal+'</b>'
-    + '<label class="pilihan"><input type="radio" name="q'+i+'" value="A"><span><b>A.</b> '+s.a+'</span></label>'
-    + '<label class="pilihan"><input type="radio" name="q'+i+'" value="B"><span><b>B.</b> '+s.b+'</span></label>'
-    + '<label class="pilihan"><input type="radio" name="q'+i+'" value="C"><span><b>C.</b> '+s.c+'</span></label>'
-    + '<label class="pilihan"><input type="radio" name="q'+i+'" value="D"><span><b>D.</b> '+s.d+'</span></label></div>';
-  });
-  document.getElementById('daftarSoal').innerHTML=html;
+let data=null, jawaban={}, nama="", kelas="", sisa=0, timer=null;
+try{
+  let p=new URLSearchParams(location.search).get("ujian");
+  if(p) data=JSON.parse(decodeURIComponent(escape(atob(p))));
+  if(!data) data=JSON.parse(localStorage.getItem("ujianAktif")||"null");
+}catch(e){}
+if(data){ document.getElementById("judulLogin").textContent=data.judul; document.getElementById("infoLogin").textContent=data.mapel+" | Kelas "+data.kelas+" | "+data.soal.length+" Soal | "+data.waktu+" Menit"; }
+else document.getElementById("infoLogin").textContent="Link ujian tidak ditemukan, Pak. Scan ulang QR dari Pak Guru.";
+
+function masuk(){
+  nama=document.getElementById("nama").value.trim(); kelas=document.getElementById("kelas").value.trim();
+  if(!nama||!kelas){alert("Isi Nama & Kelas dulu.");return;}
+  if(!data){alert("Ujian tidak ditemukan.");return;}
+  document.getElementById("login").style.display="none";
+  document.getElementById("ujian").style.display="block";
+  document.getElementById("judulUjian").textContent=data.judul+" - "+data.mapel;
+  sisa=data.waktu*60;
+  renderSoal();
+  timer=setInterval(()=>{ sisa--; let m=Math.floor(sisa/60), d=sisa%60; document.getElementById("sisaWaktu").textContent="⏰ Sisa: "+m+":"+String(d).padStart(2,"0"); if(sisa<=0){clearInterval(timer); kumpul();} },1000);
 }
+function renderSoal(){
+  document.getElementById("soalBox").innerHTML=data.soal.map((s,i)=>`
+  <div style="margin-bottom:16px"><b>${i+1}. ${s.q}</b>
+  ${s.opts.map((o,oi)=>`<label class="opt" id="opt-${i}-${oi}" onclick="pilih(${i},${oi})">${"ABCD"[oi]}. ${o}</label>`).join("")}
+  </div>`).join("");
+}
+function pilih(i,oi){ jawaban[i]=oi; for(let k=0;k<4;k++) document.getElementById(`opt-${i}-${k}`).classList.remove("aktif"); document.getElementById(`opt-${i}-${oi}`).classList.add("aktif"); }
 function kumpul(){
-  let nama=document.getElementById('nama').value.trim();
-  let kelas=document.getElementById('kelas').value.trim();
-  if(!nama){ alert('Isi Nama dulu ya.'); return; }
-  let benar=0;
-  soalList.forEach((s,i)=>{
-    let pilih=document.querySelector('input[name="q'+i+'"]:checked');
-    if(pilih && pilih.value==s.kunci) benar++;
-  });
-  let nilai=Math.round(benar/soalList.length*100);
-  document.getElementById('halIsi').classList.add('hidden');
-  document.getElementById('tombolKumpul').classList.add('hidden');
-  document.getElementById('halHasil').classList.remove('hidden');
-  document.getElementById('namaHasil').innerText=nama+" - Kelas "+kelas+" - "+mapel;
-  document.getElementById('nilaiAngka').innerText=nilai;
-  document.getElementById('detailNilai').innerText="Benar "+benar+" dari "+soalList.length+" soal";
-  window._nilaiTerakhir={nama:nama,kelas:kelas,mapel:mapel,nilai:nilai,benar:benar,total:soalList.length};
-  window.scrollTo(0,0);
+  clearInterval(timer);
+  let benar=0; data.soal.forEach((s,i)=>{ if(jawaban[i]==s.kunci) benar++; });
+  let nilai=Math.round(benar/data.soal.length*100);
+  document.getElementById("ujian").style.display="none";
+  document.getElementById("hasil").style.display="block";
+  document.getElementById("namaHasil").textContent=nama+" - Kelas "+kelas+" - "+data.mapel;
+  document.getElementById("nilaiHasil").textContent=nilai;
+  document.getElementById("benarHasil").textContent="Benar "+benar+" dari "+data.soal.length+" soal";
+  // QR NILAI untuk di-scan guru - format: NILAI|Nama|Kelas|Mapel|Nilai|Benar|Total
+  let dataQR="NILAI|"+nama+"|"+kelas+"|"+data.mapel+"|"+nilai+"|"+benar+"|"+data.soal.length;
+  document.getElementById("qrNilai").src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="+encodeURIComponent(dataQR);
+  window._teksNilai=`Nilai Ujian\nNama: ${nama}\nKelas: ${kelas}\nMapel: ${data.mapel}\nNilai: ${nilai}\nBenar: ${benar}/${data.soal.length}`;
 }
-function salinNilai(){
-  let n=window._nilaiTerakhir;
-  if(!n) return;
-  let teks="Nilai Ujian "+n.mapel+"\nNama: "+n.nama+"\nKelas: "+n.kelas+"\nNilai: "+n.nilai+"\nBenar: "+n.benar+" dari "+n.total;
-  navigator.clipboard.writeText(teks).then(()=>alert('Nilai tersalin! Tempel di WA Pak Guru ya.'));
-}
-loadSoal();
+function salinNilai(){ navigator.clipboard.writeText(window._teksNilai||"").then(()=>alert("Tersalin, Pak! Tinggal paste di WA.")); }
 </script>
 </body>
 </html>
