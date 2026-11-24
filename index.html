@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SMKS AL MANAR - V12 Terkunci</title>
+<title>SMKS AL MANAR - V12.2 CSV + Acak</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
@@ -38,31 +38,26 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 .opsi-label{display:block;background:#fff;padding:10px;border:1px solid #ddd;border-radius:10px;margin:5px 0;cursor:pointer}
 .opsi-label input{width:auto;margin-right:8px;transform:scale(1.3)}
 .soal-box{background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;margin:10px 0}
-.kunci-box{background:#fef2f2;border:2px solid #dc2626;border-radius:12px;padding:12px;margin-top:10px}
+.acak-box{background:#e0f2fe;padding:10px;border-radius:10px;margin-top:10px}
 </style>
 </head>
 <body>
-<div class="header"><h2>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h2><p>V12 - Semua Terkunci - Absen + Ulangan</p></div>
+<div class="header"><h2>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h2><p>V12.2 - CSV + Acak Soal PG</p></div>
 
-<!-- LOGIN -->
 <div id="loginPage" class="card">
-<h3>🔐 Login - V12 Terkunci</h3>
+<h3>🔐 Login - V12.2</h3>
 <label>Pilih Pintu Masuk</label>
 <select id="role" onchange="cekRole()">
 <option value="guru">👨‍🏫 Guru - Ada Password</option>
 <option value="ortu">👪 Orang Tua Kelas 11 - Ada Kode Ortu</option>
 <option value="siswa">📝 Siswa Ulangan Kelas 10 / 11 / 12 - Ada Kode Ulangan</option>
 </select>
-
-<!-- GURU -->
 <div id="boxGuru">
 <label>Nama Guru</label>
 <input id="namaLogin" placeholder="Contoh: Pak Asep">
 <label>Password Guru</label>
 <div class="pass-wrap"><input id="passGuru" type="password" placeholder="Password Guru"><button type="button" class="eye-btn" onclick="togglePass('passGuru',this)">👁️</button></div>
 </div>
-
-<!-- ORTU -->
 <div id="boxOrtu" class="hidden">
 <label>Nama Ortu</label>
 <input id="namaOrtu" placeholder="Contoh: Pak Herman">
@@ -70,27 +65,22 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <select id="kelasLogin"><option>XI 1 TKJ</option><option>XI 1 AKL</option><option>XI 1 AKL dan TKJ</option></select>
 <label>Pilih Anak</label><select id="pilihAnak"></select><p class="small" id="infoAnak"></p>
 <label>🔒 Kode Ortu (Tanya ke Guru via WA)</label>
-<div class="pass-wrap"><input id="kodeOrtu" type="password" placeholder="Kode Ortu - Contoh: ORTU11"><button type="button" class="eye-btn" onclick="togglePass('kodeOrtu',this)">👁️</button></div>
+<div class="pass-wrap"><input id="kodeOrtu" type="password" placeholder="Masukkan Kode Ortu"><button type="button" class="eye-btn" onclick="togglePass('kodeOrtu',this)">👁️</button></div>
 <p class="small" style="color:#dc2626">Siswa tidak tau kode ini, jadi tidak bisa masuk ke Ortu.</p>
 </div>
-
-<!-- SISWA ULANGAN -->
 <div id="boxSiswa" class="hidden">
 <label>Kelas Ulangan</label>
 <select id="kelasSiswaUlangan"><option value="10">Kelas 10</option><option value="11">Kelas 11</option><option value="12">Kelas 12</option></select>
 <label>Nama Siswa</label>
 <input id="namaSiswaUlangan" placeholder="Tulis Nama Lengkap - Contoh: Tasya Aurelia">
 <label>🔒 Kode Ulangan (Guru Tulis di Papan Tulis)</label>
-<div class="pass-wrap"><input id="kodeUlangan" type="password" placeholder="Kode Ulangan - UL10 / UL11 / UL12"><button type="button" class="eye-btn" onclick="togglePass('kodeUlangan',this)">👁️</button></div>
+<div class="pass-wrap"><input id="kodeUlangan" type="password" placeholder="Masukkan Kode Ulangan"><button type="button" class="eye-btn" onclick="togglePass('kodeUlangan',this)">👁️</button></div>
 <p class="small" style="color:#dc2626">Siswa langsung masuk ke Ulangan saja. Tidak bisa lihat Absen Kelas 11.</p>
 </div>
-
 <button class="btn" onclick="login()">Masuk</button>
 <p class="small" style="text-align:center"><span id="statusFirebase" style="color:#dc2626">⏳ Menghubungkan ke Firebase...</span></p>
-<div class="kunci-box"><b>🔒 KUNCI V12 - Untuk Guru:</b><br><span class="small">Guru: asep2672<br>Ortu: ORTU11<br>Ulangan Kelas 10: UL10<br>Ulangan Kelas 11: UL11<br>Ulangan Kelas 12: UL12<br><br>Bapak bisa ganti di bawah di Info Sekolah - Ganti Kode. Siswa tidak bisa lihat kotak ini kalau sudah login, karena kotak ini hanya di Login.</span></div>
 </div>
 
-<!-- MAIN -->
 <div id="mainPage" class="hidden">
 <div id="bannerNotif" class="banner-notif hidden" onclick="bukaNotif()">🔔 <span id="teksBannerNotif"></span><br><small>Pencet untuk lihat</small></div>
 <div class="card">
@@ -123,7 +113,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px"><b>🔑 Ganti Password Guru</b><div class="pass-wrap"><input id="passLama" type="password" placeholder="Password Lama"><button type="button" class="eye-btn" onclick="togglePass('passLama',this)">👁️</button></div><div class="pass-wrap"><input id="passBaru" type="password" placeholder="Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru',this)">👁️</button></div><div class="pass-wrap"><input id="passBaru2" type="password" placeholder="Ulangi Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru2',this)">👁️</button></div><label class="lihat-box"><input type="checkbox" onclick="toggleSemuaGanti(this)"> Lihat Password</label><button class="btn" onclick="gantiPassword()" style="background:#f59e0b">Simpan Password Baru</button></div>
 <div style="margin-top:10px"><button id="btnReset" class="btn2" onclick="resetData()">Reset Semua Data (Guru)</button></div></div>
 
-<!-- ULANGAN -->
 <div id="pageUlangan" class="card hidden">
 <h3>📝 Ulangan Online - PG ABCDE + Essay</h3>
 <p class="small" id="infoUlangan"></p>
@@ -148,9 +137,22 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <button class="btn" onclick="tambahSoal()">+ Tambah Soal Ini</button>
 <div class="flex" style="margin-top:8px"><button class="btn2" onclick="hapusSemuaSoal()" style="background:#fee2e2">🗑️ Hapus Semua Soal</button><button class="btn2" onclick="hapusSemuaJawaban()" style="background:#fee2e2">🗑️ Hapus Semua Jawaban</button></div>
 </div>
-<h3 style="margin-top:14px">Daftar Soal:</h3><div id="listSoalUlangan"></div>
+
+<div class="acak-box" id="boxAcak">
+<b>🔀 Acak Soal PG - Anti Nyontek</b><br>
+<label class="lihat-box" style="margin-top:8px"><input type="checkbox" id="acakSoal" onchange="toggleAcak()"> Acak Pilihan A-E - Tiap Siswa Beda Urutan</label>
+<label class="lihat-box"><input type="checkbox" id="acakUrutanSoal" onchange="toggleAcakUrutan()"> Acak Urutan Soal - Soal No 1 di Guru, Bisa Jadi No 3 di Siswa</label>
+<p class="small" id="infoAcak" style="margin:4px 0 0"></p>
+<p class="small" id="infoAcakUrutan" style="margin:2px 0 0"></p>
+<p class="small" style="color:#dc2626">Guru yang atur. Siswa tidak bisa ubah. Nilai tetap benar otomatis.</p>
+</div>
+
+<div id="bungkusDaftarSoal"><h3 style="margin-top:14px">Daftar Soal (Guru Saja):</h3><div id="listSoalUlangan"></div></div>
 <h3 style="margin-top:14px">Jawab Ulangan (Siswa):</h3><div id="boxJawabUlangan"></div>
-<h3 style="margin-top:14px">Hasil / Nilai:</h3><div id="listHasilUlangan"></div>
+<h3 style="margin-top:14px">Hasil / Nilai:</h3>
+<div class="flex" style="margin-bottom:8px"><button class="btn" onclick="downloadCSV()" style="background:#16a34a">📥 Download Nilai - CSV (Excel)</button><button class="btn" onclick="downloadCSVAbsen()" style="background:#0ea5e9">📥 Download Absen - CSV</button></div>
+<p class="small" id="infoCSV"></p>
+<div id="listHasilUlangan"></div>
 </div>
 
 <div style="height:80px"></div></div>
@@ -169,7 +171,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const dbRef = firebase.database().ref('almanar_v6');
-let db={"passGuru":"asep2672","kodeOrtu":"ORTU11","kodeUL10":"UL10","kodeUL11":"UL11","kodeUL12":"UL12","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\nV12 Terkunci","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]},"ulangan":{"judul":"Ulangan","kelas":"11","soal":[],"jawaban":[]}};
+let db={"passGuru":"asep2672","kodeOrtu":"ORTU11","kodeUL10":"UL10","kodeUL11":"UL11","kodeUL12":"UL12","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\nV12.2 CSV + Acak","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]},"ulangan":{"judul":"Ulangan","kelas":"11","soal":[],"jawaban":[],"acak":false,"acakUrutan":false}};
 let sudahLoadFirebase=false;
 let jumlahPesanTerakhir=0; let jumlahIzinTerakhir=0; let pertamaLoad=true;
 const DEFAULT_SISWA=[
@@ -190,11 +192,13 @@ dbRef.on('value', (snap)=>{
     if(!db.kodeUL11) db.kodeUL11="UL11";
     if(!db.kodeUL12) db.kodeUL12="UL12";
     if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
-    if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV12";
-    if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[]};
+    if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV12.2";
+    if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[],acak:false,acakUrutan:false};
     if(!db.ulangan.soal) db.ulangan.soal=[];
     if(!db.ulangan.jawaban) db.ulangan.jawaban=[];
     if(!db.ulangan.kelas) db.ulangan.kelas="11";
+    if(db.ulangan.acak===undefined) db.ulangan.acak=false;
+    if(db.ulangan.acakUrutan===undefined) db.ulangan.acakUrutan=false;
   } else {
     db.siswa=DEFAULT_SISWA; dbRef.set(db);
   }
@@ -249,6 +253,74 @@ function cekRole(){
 }
 function isiPilihAnak(){ let k=document.getElementById('kelasLogin').value.trim(); let kNormal=k.toUpperCase().replace(/\s+/g," "); let list=db.siswa.filter(s=>(s.kelas||"").trim().toUpperCase().replace(/\s+/g," ")===kNormal); let sel=document.getElementById('pilihAnak'); let info=document.getElementById('infoAnak'); if(list.length===0){ sel.innerHTML='<option value="">-- Belum ada siswa --</option>'; if(info) info.innerText='Belum ada siswa di kelas ini.'; }else{ sel.innerHTML=list.map(s=>`<option value="${s.nama}">${s.nama}</option>`).join(''); if(info) info.innerText=list.length+' siswa di kelas '+k; } }
 cekRole();
+
+// ===== V12.2 - ACAK + CSV =====
+function hashString(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function seededShuffle(arr, seedStr){
+  let a = [...arr];
+  let seed = hashString(seedStr || 'x');
+  function rnd(){ seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; seed = seed >>> 0; return seed / 4294967296; }
+  for(let i=a.length-1;i>0;i--){ let j=Math.floor(rnd()*(i+1)); let tmp=a[i]; a[i]=a[j]; a[j]=tmp; }
+  return a;
+}
+function getOpsiAcak(soal, soalIdx, namaSiswa){
+  let dasar = soal.opsi.map((o,oi)=>({teks:o, kunciAsli:['A','B','C','D','E'][oi]}));
+  if(!db.ulangan.acak) return dasar;
+  // Acak stabil per siswa + per soal, jadi tidak berubah saat render ulang
+  return seededShuffle(dasar, (namaSiswa||'') + '|soal-' + soalIdx + '|' + soal.teks);
+}
+function getUrutanSoalAcak(soalList, namaSiswa){
+  if(!db.ulangan.acakUrutan) return soalList.map((s,i)=>i);
+  return seededShuffle(soalList.map((s,i)=>i), (namaSiswa||'') + '|urutan-soal|' + (db.ulangan.judul||''));
+}
+function toggleAcak(){
+  if(currentRole!=='guru'){ alert('Hanya Guru yang bisa ubah Acak, Pak!'); document.getElementById('acakSoal').checked = !!db.ulangan.acak; return; }
+  db.ulangan.acak = document.getElementById('acakSoal').checked;
+  save(); renderAll();
+  alert(db.ulangan.acak ? '🔀 Acak Pilihan AKTIF, Pak! Tiap siswa beda urutan A-E.' : 'Acak Pilihan MATI, Pak. Urutan normal lagi.');
+}
+function toggleAcakUrutan(){
+  if(currentRole!=='guru'){ alert('Hanya Guru yang bisa ubah Acak, Pak!'); document.getElementById('acakUrutanSoal').checked = !!db.ulangan.acakUrutan; return; }
+  db.ulangan.acakUrutan = document.getElementById('acakUrutanSoal').checked;
+  save(); renderAll();
+  alert(db.ulangan.acakUrutan ? '🔀 Acak Urutan Soal AKTIF, Pak! Soal No 1 di Guru bisa jadi No 3 di siswa.' : 'Acak Urutan Soal MATI, Pak.');
+}
+function downloadCSV(){
+  let jawab = db.ulangan.jawaban || [];
+  if(!jawab.length) return alert('Belum ada yang jawab, Pak!');
+  let soal = db.ulangan.soal || [];
+  let headerSoal = soal.map((s,i)=>'Soal '+(i+1)+' ('+(s.tipe==='pg'?'PG':'Essay')+')').join(',');
+  let header = 'Nama,Kelas,Waktu,Nilai PG,Benar PG,Jumlah PG,Nilai Essay,Nilai Akhir,' + headerSoal + '\n';
+  let baris = jawab.map(j=>{
+    let jwb = (j.jawaban||[]).map(v=>String(v).replace(/,/g,';').replace(/\n/g,' '));
+    while(jwb.length < soal.length) jwb.push('');
+    let esc = (v)=>'"'+String(v).replace(/"/g,'""')+'"';
+    return [esc(j.nama), esc(j.kelas), esc(j.waktu), j.nilaiPG, j.benarPG, j.jmlPG, esc(j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay), j.nilaiAkhir, ...jwb.map(esc)].join(',');
+  }).join('\n');
+  let blob = new Blob(['\ufeff'+header+baris], {type:'text/csv;charset=utf-8;'});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Nilai_Ulangan_'+(db.ulangan.judul||'Ulangan').replace(/[^a-zA-Z0-9]/g,'_')+'_Kelas_'+(db.ulangan.kelas||'')+'.csv';
+  a.click();
+  alert('CSV Nilai terdownload, Pak! Buka di Excel / Google Sheets, Pak.');
+}
+function downloadCSVAbsen(){
+  let list = db.siswa || [];
+  if(!list.length) return alert('Belum ada siswa, Pak!');
+  let header = 'Nama,Kelas,Status Absen Hari Ini,No HP Ortu\n';
+  let baris = list.map(s=>{
+    let st = db.absen[s.nama] || 'Belum Absen';
+    let esc = (v)=>'"'+String(v||'').replace(/"/g,'""')+'"';
+    return [esc(s.nama), esc(s.kelas), esc(st), esc(tampilHP(s.hp))].join(',');
+  }).join('\n');
+  let blob = new Blob(['\ufeff'+header+baris], {type:'text/csv;charset=utf-8;'});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Absen_Kelas11_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  alert('CSV Absen terdownload, Pak!');
+}
+
 function login(){
   currentRole=document.getElementById('role').value;
   if(currentRole==='guru'){
@@ -277,7 +349,6 @@ function login(){
   document.getElementById('mainPage').classList.remove('hidden');
   document.getElementById('bottomNav').classList.remove('hidden');
   if(currentRole==='siswa'){
-    // Siswa langsung ke Ulangan saja, tidak bisa lihat Absen
     pageIdx=5; showTab('Ulangan');
     document.getElementById('bottomNav').classList.add('hidden');
     document.getElementById('boxStatistik').classList.add('hidden');
@@ -296,7 +367,7 @@ function simpanKode(){
   let c=document.getElementById('kodeUL11Baru').value.trim();
   let d=document.getElementById('kodeUL12Baru').value.trim();
   if(a) db.kodeOrtu=a; if(b) db.kodeUL10=b; if(c) db.kodeUL11=c; if(d) db.kodeUL12=d;
-  save(); renderAll(); alert('Kode baru tersimpan, Pak! Ortu: '+db.kodeOrtu+' | UL10: '+db.kodeUL10+' | UL11: '+db.kodeUL11+' | UL12: '+db.kodeUL12);
+  save(); renderAll(); alert('Kode baru tersimpan, Pak!');
 }
 function gantiPassword(){ let lama=document.getElementById('passLama').value; let baru=document.getElementById('passBaru').value; let baru2=document.getElementById('passBaru2').value; if(!cekPassword(lama)){alert('Password Lama salah, Pak!');return;} if(baru.length<4){alert('Password Baru minimal 4 huruf/angka, Pak!');return;} if(baru!==baru2){alert('Password Baru tidak sama, Pak!');return;} db.passGuru=baru; save(); document.getElementById('passLama').value=''; document.getElementById('passBaru').value=''; document.getElementById('passBaru2').value=''; alert('Password baru tersimpan, Pak!'); }
 function logout(){location.reload();}
@@ -343,11 +414,9 @@ function tandaiBaca(){ if(currentRole==='guru'){ localStorage.setItem('sudahBaca
 function tutupNotif(){document.getElementById('pageNotif').classList.add('hidden');}
 function masukNotif(){ document.getElementById('pageNotif').classList.add('hidden'); if(hitungNotif().izin>0) showTab('Izin'); else showTab('Pesan'); window.scrollTo(0,0); updateNotif(); }
 function warnaStatus(st){ if(st==='Hadir') return 'background:#16a34a;color:#fff'; if(st==='Sakit') return 'background:#facc15;color:#000'; if(st==='Izin') return 'background:#60a5fa;color:#fff'; if(st==='Alpa') return 'background:#dc2626;color:#fff'; return 'background:#eee;color:#555'; }
-
-// ===== ULANGAN V12 =====
 function gantiTipeSoal(){ let t=document.getElementById('tipeSoal').value; document.getElementById('boxPG').classList.toggle('hidden',t!=='pg'); document.getElementById('boxEssay').classList.toggle('hidden',t!=='essay'); }
 function tambahSoal(){
-  if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[]};
+  if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[],acak:false,acakUrutan:false};
   let judul=document.getElementById('judulUlangan').value.trim(); if(judul) db.ulangan.judul=judul;
   db.ulangan.kelas=document.getElementById('kelasUlangan').value;
   let tipe=document.getElementById('tipeSoal').value; let teks=document.getElementById('teksSoal').value.trim();
@@ -368,8 +437,20 @@ function kirimJawabanUlangan(){
   let soal=db.ulangan.soal||[]; if(!soal.length) return alert('Belum ada soal, Pak!');
   let namaJawab = currentRole==='siswa' ? currentNama : currentAnak;
   if(db.ulangan.jawaban.some(j=>j.nama===namaJawab && j.kelasUlangan===currentKelasUlangan)) return alert('Sudah jawab, Pak! Tidak bisa jawab 2x.');
-  let jawaban=[]; let belum=0;
-  soal.forEach((s,i)=>{ if(s.tipe==='pg'){ let el=document.querySelector('input[name="jawab-'+i+'"]:checked'); if(!el) belum++; else jawaban.push(el.value); } else { let el=document.getElementById('jawab-essay-'+i); if(!el||!el.value.trim()) belum++; else jawaban.push(el.value.trim()); } });
+  // Urutan tampil untuk siswa ini (kalau acak urutan aktif)
+  let urutanTampil = currentRole==='siswa' ? getUrutanSoalAcak(soal, currentNama) : soal.map((s,i)=>i);
+  let jawaban = new Array(soal.length);
+  let belum=0;
+  urutanTampil.forEach((idxAsli, posTampil)=>{
+    let s = soal[idxAsli];
+    if(s.tipe==='pg'){
+      let el=document.querySelector('input[name="jawab-'+idxAsli+'"]:checked');
+      if(!el) belum++; else jawaban[idxAsli]=el.value;
+    } else {
+      let el=document.getElementById('jawab-essay-'+idxAsli);
+      if(!el||!el.value.trim()) belum++; else jawaban[idxAsli]=el.value.trim();
+    }
+  });
   if(belum>0) return alert('Masih ada '+belum+' soal belum dijawab, Pak! Isi semua dulu.');
   let jmlPG=soal.filter(s=>s.tipe==='pg').length; let benar=0; soal.forEach((s,i)=>{ if(s.tipe==='pg' && jawaban[i]===s.kunci) benar++; });
   let nilaiPG=jmlPG>0?Math.round((benar/jmlPG)*100):0;
@@ -404,30 +485,42 @@ function renderAll(){
   let pesanList=db.siswa.filter(s=>currentRole==='guru'?true:s.nama===currentAnak).map(s=>{let c=db.pesan.filter(p=>p.nama===s.nama);let isi=c.map(p=>`<div><b>${p.dari}:</b> ${p.isi}</div>`).join('');let waBtn=currentRole==='guru'?`<button class="wa-btn" onclick="kirimWAChat('${s.nama}')">💬 Lanjut ke WA Ortu</button>`:'';return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<div style="background:#f0f0f0;padding:8px;margin:6px 0;max-height:120px;overflow:auto">${isi||'Belum ada pesan'}</div><input id="in-${s.nama}" placeholder="Ketik pesan..." style="width:100%;padding:8px"><button onclick="kirimPesan('${s.nama}')" style="width:100%;margin-top:6px">Kirim Pesan</button>${waBtn}<button onclick="hapusPesan('${s.nama}')" style="width:100%;margin-top:6px;background:#ffcccc">🗑️ Hapus Chat</button></div>`});
   document.getElementById('listPesan').innerHTML=pesanList.length?pesanList.join(''):'<p class="small">Belum ada siswa.</p>';
 
-  // RENDER ULANGAN
-  if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[]};
+  if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[],acak:false,acakUrutan:false};
   document.getElementById('boxBuatSoal').classList.toggle('hidden',currentRole!=='guru');
   document.getElementById('judulUlangan').value=db.ulangan.judul||'';
   document.getElementById('kelasUlangan').value=db.ulangan.kelas||'11';
+  // V12.2 - Acak hanya Guru yang bisa ubah, Siswa cuma lihat status
+  let cekAcak=document.getElementById('acakSoal'); let cekUrutan=document.getElementById('acakUrutanSoal');
+  if(cekAcak){ cekAcak.checked=!!db.ulangan.acak; cekAcak.disabled = currentRole!=='guru'; document.getElementById('infoAcak').innerText = db.ulangan.acak ? '🔀 Acak Pilihan AKTIF - Tiap siswa beda urutan A-E.' : 'Acak Pilihan MATI - Urutan normal A-E.'; }
+  if(cekUrutan){ cekUrutan.checked=!!db.ulangan.acakUrutan; cekUrutan.disabled = currentRole!=='guru'; document.getElementById('infoAcakUrutan').innerText = db.ulangan.acakUrutan ? '🔀 Acak Urutan Soal AKTIF - Urutan soal beda tiap siswa.' : 'Acak Urutan Soal MATI - Urutan soal sama semua.'; }
+  document.getElementById('boxAcak').style.display = currentRole==='siswa' ? 'none' : 'block';
   let kelasUlanganAktif=db.ulangan.kelas||'11';
-  document.getElementById('infoUlangan').innerText = currentRole==='guru' ? 'Guru: Bikin soal untuk Kelas '+kelasUlanganAktif+'. PG ABCDE + Essay. Nilai PG otomatis.' : currentRole==='siswa' ? 'Siswa Kelas '+currentKelasUlangan+': Ulangan ini untuk Kelas '+kelasUlanganAktif+'. Jawab semua, lalu Kirim.' : 'Ortu: Ulangan untuk Kelas '+kelasUlanganAktif+'. Anak Anda bisa jawab lewat Pintu Siswa Ulangan.';
+  document.getElementById('infoUlangan').innerText = currentRole==='guru' ? 'Guru: Bikin soal untuk Kelas '+kelasUlanganAktif+'. PG ABCDE + Essay. Nilai PG otomatis.' : currentRole==='siswa' ? 'Siswa Kelas '+currentKelasUlangan+': Ulangan ini untuk Kelas '+kelasUlanganAktif+'. Jawab semua, lalu Kirim.' + (db.ulangan.acak ? ' (Pilihan sudah diacak)' : '') : 'Ortu: Ulangan untuk Kelas '+kelasUlanganAktif+'. Anak Anda bisa jawab lewat Pintu Siswa Ulangan.';
   let soal=db.ulangan.soal||[];
-  // Jika siswa dan kelas tidak cocok, sembunyikan soal
   let bolehLihatSoal = currentRole==='guru' || currentRole==='ortu' || kelasUlanganAktif==='Semua' || kelasUlanganAktif===currentKelasUlangan;
+  let bungkus=document.getElementById('bungkusDaftarSoal');
+  if(bungkus) bungkus.style.display = (currentRole==='guru') ? 'block' : 'none';
   if(!bolehLihatSoal){
     document.getElementById('listSoalUlangan').innerHTML='<div style="background:#fee2e2;padding:12px;border-radius:12px"><b>🔒 Belum ada Ulangan untuk Kelas '+currentKelasUlangan+', tunggu Guru.</b><br>Ulangan yang aktif sekarang untuk Kelas '+kelasUlanganAktif+'.</div>';
     document.getElementById('boxJawabUlangan').innerHTML='<p class="small">Tunggu Guru ganti ke Kelas '+currentKelasUlangan+'.</p>';
     document.getElementById('listHasilUlangan').innerHTML='<p class="small">Belum ada hasil untuk kelas Anda.</p>';
     return;
   }
-  document.getElementById('listSoalUlangan').innerHTML=soal.length?soal.map((s,i)=>{ let isi=''; if(s.tipe==='pg'){ isi=s.opsi.map((o,oi)=>`<div style="padding:6px;background:${['A','B','C','D','E'][oi]===s.kunci?'#dcfce7':'#fff'};border:1px solid #ddd;border-radius:8px;margin:4px 0"><b>${['A','B','C','D','E'][oi]}.</b> ${o} ${['A','B','C','D','E'][oi]===s.kunci && currentRole==='guru'?' ✅ KUNCI':''}</div>`).join(''); } else { isi=`<div class="small">Essay - Siswa jawab ketik panjang. Guru nilai 0-100.</div>`; } let btnHapus=currentRole==='guru'?`<button class="btn2" onclick="hapusSoal(${i})" style="background:#fee2e2;margin-top:6px">🗑️ Hapus Soal ${i+1}</button>`:''; return `<div class="soal-box"><b>Soal ${i+1} [${s.tipe==='pg'?'PG ABCDE':'ESSAY'}]</b><br>${s.teks}<br>${isi}${btnHapus}</div>`; }).join(''):'<p class="small">Belum ada soal. Guru silakan buat soal dulu.</p>';
+  document.getElementById('listSoalUlangan').innerHTML=soal.length?soal.map((s,i)=>{ let isi=''; if(s.tipe==='pg'){ isi=s.opsi.map((o,oi)=>`<div style="padding:6px;background:${currentRole==='guru' && ['A','B','C','D','E'][oi]===s.kunci?'#dcfce7':'#fff'};border:1px solid #ddd;border-radius:8px;margin:4px 0"><b>${['A','B','C','D','E'][oi]}.</b> ${o} ${['A','B','C','D','E'][oi]===s.kunci && currentRole==='guru'?' ✅ KUNCI':''}</div>`).join(''); } else { isi=`<div class="small">Essay - Siswa jawab ketik panjang. Guru nilai 0-100.</div>`; } let btnHapus=currentRole==='guru'?`<button class="btn2" onclick="hapusSoal(${i})" style="background:#fee2e2;margin-top:6px">🗑️ Hapus Soal ${i+1}</button>`:''; return `<div class="soal-box"><b>Soal ${i+1} [${s.tipe==='pg'?'PG ABCDE':'ESSAY'}]</b><br>${s.teks}<br>${isi}${btnHapus}</div>`; }).join(''):'<p class="small">Belum ada soal. Guru silakan buat soal dulu.</p>';
   let namaCek = currentRole==='siswa' ? currentNama : currentAnak;
   let sudahJawab=db.ulangan.jawaban.find(j=>j.nama===namaCek);
   if(currentRole==='siswa' || currentRole==='ortu'){
     if(!soal.length){ document.getElementById('boxJawabUlangan').innerHTML='<p class="small">Belum ada soal.</p>'; }
     else if(sudahJawab && currentRole==='siswa'){ document.getElementById('boxJawabUlangan').innerHTML=`<div style="background:#dcfce7;padding:12px;border-radius:12px"><b>✅ Sudah Dijawab!</b><br>Nilai PG: ${sudahJawab.nilaiPG} (${sudahJawab.benarPG} benar dari ${sudahJawab.jmlPG} PG)<br>Nilai Essay: ${sudahJawab.nilaiEssay===''?'Menunggu Guru':sudahJawab.nilaiEssay}<br><b>Nilai Akhir: ${sudahJawab.nilaiAkhir}</b></div>`; }
     else if(currentRole==='siswa'){
-      document.getElementById('boxJawabUlangan').innerHTML=soal.map((s,i)=>{ if(s.tipe==='pg'){ return `<div class="soal-box"><b>Soal ${i+1} - PG - Pilih A / B / C / D / E</b><br>${s.teks}<br>`+s.opsi.map((o,oi)=>`<label class="opsi-label"><input type="radio" name="jawab-${i}" value="${['A','B','C','D','E'][oi]}"> <b>${['A','B','C','D','E'][oi]}.</b> ${o}</label>`).join('')+`</div>`; } else { return `<div class="soal-box"><b>Soal ${i+1} - ESSAY</b><br>${s.teks}<br><textarea id="jawab-essay-${i}" rows="4" placeholder="Ketik jawaban panjang..."></textarea></div>`; } }).join('')+`<button class="btn" onclick="kirimJawabanUlangan()">📤 Kirim Jawaban</button><p class="small">Pastikan semua terisi. Hanya bisa kirim 1x.</p>`;
+      let urutan = getUrutanSoalAcak(soal, currentNama);
+      document.getElementById('boxJawabUlangan').innerHTML=urutan.map((idxAsli, pos)=>{
+        let s = soal[idxAsli];
+        if(s.tipe==='pg'){
+          let opsiAcak = getOpsiAcak(s, idxAsli, currentNama);
+          return `<div class="soal-box"><b>Soal ${pos+1} - PG - Pilih A / B / C / D / E</b>${db.ulangan.acak?' <span class="small" style="color:#0ea5e9">(Diacak)</span>':''}<br>${s.teks}<br>`+opsiAcak.map((obj,oi)=>`<label class="opsi-label"><input type="radio" name="jawab-${idxAsli}" value="${obj.kunciAsli}"> <b>${['A','B','C','D','E'][oi]}.</b> ${obj.teks}</label>`).join('')+`</div>`;
+        } else { return `<div class="soal-box"><b>Soal ${pos+1} - ESSAY</b><br>${s.teks}<br><textarea id="jawab-essay-${idxAsli}" rows="4" placeholder="Ketik jawaban panjang..."></textarea></div>`; }
+      }).join('')+`<button class="btn" onclick="kirimJawabanUlangan()">📤 Kirim Jawaban</button><p class="small">Pastikan semua terisi. Hanya bisa kirim 1x.</p>`;
     } else {
       document.getElementById('boxJawabUlangan').innerHTML='<p class="small">Ortu tidak menjawab. Siswa jawab lewat Pintu Siswa Ulangan dengan Kode Ulangan.</p>';
     }
@@ -435,7 +528,8 @@ function renderAll(){
     document.getElementById('boxJawabUlangan').innerHTML='<p class="small">Guru tidak menjawab. Guru lihat hasil di bawah.</p>';
   }
   let hasil=currentRole==='siswa' ? (db.ulangan.jawaban||[]).filter(j=>j.nama===currentNama) : currentRole==='ortu' ? (db.ulangan.jawaban||[]).filter(j=>j.nama===currentAnak) : (db.ulangan.jawaban||[]);
-  document.getElementById('listHasilUlangan').innerHTML=hasil.length?hasil.map((j,idx)=>{ let idxAsli=db.ulangan.jawaban.indexOf(j); let detail=''; soal.forEach((s,i)=>{ let jwb=j.jawaban[i]||'-'; if(s.tipe==='pg'){ let benar=jwb===s.kunci; detail+=`<div style="padding:6px;border:1px solid #ddd;border-radius:8px;margin:4px 0;background:${benar?'#dcfce7':'#fee2e2'}"><b>Soal ${i+1} PG:</b> ${s.teks}<br>Jawab: <b>${jwb}</b> | Kunci: <b>${s.kunci}</b> ${benar?'✅ Benar':'❌ Salah'}</div>`; } else { detail+=`<div style="padding:6px;border:1px solid #ddd;border-radius:8px;margin:4px 0;background:#fffbe6"><b>Soal ${i+1} ESSAY:</b> ${s.teks}<br>Jawaban Siswa: ${jwb}</div>`; } }); let btnNilai=currentRole==='guru' && soal.some(s=>s.tipe==='essay')?`<button class="btn" onclick="beriNilaiEssay(${idxAsli})" style="background:#f59e0b;margin-top:6px">✏️ Beri / Ubah Nilai Essay</button>`:''; let btnHapus=currentRole==='guru'?`<button class="btn2" onclick="hapusJawabanSiswa(${idxAsli})" style="background:#fee2e2;margin-top:6px">🗑️ Hapus Jawaban (Biar Bisa Jawab Lagi)</button>`:''; return `<div class="soal-box"><b>${j.nama} - ${j.kelas}</b><br><span class="small">${j.waktu}</span><br><b>Nilai PG: ${j.nilaiPG}</b> (${j.benarPG} benar dari ${j.jmlPG})<br><b>Nilai Essay: ${j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay}</b><br><b style="font-size:18px">Nilai Akhir: ${j.nilaiAkhir}</b><br>${detail}${btnNilai}${btnHapus}</div>`; }).join(''):'<p class="small">Belum ada yang jawab.</p>';
+  document.getElementById('infoCSV').innerText = 'Total yang sudah jawab: '+(db.ulangan.jawaban||[]).length+' siswa. Pencet Download CSV untuk simpan ke Excel, Pak.';
+  document.getElementById('listHasilUlangan').innerHTML=hasil.length?hasil.map((j,idx)=>{ let idxAsli=db.ulangan.jawaban.indexOf(j); let detail=''; soal.forEach((s,i)=>{ let jwb=j.jawaban[i]||'-'; if(s.tipe==='pg'){ let benar=jwb===s.kunci; let tampilKunci = currentRole==='guru' ? ' | Kunci: <b>'+s.kunci+'</b>' : ''; detail+=`<div style="padding:6px;border:1px solid #ddd;border-radius:8px;margin:4px 0;background:${benar?'#dcfce7':'#fee2e2'}"><b>Soal ${i+1} PG:</b> ${s.teks}<br>Jawab: <b>${jwb}</b>${tampilKunci} ${benar?'✅ Benar':'❌ Salah'}</div>`; } else { detail+=`<div style="padding:6px;border:1px solid #ddd;border-radius:8px;margin:4px 0;background:#fffbe6"><b>Soal ${i+1} ESSAY:</b> ${s.teks}<br>Jawaban Siswa: ${jwb}</div>`; } }); let btnNilai=currentRole==='guru' && soal.some(s=>s.tipe==='essay')?`<button class="btn" onclick="beriNilaiEssay(${idxAsli})" style="background:#f59e0b;margin-top:6px">✏️ Beri / Ubah Nilai Essay</button>`:''; let btnHapus=currentRole==='guru'?`<button class="btn2" onclick="hapusJawabanSiswa(${idxAsli})" style="background:#fee2e2;margin-top:6px">🗑️ Hapus Jawaban (Biar Bisa Jawab Lagi)</button>`:''; return `<div class="soal-box"><b>${j.nama} - ${j.kelas}</b><br><span class="small">${j.waktu}</span><br><b>Nilai PG: ${j.nilaiPG}</b> (${j.benarPG} benar dari ${j.jmlPG})<br><b>Nilai Essay: ${j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay}</b><br><b style="font-size:18px">Nilai Akhir: ${j.nilaiAkhir}</b><br>${detail}${btnNilai}${btnHapus}</div>`; }).join(''):'<p class="small">Belum ada yang jawab.</p>';
 }
 function kirimPesan(nama){let inp=document.getElementById('in-'+nama);if(!inp||!inp.value.trim())return;let teks=inp.value.trim(); db.pesan.push({nama:nama,dari:currentRole==='guru'?'Guru':'Ortu',isi:teks}); save(); inp.value=''; renderAll(); alert('Pesan terkirim ke '+nama+'!');}
 function hapusPesan(nama){if(!confirm('Hapus semua chat '+nama+'?'))return;db.pesan=db.pesan.filter(p=>p.nama!==nama);save();renderAll();}
