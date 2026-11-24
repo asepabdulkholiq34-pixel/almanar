@@ -173,6 +173,31 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <script>
 let KEY='almanar_v6';
 let db=JSON.parse(localStorage.getItem(KEY)||'{"passGuru":"1234","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim Chat.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
+  // === TANAM 21 SISWA - BIAR DI HP SIAPA AJA ADA ===
+const DEFAULT_SISWA=[
+{nama:"Aira Zahrotus Sita",kelas:"XI 1 AKL"},
+{nama:"Alvin Ramadhan",kelas:"XI 1 AKL"},
+{nama:"Chiqa Aulia Widuri",kelas:"XI 1 AKL"},
+{nama:"Diva Dania",kelas:"XI 1 AKL"},
+{nama:"Elsa Savitri",kelas:"XI 1 AKL"},
+{nama:"Mutia Ainurahman",kelas:"XI 1 AKL"},
+{nama:"Novi Andini",kelas:"XI 1 AKL"},
+{nama:"Rachel Aulia",kelas:"XI 1 AKL"},
+{nama:"Rifi Marsella",kelas:"XI 1 AKL"},
+{nama:"Silvia Agustiyani",kelas:"XI 1 AKL"},
+{nama:"Siti Alena",kelas:"XI 1 AKL"},
+{nama:"Suci Anjani C",kelas:"XI 1 AKL"},
+{nama:"Wiwin Kartika",kelas:"XI 1 AKL"},
+{nama:"Adinda Kaya Dewi",kelas:"XI 1 TKJ"},
+{nama:"Anindita Yunisa Nurdyana",kelas:"XI 1 TKJ"},
+{nama:"Fahrid Hamzah",kelas:"XI 1 TKJ"},
+{nama:"Hani Asifa",kelas:"XI 1 TKJ"},
+{nama:"Muhamad Azkal Asfian",kelas:"XI 1 TKJ"},
+{nama:"Muhamad Alfiansah",kelas:"XI 1 TKJ"},
+{nama:"Pria Idul Akbar",kelas:"XI 1 TKJ"},
+{nama:"Tasya Aurelia",kelas:"XI 1 TKJ"}
+];
+if(!db.siswa||db.siswa.length===0){db.siswa=DEFAULT_SISWA;localStorage.setItem(KEY,JSON.stringify(db));}
 if(!db.passGuru){db.passGuru="1234";}
   if(!db.pesan){db.pesan=[];}
 if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6 - Sistem Absensi & Izin Online.\n\nGuru: Bisa edit, ACC izin, kirim Chat.\nOrtu: Hanya melihat anaknya, ajukan izin.";
