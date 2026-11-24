@@ -526,7 +526,7 @@ function hapusJawabanSiswa(idx){ if(!confirm('Hapus jawaban ini, Pak? Siswa bisa
 function renderAll(){
   let now=new Date(); let hariIndo=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][now.getDay()]; let bulanIndo=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"][now.getMonth()]; let tglCantik=hariIndo+", "+now.getDate()+" "+bulanIndo+" "+now.getFullYear(); let hariIni=now.toISOString().slice(0,10);
   let perluSave=false; db.izin.forEach(x=>{ if(x.status==='Disetujui' && !db.absen[x.nama]){ db.absen[x.nama]=x.jenis; perluSave=true; } }); if(perluSave) save();
-  if(db.tglAbsen!==hariIni){ db.absen={}; db.tglAbsen=hariIni; save(); }
+  if(db.tglAbsen!==hariIni){ db.absen={}; db.izin=[]; db.tglAbsen=hariIni; save(); }
   document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen reset otomatis tiap ganti hari.';
   document.getElementById('haloNama').innerText='Halo, '+currentNama;
   document.getElementById('haloKelas').innerText = currentRole==='siswa' ? 'Kelas: '+currentKelas+' | MODE ULANGAN SAJA - Terkunci' : 'Kelas: '+currentKelas+(currentRole==='ortu'?' | Anak: '+currentAnak:'');
