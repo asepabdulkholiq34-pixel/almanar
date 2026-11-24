@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SMKS AL MANAR - V6 Baru</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial;background:#eef2f5}
 .header{background:#0f766e;color:#fff;text-align:center;padding:16px 12px}
@@ -22,7 +24,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 .jadwal-hari{background:#f0fdf4;padding:10px;border-radius:10px;margin:10px 0}
 .jadwal-hari b{font-size:16px;color:#0f766e}
 .jadwal-input{margin:4px 0}
-/* MATA PASSWORD BARU */
 .pass-wrap{position:relative;display:flex;align-items:center}
 .pass-wrap input{padding-right:48px}
 .eye-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;font-size:20px;padding:6px 10px;cursor:pointer;width:auto}
@@ -31,12 +32,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </style>
 </head>
 <body>
-
-<div class="header">
-<h2>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h2>
-<p>V6 Baru - Chat + Izin Online</p>
-</div>
-
+<div class="header"><h2>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h2><p>V6 Baru - Chat + Izin Online - SUDAH NYAMBUNG FIREBASE</p></div>
 <div id="loginPage" class="card">
 <h3>🔐 Login</h3>
 <label>Peran</label>
@@ -45,29 +41,14 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <input id="namaLogin" placeholder="Contoh: Pak Asep / Pak Herman">
 <label>Kelas</label>
 <select id="kelasLogin"><option>XI 1 TKJ</option><option>XI 1 AKL</option><option>XI 1 AKL dan TKJ</option></select>
-<div id="boxAnak" class="hidden">
-<label>Pilih Anak</label>
-<select id="pilihAnak"></select>
-<p class="small" id="infoAnak"></p>
-</div>
-<div id="boxPass">
-<label>Password Guru</label>
-<div class="pass-wrap">
-<input id="passGuru" type="password" placeholder="Masukkan Password">
-<button type="button" class="eye-btn" onclick="togglePass('passGuru',this)">👁️</button>
-</div>
-
-</div>
+<div id="boxAnak" class="hidden"><label>Pilih Anak</label><select id="pilihAnak"></select><p class="small" id="infoAnak"></p></div>
+<div id="boxPass"><label>Password Guru</label><div class="pass-wrap"><input id="passGuru" type="password" placeholder="Masukkan Password"><button type="button" class="eye-btn" onclick="togglePass('passGuru',this)">👁️</button></div></div>
 <button class="btn" onclick="login()">Masuk</button>
-<p class="small" style="text-align:center">Guru dulu isi siswa di tab Absensi.</p>
+<p class="small" style="text-align:center">Guru dulu isi siswa di tab Absensi. <br><span id="statusFirebase" style="color:#dc2626">⏳ Menghubungkan ke Firebase...</span></p>
 </div>
-
 <div id="mainPage" class="hidden">
 <div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<div><b id="haloNama">Halo</b><br><span class="small" id="haloKelas"></span></div>
-<span id="haloBadge" class="badge guru">GURU</span>
-</div>
+<div style="display:flex;justify-content:space-between;align-items:center"><div><b id="haloNama">Halo</b><br><span class="small" id="haloKelas"></span></div><span id="haloBadge" class="badge guru">GURU</span></div>
 <div id="modeLabel" style="margin-top:10px;padding:10px;border-radius:10px;background:#dcfce7;font-weight:700;text-align:center"></div>
 <div class="flex" style="margin-top:10px;text-align:center">
 <div style="flex:1;background:#dcfce7;border-radius:10px;padding:10px"><b id="cHadir">0</b><br><span class="small">Hadir</span></div>
@@ -75,105 +56,39 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div style="flex:1;background:#dbeafe;border-radius:10px;padding:10px"><b id="cIzin">0</b><br><span class="small">Izin</span></div>
 <div style="flex:1;background:#fee2e2;border-radius:10px;padding:10px"><b id="cAlpa">0</b><br><span class="small">Alpa</span></div>
 </div>
-<div class="flex" style="margin-top:10px">
-<button class="btn2" onclick="bukaNotif()">🔔 Notifikasi <span id="notifCount"></span></button>
-<button class="btn2" onclick="logout()">Keluar</button>
+<div class="flex" style="margin-top:10px"><button class="btn2" onclick="bukaNotif()">🔔 Notifikasi <span id="notifCount"></span></button><button class="btn2" onclick="logout()">Keluar</button></div>
 </div>
+<div id="pageNotif" class="card hidden"><h3>🔔 Notifikasi</h3><div id="listNotif"></div><div class="flex" style="margin-top:10px"><button class="btn2" onclick="tutupNotif()">Tutup</button><button class="btn" onclick="masukNotif()">Masuk →</button></div></div>
+<div id="pageAbsensi" class="card"><h3>✅ Absensi</h3><p class="small" id="tglAbsenTampil" style="font-weight:700"></p><div class="flex"></div>
+<div id="boxTambahSiswa" class="hidden" style="background:#f0fdf4;padding:10px;border-radius:10px"><b>Tambah Siswa (Guru)</b><input id="namaBaru" placeholder="Nama siswa"><input id="hpBaru" placeholder="No HP Ortu - Contoh: 081234567890"><select id="kelasBaru"><option>XI 1 TKJ</option><option>XI 1 AKL</option></select><button class="btn" onclick="tambahSiswa()">+ Tambah Siswa</button></div>
+<label style="margin-top:10px;display:block">Filter Kelas</label><select id="filterKelas" onchange="renderAll()"><option>Semua</option><option>XI 1 TKJ</option><option>XI 1 AKL</option></select><div id="listSiswa"></div></div>
+<div id="pageIzin" class="card hidden"><h3>📝 Izin Online / Buku Tamu</h3><div id="formIzin" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px"><b>Ajukan Izin (Ortu)</b><select id="jenisIzin"><option>Sakit</option><option>Izin</option></select><input id="tglIzin" type="date"><textarea id="alasanIzin" placeholder="Alasan..."></textarea><button class="btn" onclick="ajukanIzin()">Kirim Izin</button></div><p class="small" id="infoIzin"></p><h3>Daftar Pengajuan Izin:</h3><div id="listIzin"></div></div>
+<div id="pagePesan" class="card hidden"><h3>💬 Pesan / Chat</h3><p class="small">Guru bisa kirim Chat ke ortu. Ortu bisa liat info.</p><div id="listPesan"></div></div>
+<div id="pageJadwal" class="card hidden"><h3>📅 Jadwal Pelajaran</h3><p class="small" id="infoJadwal">Guru isi mata pelajaran. Ortu hanya melihat.</p><div id="listJadwal"></div><div id="boxSimpanJadwal" class="hidden" style="margin-top:10px"><button class="btn" onclick="simpanJadwal()">💾 Simpan Jadwal</button></div></div>
+<div id="pageInfo" class="card hidden"><h3>ℹ️ Info Sekolah</h3><p id="tampilInfo" style="white-space:pre-wrap;background:#f0fdf4;padding:12px;border-radius:10px"></p><div id="boxEditInfo" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px"><b>Tulis Info Sekolah (Guru)</b><textarea id="inputInfo" rows="5" placeholder="Contoh: Besok Jumat libur... Ujian Senin... Tolong bawa..."></textarea><button class="btn" onclick="simpanInfo()">💾 Simpan Info</button><button class="btn" onclick="hapusInfo()" style="background:#ffcccc;color:#cc0000;margin-top:8px">🗑️ Hapus Info</button><p class="small">Info ini akan dilihat Ortu.</p></div>
+<div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px"><b>🔑 Ganti Password Guru</b><div class="pass-wrap"><input id="passLama" type="password" placeholder="Password Lama"><button type="button" class="eye-btn" onclick="togglePass('passLama',this)">👁️</button></div><div class="pass-wrap"><input id="passBaru" type="password" placeholder="Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru',this)">👁️</button></div><div class="pass-wrap"><input id="passBaru2" type="password" placeholder="Ulangi Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru2',this)">👁️</button></div><label class="lihat-box"><input type="checkbox" onclick="toggleSemuaGanti(this)"> Lihat Password</label><button class="btn" onclick="gantiPassword()" style="background:#f59e0b">Simpan Password Baru</button><p class="small">Hanya Guru yang bisa lihat ini.</p></div>
+<div style="margin-top:10px"><button id="btnReset" class="btn2" onclick="resetData()">Reset Semua Data (Guru)</button></div></div>
+<div style="height:80px"></div></div>
+<div id="bottomNav" class="hidden" style="position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;gap:8px;padding:10px;border-top:1px solid #ddd"><button id="btnPrev" class="btn2" style="flex:1" onclick="prevPage()">← Kembali</button><button class="btn2" style="flex:1;background:#fee2e2" onclick="logout()">Keluar</button><button id="btnNext" class="btn" style="flex:1" onclick="nextPage()">Berikutnya →</button></div>
 </div>
-
-<div id="pageNotif" class="card hidden">
-<h3>🔔 Notifikasi</h3>
-<div id="listNotif"></div>
-<div class="flex" style="margin-top:10px">
-<button class="btn2" onclick="tutupNotif()">Tutup</button>
-<button class="btn" onclick="masukNotif()">Masuk →</button>
-</div>
-</div>
-
-<div id="pageAbsensi" class="card">
-<h3>✅ Absensi</h3>
-  <p class="small" id="tglAbsenTampil" style="font-weight:700"></p>
-<div class="flex">
-
-</div>
-<div id="boxTambahSiswa" class="hidden" style="background:#f0fdf4;padding:10px;border-radius:10px">
-<b>Tambah Siswa (Guru)</b>
-<input id="namaBaru" placeholder="Nama siswa">
-  <input id="hpBaru" placeholder="No HP Ortu - Contoh: 081234567890">
-<select id="kelasBaru"><option>XI 1 TKJ</option><option>XI 1 AKL</option></select>
-<button class="btn" onclick="tambahSiswa()">+ Tambah Siswa</button>
-</div>
-<label style="margin-top:10px;display:block">Filter Kelas</label>
-<select id="filterKelas" onchange="renderAll()"><option>Semua</option><option>XI 1 TKJ</option><option>XI 1 AKL</option></select>
-<div id="listSiswa"></div>
-</div>
-
-<div id="pageIzin" class="card hidden">
-<h3>📝 Izin Online / Buku Tamu</h3>
-<div id="formIzin" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px">
-<b>Ajukan Izin (Ortu)</b>
-<select id="jenisIzin"><option>Sakit</option><option>Izin</option></select>
-<input id="tglIzin" type="date">
-<textarea id="alasanIzin" placeholder="Alasan..."></textarea>
-<button class="btn" onclick="ajukanIzin()">Kirim Izin</button>
-</div>
-<p class="small" id="infoIzin"></p>
-<h3>Daftar Pengajuan Izin:</h3>
-<div id="listIzin"></div>
-</div>
-
-<div id="pagePesan" class="card hidden">
-<h3>💬 Pesan / Chat</h3>
-<p class="small">Guru bisa kirim Chat ke ortu. Ortu bisa liat info.</p>
-<div id="listPesan"></div>
-</div>
-
-<div id="pageJadwal" class="card hidden">
-<h3>📅 Jadwal Pelajaran</h3>
-<p class="small" id="infoJadwal">Guru isi mata pelajaran. Ortu hanya melihat.</p>
-<div id="listJadwal"></div>
-<div id="boxSimpanJadwal" class="hidden" style="margin-top:10px">
-<button class="btn" onclick="simpanJadwal()">💾 Simpan Jadwal</button>
-</div>
-</div>
-
-<div id="pageInfo" class="card hidden">
-<h3>ℹ️ Info Sekolah</h3>
-<p id="tampilInfo" style="white-space:pre-wrap;background:#f0fdf4;padding:12px;border-radius:10px"></p>
-<div id="boxEditInfo" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px">
-<b>Tulis Info Sekolah (Guru)</b>
-<textarea id="inputInfo" rows="5" placeholder="Contoh: Besok Jumat libur... Ujian Senin... Tolong bawa..."></textarea>
-<button class="btn" onclick="simpanInfo()">💾 Simpan Info</button>
-  <button class="btn" onclick="hapusInfo()" style="background:#ffcccc;color:#cc0000;margin-top:8px">🗑️ Hapus Info</button>
-<p class="small">Info ini akan dilihat Ortu.</p>
-</div>
-<div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px">
-<b>🔑 Ganti Password Guru</b>
-<div class="pass-wrap"><input id="passLama" type="password" placeholder="Password Lama"><button type="button" class="eye-btn" onclick="togglePass('passLama',this)">👁️</button></div>
-<div class="pass-wrap"><input id="passBaru" type="password" placeholder="Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru',this)">👁️</button></div>
-<div class="pass-wrap"><input id="passBaru2" type="password" placeholder="Ulangi Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru2',this)">👁️</button></div>
-<label class="lihat-box"><input type="checkbox" onclick="toggleSemuaGanti(this)"> Lihat Password</label>
-<button class="btn" onclick="gantiPassword()" style="background:#f59e0b">Simpan Password Baru</button>
-<p class="small">Hanya Guru yang bisa lihat ini.</p>
-</div>
-<div style="margin-top:10px">
-<button id="btnReset" class="btn2" onclick="resetData()">Reset Semua Data (Guru)</button>
-</div>
-</div>
-<div style="height:80px"></div>
-</div>
-
-<div id="bottomNav" class="hidden" style="position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;gap:8px;padding:10px;border-top:1px solid #ddd">
-<button id="btnPrev" class="btn2" style="flex:1" onclick="prevPage()">← Kembali</button>
-<button class="btn2" style="flex:1;background:#fee2e2" onclick="logout()">Keluar</button>
-<button id="btnNext" class="btn" style="flex:1" onclick="nextPage()">Berikutnya →</button>
-</div>
-</div>
-
 <script>
+// === FIREBASE CONFIG - PUNYA BAPAK ===
+const firebaseConfig = {
+    apiKey: "AIzaSyCdAUpkfh9O16OCkHXQRzBckX46nNE1MCE",
+    authDomain: "almanar-v6.firebaseapp.com",
+    databaseURL: "https://almanar-v6-default-rtdb.firebaseio.com",
+    projectId: "almanar-v6",
+    storageBucket: "almanar-v6.firebasestorage.app",
+    messagingSenderId: "344807325677",
+    appId: "1:344807325677:web:6040dadc4d09c81fb3b1e4",
+    measurementId: "G-N847DPXFTV"
+};
+firebase.initializeApp(firebaseConfig);
+const dbRef = firebase.database().ref('almanar_v6');
 let KEY='almanar_v6';
-let db=JSON.parse(localStorage.getItem(KEY)||'{"passGuru":"1234","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\\nV6 - Sistem Absensi & Izin Online.\\n\\nGuru: Bisa edit, ACC izin, kirim Chat.\\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}}');
-  // === TANAM 21 SISWA - BIAR DI HP SIAPA AJA ADA ===
+let db={"passGuru":"1234","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\nV6 - Sistem Absensi & Izin Online.\n\nGuru: Bisa edit, ACC izin, kirim Chat.\nOrtu: Hanya melihat anaknya, ajukan izin.","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]}};
+let sudahLoadFirebase=false;
+let sedangSimpan=false;
 const DEFAULT_SISWA=[
 {nama:"Aira Zahrotus Sita",kelas:"XI 1 AKL"},
 {nama:"Alvin Ramadhan",kelas:"XI 1 AKL"},
@@ -197,563 +112,122 @@ const DEFAULT_SISWA=[
 {nama:"Pria Idul Akbar",kelas:"XI 1 TKJ"},
 {nama:"Tasya Aurelia",kelas:"XI 1 TKJ"}
 ];
-if(!db.siswa||db.siswa.length===0){db.siswa=DEFAULT_SISWA;localStorage.setItem(KEY,JSON.stringify(db));}
-if(!db.passGuru){db.passGuru="1234";}
-  if(!db.pesan){db.pesan=[];}
-if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6 - Sistem Absensi & Izin Online.\n\nGuru: Bisa edit, ACC izin, kirim Chat.\nOrtu: Hanya melihat anaknya, ajukan izin.";
-if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
-function save(){localStorage.setItem(KEY,JSON.stringify(db));}
+// === DENGERIN FIREBASE - KALAU GURU UBAH, ORTU LANGSUNG BERUBAH ===
+dbRef.on('value', (snap)=>{
+  let val = snap.val();
+  let statusEl = document.getElementById('statusFirebase');
+  if(val){
+    db = val;
+    if(!db.siswa) db.siswa=[];
+    if(!db.izin) db.izin=[];
+    if(!db.pesan) db.pesan=[];
+    if(!db.absen) db.absen={};
+    if(!db.passGuru) db.passGuru="1234";
+    if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
+    if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV6";
+  } else {
+    // Kalau Firebase masih kosong, isi 21 siswa pertama kali
+    db.siswa = DEFAULT_SISWA;
+    dbRef.set(db);
+  }
+  sudahLoadFirebase = true;
+  if(statusEl){ statusEl.innerText = "✅ Sudah Nyambung ke Firebase - Guru & Ortu Nyambung"; statusEl.style.color="#16a34a"; }
+  if(!document.getElementById('mainPage').classList.contains('hidden')){ renderAll(); }
+  if(document.getElementById('role').value==='ortu') isiPilihAnak();
+});
+function save(){
+  if(!sudahLoadFirebase) return;
+  // Jangan simpan kalau data masih kosong karena belum load
+  dbRef.set(db);
+}
 let currentRole='guru', currentNama='', currentKelas='XI 1 TKJ', currentAnak='';
-
-// FUNGSI MATA PASSWORD BARU
-function togglePass(id,btn){
-  let el=document.getElementById(id);
-  if(el.type==='password'){el.type='text';btn.innerText='🙈';}
-  else{el.type='password';btn.innerText='👁️';}
-}
-function toggleSemuaLogin(cb){
-  let el=document.getElementById('passGuru');
-  el.type=cb.checked?'text':'password';
-}
-function toggleSemuaGanti(cb){
-  ['passLama','passBaru','passBaru2'].forEach(id=>{
-    document.getElementById(id).type=cb.checked?'text':'password';
-  });
-}
-
+function togglePass(id,btn){ let el=document.getElementById(id); if(el.type==='password'){el.type='text';btn.innerText='🙈';} else{el.type='password';btn.innerText='👁️';} }
+function toggleSemuaLogin(cb){ let el=document.getElementById('passGuru'); el.type=cb.checked?'text':'password'; }
+function toggleSemuaGanti(cb){ ['passLama','passBaru','passBaru2'].forEach(id=>{ document.getElementById(id).type=cb.checked?'text':'password'; }); }
 document.getElementById('role').addEventListener('change',cekRole);
 document.getElementById('kelasLogin').addEventListener('change',isiPilihAnak);
-function cekRole(){
-  let r=document.getElementById('role').value;
-  document.getElementById('boxPass').classList.toggle('hidden',r!=='guru');
-  document.getElementById('boxAnak').classList.toggle('hidden',r!=='ortu');
-  if(r==='ortu') isiPilihAnak();
-}
-function isiPilihAnak(){
-  let k=document.getElementById('kelasLogin').value.trim();
-  let kNormal=k.toUpperCase().replace(/\s+/g," ");
-  let list=db.siswa.filter(s=>(s.kelas||"").trim().toUpperCase().replace(/\s+/g," ")===kNormal);
-  let sel=document.getElementById('pilihAnak');
-  let info=document.getElementById('infoAnak');
-  if(list.length===0){
-    sel.innerHTML='<option value="">-- Belum ada siswa --</option>';
-    if(info) info.innerText='Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.';
-  }else{
-    sel.innerHTML=list.map(s=>`<option value="${s.nama}">${s.nama}</option>`).join('');
-    if(info) info.innerText=list.length+' siswa di kelas '+k;
-  }
-}
+function cekRole(){ let r=document.getElementById('role').value; document.getElementById('boxPass').classList.toggle('hidden',r!=='guru'); document.getElementById('boxAnak').classList.toggle('hidden',r!=='ortu'); if(r==='ortu') isiPilihAnak(); }
+function isiPilihAnak(){ let k=document.getElementById('kelasLogin').value.trim(); let kNormal=k.toUpperCase().replace(/\s+/g," "); let list=db.siswa.filter(s=>(s.kelas||"").trim().toUpperCase().replace(/\s+/g," ")===kNormal); let sel=document.getElementById('pilihAnak'); let info=document.getElementById('infoAnak'); if(list.length===0){ sel.innerHTML='<option value="">-- Belum ada siswa --</option>'; if(info) info.innerText='Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.'; }else{ sel.innerHTML=list.map(s=>`<option value="${s.nama}">${s.nama}</option>`).join(''); if(info) info.innerText=list.length+' siswa di kelas '+k; } }
 cekRole();
-
-function login(){
-  currentRole=document.getElementById('role').value;
-  currentNama=document.getElementById('namaLogin').value.trim()||'Pengguna';
-  currentKelas=document.getElementById('kelasLogin').value;
-  let pwMasuk=document.getElementById('passGuru').value.trim();
-  if(currentRole==='guru' && pwMasuk!=="1234" && pwMasuk!==db.passGuru){alert('Password guru salah!');return;}
-  if(currentRole==='ortu'){
-    currentAnak=document.getElementById('pilihAnak').value;
-    if(!currentAnak){alert('Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.');return;}
-  } else currentAnak='';
-  document.getElementById('loginPage').classList.add('hidden');
-  document.getElementById('mainPage').classList.remove('hidden');
-  document.getElementById('bottomNav').classList.remove('hidden');
-  pageIdx=0;
-  showTab(pages[0]);
-  renderAll();
-}
-function gantiPassword(){
-  let lama=document.getElementById('passLama').value;
-  let baru=document.getElementById('passBaru').value;
-  let baru2=document.getElementById('passBaru2').value;
-  if(lama!==db.passGuru && lama!=="1234"){alert('Password Lama salah, Pak!');return;}
-  if(baru.length<4){alert('Password Baru minimal 4 huruf/angka, Pak!');return;}
-  if(baru!==baru2){alert('Password Baru tidak sama, Pak! Cek lagi!');return;}
-  db.passGuru=baru; save();
-  document.getElementById('passLama').value='';
-  document.getElementById('passBaru').value='';
-  document.getElementById('passBaru2').value='';
-  alert('Password baru tersimpan, Pak! Besok login pakai password baru ya, Pak!');
-}
+function login(){ currentRole=document.getElementById('role').value; currentNama=document.getElementById('namaLogin').value.trim()||'Pengguna'; currentKelas=document.getElementById('kelasLogin').value; let pwMasuk=document.getElementById('passGuru').value.trim(); if(currentRole==='guru' && pwMasuk!=="1234" && pwMasuk!==db.passGuru){alert('Password guru salah!');return;} if(currentRole==='ortu'){ currentAnak=document.getElementById('pilihAnak').value; if(!currentAnak){alert('Belum ada siswa di kelas ini. Minta Guru tambahkan dulu.');return;} } else currentAnak=''; document.getElementById('loginPage').classList.add('hidden'); document.getElementById('mainPage').classList.remove('hidden'); document.getElementById('bottomNav').classList.remove('hidden'); pageIdx=0; showTab(pages[0]); renderAll(); }
+function gantiPassword(){ let lama=document.getElementById('passLama').value; let baru=document.getElementById('passBaru').value; let baru2=document.getElementById('passBaru2').value; if(lama!==db.passGuru && lama!=="1234"){alert('Password Lama salah, Pak!');return;} if(baru.length<4){alert('Password Baru minimal 4 huruf/angka, Pak!');return;} if(baru!==baru2){alert('Password Baru tidak sama, Pak! Cek lagi!');return;} db.passGuru=baru; save(); document.getElementById('passLama').value=''; document.getElementById('passBaru').value=''; document.getElementById('passBaru2').value=''; alert('Password baru tersimpan, Pak! Besok login pakai password baru ya, Pak!'); }
 function logout(){location.reload();}
-let pages=['Absensi','Izin','Pesan','Jadwal','Info'];
-let pageIdx=0;
-function showTab(n){
-  pageIdx=pages.indexOf(n);
-  pages.forEach(x=>{document.getElementById('page'+x).classList.toggle('hidden',x!==n);});
-  document.getElementById('pageNotif').classList.add('hidden');
-  document.getElementById('btnPrev').style.display = (pageIdx===0) ? 'none' : 'block';
-  document.getElementById('btnNext').style.display = (pageIdx===pages.length-1) ? 'none' : 'block';
-}
+let pages=['Absensi','Izin','Pesan','Jadwal','Info']; let pageIdx=0;
+function showTab(n){ pageIdx=pages.indexOf(n); pages.forEach(x=>{document.getElementById('page'+x).classList.toggle('hidden',x!==n);}); document.getElementById('pageNotif').classList.add('hidden'); document.getElementById('btnPrev').style.display = (pageIdx===0) ? 'none' : 'block'; document.getElementById('btnNext').style.display = (pageIdx===pages.length-1) ? 'none' : 'block'; }
 function nextPage(){ if(pageIdx < pages.length-1){ pageIdx++; showTab(pages[pageIdx]); } }
 function prevPage(){ if(pageIdx > 0){ pageIdx--; showTab(pages[pageIdx]); } }
-function simpanInfo(){
-  let v=document.getElementById('inputInfo').value.trim();
-  if(!v){alert('Isi dulu infonya, Pak');return;}
-  db.infoSekolah=v; save(); renderAll(); alert('Info tersimpan, Pak!');
-}
-  function hapusInfo(){
-  if(!confirm('Hapus Info Sekolah ini, Pak?')){return;}
-  db.infoSekolah=''; document.getElementById('inputInfo').value=''; save(); renderAll(); alert('Info sudah dihapus, Pak!');
-  }
-function simpanJadwal(){
-  let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"];
-  hariList.forEach(h=>{
-    for(let i=0;i<7;i++){
-      let el=document.getElementById('jadwal-'+h+'-'+i);
-      if(el) db.jadwal[h][i]=el.value.trim();
-    }
-  });
-  save(); renderAll(); alert('Jadwal tersimpan, Pak!');
-}
-function tambahSiswa(){
-  let n=document.getElementById('namaBaru').value.trim();
-  let k=document.getElementById('kelasBaru').value;
-  let hp=document.getElementById('hpBaru').value.trim();
-  if(!n) return alert('Isi nama dulu, Pak!');
-  if(hp.startsWith('08')){hp='62'+hp.slice(1);}
-  hp=hp.replace(/[^0-9]/g,'');
-  if(db.siswa.some(x=>x.nama===n)) return alert('Sudah ada, Pak!');
-  db.siswa.push({nama:n,kelas:k,hp:hp}); save();
-  document.getElementById('namaBaru').value=''; document.getElementById('hpBaru').value=''; renderAll();
-}
-  function editSiswa(namaLama){
-  let s=db.siswa.find(x=>x.nama===namaLama);
-  if(!s) return;
-  let namaBaru=prompt('Edit Nama Siswa:',s.nama);
-  if(!namaBaru) return;
-  namaBaru=namaBaru.trim();
-  let hpBaru=prompt('Edit No HP Ortu (kosongkan kalau tidak ada):',s.hp||'');
-  if(hpBaru===null) return;
-  hpBaru=hpBaru.trim();
-  if(hpBaru.startsWith('08')){hpBaru='62'+hpBaru.slice(1);}
-  hpBaru=hpBaru.replace(/[^0-9]/g,'');
-  if(namaBaru!==namaLama && db.absen[namaLama]!==undefined){db.absen[namaBaru]=db.absen[namaLama]; delete db.absen[namaLama];}
-  s.nama=namaBaru; s.hp=hpBaru;
-  db.izin.forEach(x=>{if(x.nama===namaLama) x.nama=namaBaru;});
-  save(); renderAll(); alert('Data sudah diperbaiki, Pak!');
-  }
-function hapusSiswa(nama){
-  if(!confirm('Hapus '+nama+'?'))return;
-  db.siswa=db.siswa.filter(s=>s.nama!==nama); save(); renderAll();
-}
+function simpanInfo(){ let v=document.getElementById('inputInfo').value.trim(); if(!v){alert('Isi dulu infonya, Pak');return;} db.infoSekolah=v; save(); renderAll(); alert('Info tersimpan, Pak!'); }
+function hapusInfo(){ if(!confirm('Hapus Info Sekolah ini, Pak?')){return;} db.infoSekolah=''; document.getElementById('inputInfo').value=''; save(); renderAll(); alert('Info sudah dihapus, Pak!'); }
+function simpanJadwal(){ let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"]; hariList.forEach(h=>{ for(let i=0;i<7;i++){ let el=document.getElementById('jadwal-'+h+'-'+i); if(el) db.jadwal[h][i]=el.value.trim(); } }); save(); renderAll(); alert('Jadwal tersimpan, Pak!'); }
+function tambahSiswa(){ let n=document.getElementById('namaBaru').value.trim(); let k=document.getElementById('kelasBaru').value; let hp=document.getElementById('hpBaru').value.trim(); if(!n) return alert('Isi nama dulu, Pak!'); if(hp.startsWith('08')){hp='62'+hp.slice(1);} hp=hp.replace(/[^0-9]/g,''); if(db.siswa.some(x=>x.nama===n)) return alert('Sudah ada, Pak!'); db.siswa.push({nama:n,kelas:k,hp:hp}); save(); document.getElementById('namaBaru').value=''; document.getElementById('hpBaru').value=''; renderAll(); }
+function editSiswa(namaLama){ let s=db.siswa.find(x=>x.nama===namaLama); if(!s) return; let namaBaru=prompt('Edit Nama Siswa:',s.nama); if(!namaBaru) return; namaBaru=namaBaru.trim(); let hpBaru=prompt('Edit No HP Ortu (kosongkan kalau tidak ada):',s.hp||''); if(hpBaru===null) return; hpBaru=hpBaru.trim(); if(hpBaru.startsWith('08')){hpBaru='62'+hpBaru.slice(1);} hpBaru=hpBaru.replace(/[^0-9]/g,''); if(namaBaru!==namaLama && db.absen[namaLama]!==undefined){db.absen[namaBaru]=db.absen[namaLama]; delete db.absen[namaLama];} s.nama=namaBaru; s.hp=hpBaru; db.izin.forEach(x=>{if(x.nama===namaLama) x.nama=namaBaru;}); save(); renderAll(); alert('Data sudah diperbaiki, Pak!'); }
+function hapusSiswa(nama){ if(!confirm('Hapus '+nama+'?'))return; db.siswa=db.siswa.filter(s=>s.nama!==nama); save(); renderAll(); }
 function setAbsen(nama,status){ db.absen[nama]=status; save(); renderAll(); }
-  function resetAbsenHariIni(){
-  if(!confirm('Hapus semua absen hari ini, Pak? Jadi 0 lagi?'))return;
-  db.absen={}; save(); renderAll(); alert('Absen hari ini sudah dihapus, Pak! Jadi 0 lagi!');
-  }
-function ajukanIzin(){
-  let jenis=document.getElementById('jenisIzin').value;
-  let tgl=document.getElementById('tglIzin').value||new Date().toISOString().slice(0,10);
-  let alasan=document.getElementById('alasanIzin').value.trim()||'-';
-  db.izin.unshift({nama:currentAnak,kelas:currentKelas,jenis:jenis,tanggal:tgl,alasan:alasan,pengaju:currentNama,status:'Menunggu'});
-  save(); document.getElementById('alasanIzin').value=''; renderAll(); alert('Izin terkirim');
-}
+function resetAbsenHariIni(){ if(!confirm('Hapus semua absen hari ini, Pak? Jadi 0 lagi?'))return; db.absen={}; save(); renderAll(); alert('Absen hari ini sudah dihapus, Pak! Jadi 0 lagi!'); }
+function ajukanIzin(){ let jenis=document.getElementById('jenisIzin').value; let tgl=document.getElementById('tglIzin').value||new Date().toISOString().slice(0,10); let alasan=document.getElementById('alasanIzin').value.trim()||'-'; db.izin.unshift({nama:currentAnak,kelas:currentKelas,jenis:jenis,tanggal:tgl,alasan:alasan,pengaju:currentNama,status:'Menunggu'}); save(); document.getElementById('alasanIzin').value=''; renderAll(); alert('Izin terkirim'); }
 function accIzin(i,sts){ db.izin[i].status=sts; save(); renderAll(); }
-function resetData(){if(confirm('Hapus semua data?')){localStorage.removeItem(KEY);location.reload();}}
-function siswaTerlihat(){
-  if(currentRole==='ortu') return db.siswa.filter(s=>s.nama===currentAnak);
-  let f=document.getElementById('filterKelas').value;
-  if(f==='Semua') return db.siswa;
-  return db.siswa.filter(s=>s.kelas===f);
-}
-function izinTerlihat(){
-  if(currentRole==='ortu') return db.izin.filter(x=>x.nama===currentAnak);
-  return db.izin;
-}
-function bukaNotif(){
-  document.getElementById('pageNotif').classList.remove('hidden');
-  let list=izinTerlihat().filter(x=>x.status==='Menunggu');
-  document.getElementById('listNotif').innerHTML=list.length?list.map(x=>`<div class="item"><b>${currentRole==='guru'?'GURU': 'ORTU'} : Izin ${x.nama} - ${x.jenis} (${x.status})</b><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span></div>`).join(''):'<p class="small">Tidak ada notifikasi.</p>';
-}
-function tutupNotif()
-{document.getElementById('pageNotif').classList.add('hidden');}
-  function masukNotif(){
-  document.getElementById('pageNotif').classList.add('hidden');
-  showTab('Izin');
-  window.scrollTo(0,0);
-}
-  function warnaStatus(st){
-  if(st==='Hadir') return 'background:#16a34a;color:#fff';
-  if(st==='Sakit') return 'background:#facc15;color:#000';
-  if(st==='Izin') return 'background:#60a5fa;color:#fff';
-  if(st==='Alpa') return 'background:#dc2626;color:#fff';
-  return 'background:#eee;color:#555';
-}
+function resetData(){if(confirm('Hapus semua data?')){ dbRef.remove(); location.reload();}}
+function siswaTerlihat(){ if(currentRole==='ortu') return db.siswa.filter(s=>s.nama===currentAnak); let f=document.getElementById('filterKelas').value; if(f==='Semua') return db.siswa; return db.siswa.filter(s=>s.kelas===f); }
+function izinTerlihat(){ if(currentRole==='ortu') return db.izin.filter(x=>x.nama===currentAnak); return db.izin; }
+function bukaNotif(){ document.getElementById('pageNotif').classList.remove('hidden'); let list=izinTerlihat().filter(x=>x.status==='Menunggu'); document.getElementById('listNotif').innerHTML=list.length?list.map(x=>`<div class="item"><b>${currentRole==='guru'?'GURU': 'ORTU'} : Izin ${x.nama} - ${x.jenis} (${x.status})</b><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span></div>`).join(''):'<p class="small">Tidak ada notifikasi.</p>'; }
+function tutupNotif(){document.getElementById('pageNotif').classList.add('hidden');}
+function masukNotif(){ document.getElementById('pageNotif').classList.add('hidden'); showTab('Izin'); window.scrollTo(0,0); }
+function warnaStatus(st){ if(st==='Hadir') return 'background:#16a34a;color:#fff'; if(st==='Sakit') return 'background:#facc15;color:#000'; if(st==='Izin') return 'background:#60a5fa;color:#fff'; if(st==='Alpa') return 'background:#dc2626;color:#fff'; return 'background:#eee;color:#555'; }
 function renderAll(){
-  let now=new Date();
-let hariIndo=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][now.getDay()];
-let bulanIndo=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"][now.getMonth()];
-let tglCantik=hariIndo+", "+now.getDate()+" "+bulanIndo+" "+now.getFullYear();
-let hariIni=now.toISOString().slice(0,10);
-if(db.tglAbsen!==hariIni){db.absen={}; db.tglAbsen=hariIni; localStorage.removeItem("autoAbsenIzin"); save();}
-document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen reset otomatis tiap ganti hari.';
+  let now=new Date(); let hariIndo=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][now.getDay()]; let bulanIndo=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"][now.getMonth()]; let tglCantik=hariIndo+", "+now.getDate()+" "+bulanIndo+" "+now.getFullYear(); let hariIni=now.toISOString().slice(0,10);
+  if(db.tglAbsen!==hariIni){ db.absen={}; db.tglAbsen=hariIni; localStorage.removeItem("autoAbsenIzin"); save(); }
+  document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen reset otomatis tiap ganti hari.';
   document.getElementById('haloNama').innerText='Halo, '+currentNama;
   document.getElementById('haloKelas').innerText='Kelas: '+currentKelas+(currentRole==='ortu'?' | Anak: '+currentAnak:'');
-  let badge=document.getElementById('haloBadge');
-  badge.innerText=currentRole==='guru'?'👨‍🏫 GURU':'👪 ORTU';
-  badge.className='badge '+(currentRole==='guru'?'guru':'ortu');
-  document.getElementById('modeLabel').innerText=currentRole==='guru'?'✅ MODE GURU - Bisa Edit, ACC Izin, Kirim Chat':'👪 MODE ORTU - Hanya Lihat Anak Sendiri';
-  document.getElementById('modeLabel').style.background=currentRole==='guru'?'#dcfce7':'#dbeafe';
+  let badge=document.getElementById('haloBadge'); badge.innerText=currentRole==='guru'?'👨‍🏫 GURU':'👪 ORTU'; badge.className='badge '+(currentRole==='guru'?'guru':'ortu');
+  document.getElementById('modeLabel').innerText=currentRole==='guru'?'✅ MODE GURU - Bisa Edit, ACC Izin, Kirim Chat':'👪 MODE ORTU - Hanya Lihat Anak Sendiri'; document.getElementById('modeLabel').style.background=currentRole==='guru'?'#dcfce7':'#dbeafe';
   document.getElementById('boxTambahSiswa').classList.toggle('hidden',currentRole!=='guru');
   document.getElementById('formIzin').classList.toggle('hidden',currentRole!=='ortu');
   document.getElementById('infoIzin').innerText=currentRole==='guru'?'Guru: Di bawah ini daftar pengajuan. Pencet Setuju agar absensi berubah. Pencet Tolak jika tidak disetujui.':'Ortu: Di bawah ini hanya izin anak Anda.';
-  document.getElementById('tampilInfo').innerText=db.infoSekolah;
-  document.getElementById('boxEditInfo').classList.toggle('hidden',currentRole!=='guru');
-  document.getElementById('boxGantiPass').classList.toggle('hidden',currentRole!=='guru');
-  document.getElementById('inputInfo').value=db.infoSekolah;
-  let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"];
-  document.getElementById('infoJadwal').innerText=currentRole==='guru'?'Guru: Isi 7 jam tiap hari, lalu pencet Simpan Jadwal.':'Ortu: Ini jadwal anak Anda.';
-  document.getElementById('boxSimpanJadwal').classList.toggle('hidden',currentRole!=='guru');
-  document.getElementById('listJadwal').innerHTML=hariList.map(h=>{
-    let isi='';
-    for(let i=0;i<7;i++){
-      let val=(db.jadwal[h]&&db.jadwal[h][i])?db.jadwal[h][i]:'';
-      if(currentRole==='guru'){
-        isi+=`<input class="jadwal-input" id="jadwal-${h}-${i}" placeholder="Jam ${i+1} - Mata Pelajaran" value="${val.replace(/"/g,'&quot;')}">`;
-      } else {
-        isi+=`<div style="padding:8px;border:1px solid #eee;border-radius:8px;margin:4px 0;background:#fff"><b>Jam ${i+1}:</b> ${val||'-'}</div>`;
-      }
-    }
-return `<div class="jadwal-hari"><b>${h}</b>${isi}</div>`;
-
-  }).join('');
-  let sList=siswaTerlihat();
-  document.getElementById('listSiswa').innerHTML=sList.length?sList.map(s=>{
-    let st=db.absen[s.nama]||'Belum Absen';
-    let btns=currentRole=='guru'?`<div class="flex" style="margin-top:8px;flex-wrap:wrap"><button class="ok" onclick="setAbsen('${s.nama}','Hadir')" >✅ Hadir</button><button onclick="setAbsen('${s.nama}','Sakit')" style="background:#facc15;">🤒 Sakit</button><button onclick="setAbsen('${s.nama}','Izin')" style="background:#60a5fa;color:#fff;">📝 Izin</button><button class="no" onclick="setAbsen('${s.nama}','Alpa')" >❌ Alpa</button><button class="btn2" onclick="editSiswa('${s.nama}')" style="background:#f59e0b;color:#fff">✏️ Edit</button><button class="btn2" onclick="hapusSiswa('${s.nama}')">Hapus</button></div>`:``;
-    return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span style="display:inline-block;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px;${warnaStatus(st)}">Status: ${st}</span>${btns}</div>`;
-  }).join(''):'<p class="small">Belum ada siswa. Guru silakan tambah siswa dulu.</p>';
-  let iList=izinTerlihat();
-  document.getElementById('listIzin').innerHTML=iList.length?iList.map(x=>{
-    let idx=db.izin.indexOf(x);
-    let btnGuru=(currentRole==='guru' && x.status==='Menunggu')?`<div class="flex" style="margin-top:8px"><button class="ok" onclick="accIzin(${idx},'Disetujui')">✅ Setuju</button><button class="no" onclick="accIzin(${idx},'Ditolak')">❌ Tolak</button></div>`:'';
-    return `<div class="item"><b>📝 ${x.nama} - ${x.jenis}</b> <span style="float:right">⏳ ${x.status}</span><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span>${btnGuru}</div>`;
-  }).join(''):'<p class="small">Belum ada pengajuan izin.</p>';
-  let hadir=Object.values(db.absen).filter(v=>v==='Hadir').length;
-let sakit=Object.values(db.absen).filter(v=>v==='Sakit').length;
-let izinHitung=Object.values(db.absen).filter(v=>v==='Izin').length;
-let alpa=Object.values(db.absen).filter(v=>v==='Alpa'||v==='Tidak Hadir').length;
-  document.getElementById('cHadir').innerText=hadir;
-  document.getElementById('cSakit').innerText=sakit;
-  document.getElementById('cIzin').innerText=izinHitung;
-  document.getElementById('cAlpa').innerText=alpa;
-  let totalHad=db.absen;let jmlSiswa=db.siswa.filter(s=>currentRole==='guru' ? true : s.nama===currentAnak);
-  let notif=document.getElementById('notifCount');
-  if(notif){notif.innerText = izinTerlihat().filter(x=>x.status==='Menunggu').length ? ' ('+izinTerlihat().filter(x=>x.status==='Menunggu').length+')' : '';}
+  document.getElementById('tampilInfo').innerText=db.infoSekolah; document.getElementById('boxEditInfo').classList.toggle('hidden',currentRole!=='guru'); document.getElementById('boxGantiPass').classList.toggle('hidden',currentRole!=='guru'); document.getElementById('inputInfo').value=db.infoSekolah;
+  let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"]; document.getElementById('infoJadwal').innerText=currentRole==='guru'?'Guru: Isi 7 jam tiap hari, lalu pencet Simpan Jadwal.':'Ortu: Ini jadwal anak Anda.'; document.getElementById('boxSimpanJadwal').classList.toggle('hidden',currentRole!=='guru');
+  document.getElementById('listJadwal').innerHTML=hariList.map(h=>{ let isi=''; for(let i=0;i<7;i++){ let val=(db.jadwal[h]&&db.jadwal[h][i])?db.jadwal[h][i]:''; if(currentRole==='guru'){ isi+=`<input class="jadwal-input" id="jadwal-${h}-${i}" placeholder="Jam ${i+1} - Mata Pelajaran" value="${val.replace(/"/g,'&quot;')}">`; } else { isi+=`<div style="padding:8px;border:1px solid #eee;border-radius:8px;margin:4px 0;background:#fff"><b>Jam ${i+1}:</b> ${val||'-'}</div>`; } } return `<div class="jadwal-hari"><b>${h}</b>${isi}</div>`; }).join('');
+  let sList=siswaTerlihat(); document.getElementById('listSiswa').innerHTML=sList.length?sList.map(s=>{ let st=db.absen[s.nama]||'Belum Absen'; let btns=currentRole=='guru'?`<div class="flex" style="margin-top:8px;flex-wrap:wrap"><button class="ok" onclick="setAbsen('${s.nama}','Hadir')" >✅ Hadir</button><button onclick="setAbsen('${s.nama}','Sakit')" style="background:#facc15;">🤒 Sakit</button><button onclick="setAbsen('${s.nama}','Izin')" style="background:#60a5fa;color:#fff;">📝 Izin</button><button class="no" onclick="setAbsen('${s.nama}','Alpa')" >❌ Alpa</button><button class="btn2" onclick="editSiswa('${s.nama}')" style="background:#f59e0b;color:#fff">✏️ Edit</button><button class="btn2" onclick="hapusSiswa('${s.nama}')">Hapus</button></div>`:``; return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span style="display:inline-block;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px;${warnaStatus(st)}">Status: ${st}</span>${btns}</div>`; }).join(''):'<p class="small">Belum ada siswa. Guru silakan tambah siswa dulu.</p>';
+  let iList=izinTerlihat(); document.getElementById('listIzin').innerHTML=iList.length?iList.map(x=>{ let idx=db.izin.indexOf(x); let btnGuru=(currentRole==='guru' && x.status==='Menunggu')?`<div class="flex" style="margin-top:8px"><button class="ok" onclick="accIzin(${idx},'Disetujui')">✅ Setuju</button><button class="no" onclick="accIzin(${idx},'Ditolak')">❌ Tolak</button></div>`:'x'; return `<div class="item"><b>📝 ${x.nama} - ${x.jenis}</b> <span style="float:right">⏳ ${x.status}</span><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span>${btnGuru}</div>`; }).join(''):'<p class="small">Belum ada pengajuan izin.</p>';
+  let hadir=Object.values(db.absen).filter(v=>v==='Hadir').length; let sakit=Object.values(db.absen).filter(v=>v==='Sakit').length; let izinHitung=Object.values(db.absen).filter(v=>v==='Izin').length; let alpa=Object.values(db.absen).filter(v=>v==='Alpa'||v==='Tidak Hadir').length; document.getElementById('cHadir').innerText=hadir; document.getElementById('cSakit').innerText=sakit; document.getElementById('cIzin').innerText=izinHitung; document.getElementById('cAlpa').innerText=alpa;
+  let notif=document.getElementById('notifCount'); if(notif){notif.innerText = izinTerlihat().filter(x=>x.status==='Menunggu').length ? ' ('+izinTerlihat().filter(x=>x.status==='Menunggu').length+')' : '';}
   let pesanList=db.siswa.filter(s=>currentRole==='guru'?true:s.nama===currentAnak).map(s=>{let c=db.pesan.filter(p=>p.nama===s.nama);let isi=c.map(p=>`<div><b>${p.dari}:</b> ${p.isi}</div>`).join('');return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<div style="background:#f0f0f0;padding:8px;margin:6px 0;max-height:120px;overflow:auto">${isi||'Belum ada pesan'}</div><input id="in-${s.nama}" placeholder="Ketik pesan..." style="width:100%;padding:8px"><button onclick="kirimPesan('${s.nama}')" style="width:100%;margin-top:6px">Kirim Pesan</button><button onclick="hapusPesan('${s.nama}')" style="width:100%;margin-top:6px;background:#ffcccc">🗑️ Hapus Chat</button></div>`});
   document.getElementById('listPesan').innerHTML=pesanList.length?pesanList.join(''):'<p class="small">Belum ada siswa.</p>';
 }
-  function kirimPesan(nama){let inp=document.getElementById('in-'+nama);if(!inp||!inp.value.trim())return;db.pesan.push({nama:nama,dari:currentRole==='guru'?'Guru':'Ortu',isi:inp.value.trim()});save();location.reload();}
-  function hapusPesan(nama){if(!confirm('Hapus semua chat '+nama+'?'))return;db.pesan=db.pesan.filter(p=>p.nama!==nama);save();location.reload();}
-  // Cek tiap 1 detik, kalau ORTU umpetin reset
-setInterval(function(){
-  var b = document.getElementById('btnReset');
-  var b2 = document.getElementById('btnResetAbsen');
-  var teksMode = document.body.innerText;
-  if(b){
-    if(teksMode.includes('MODE ORTU')){ b.style.display = 'none'; }
-      if(b2){
-  if(teksMode.includes('MODE ORTU')){ b2.style.display = 'none'; }
-  else { b2.style.display = 'block'; }
-      }
-    else { b.style.display = 'block'; }
-  }
-}, 1000);
+function kirimPesan(nama){let inp=document.getElementById('in-'+nama);if(!inp||!inp.value.trim())return;db.pesan.push({nama:nama,dari:currentRole==='guru'?'Guru':'Ortu',isi:inp.value.trim()});save();location.reload();}
+function hapusPesan(nama){if(!confirm('Hapus semua chat '+nama+'?'))return;db.pesan=db.pesan.filter(p=>p.nama!==nama);save();location.reload();}
+setInterval(function(){ var b = document.getElementById('btnReset'); var b2 = document.getElementById('btnResetAbsen'); var teksMode = document.body.innerText; if(b){ if(teksMode.includes('MODE ORTU')){ b.style.display = 'none'; } if(b2){ if(teksMode.includes('MODE ORTU')){ b2.style.display = 'none'; } else { b2.style.display = 'block'; } } else { b.style.display = 'block'; } } }, 1000);
 </script>
-  <script>
-// === NOTIFIKASI + BUNYI CHAT - VERSI BENER ===
-let chatTerakhir = "";
-let baruBuka = true;
-
-// 5 detik pertama jangan bunyi dulu, biar nggak bunyi pas login
-setTimeout(function(){ baruBuka = false; }, 5000);
-
-if ("Notification" in window) {
-  if (Notification.permission === "default") {
-    Notification.requestPermission();
-  }
-}
-
-function bunyiChat() {
-  if (baruBuka) return; // Kalau baru login, jangan bunyi
-  try {
-    let ctx = new (window.AudioContext || window.webkitAudioContext)();
-    let osc = ctx.createOscillator();
-    let gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = "sine";
-    osc.frequency.value = 880;
-    gain.gain.value = 0.3;
-    osc.start();
-    setTimeout(function(){ osc.frequency.value = 1100; }, 150);
-    setTimeout(function(){ osc.stop(); ctx.close(); }, 400);
-  } catch(e) {}
-  try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch(e) {}
-}
-
-function tampilkanNotif(pesan) {
-  if (baruBuka) return;
-  if (Notification.permission !== "granted") return;
-  try {
-    let n = new Notification("💬 Chat Baru - SMKS Al Manar", { body: pesan });
-    setTimeout(function(){ n.close(); }, 5000);
-  } catch(e) {}
-}
-
-function ambilIsiChat() {
-  // Cari HANYA kotak chat, bukan semua halaman
-  let el = document.querySelector("#chatBox") || document.querySelector("#daftarChat") || document.querySelector("#listChat");
-  if (el) return el.innerText;
-  // Kalau tidak ketemu ID nya, cari yang ada tulisan Kirim Pesan
-  let semua = document.querySelectorAll("div");
-  for (let i=0; i<semua.length; i++) {
-    if (semua[i].innerText && semua[i].innerText.includes("Kirim Pesan") && semua[i].innerText.length < 5000) {
-      return semua[i].innerText;
-    }
-  }
-  return "";
-}
-
-function cekChatBaru() {
-  // Cek dulu: apakah kita lagi di halaman Chat?
-  // Kalau halaman nya tidak ada tombol Kirim Pesan, berarti bukan halaman Chat. JANGAN BUNYI.
-  let adaTombolKirim = document.body.innerText.includes("Kirim Pesan");
-  if (!adaTombolKirim) {
-    return;
-  }
-  let isiSekarang = ambilIsiChat();
-  if (isiSekarang === "") return;
-  // Pertama kali liat chat, simpan aja, jangan bunyi
-  if (chatTerakhir === "") {
-    chatTerakhir = isiSekarang;
-    return;
-  }
-  // Kalau isi chat nambah, berarti ada pesan baru
-  if (isiSekarang.length > chatTerakhir.length && isiSekarang !== chatTerakhir) {
-    bunyiChat();
-    tampilkanNotif("Ada pesan Chat baru, silakan buka aplikasi.");
-    document.title = "🔔 PESAN BARU! - SMKS Al Manar";
-    setTimeout(function(){ document.title = "SMKS AL MANAR ISLAMIC SCHOOL"; }, 5000);
-  }
-  chatTerakhir = isiSekarang;
-}
-
-// Cek setiap 2 detik, tapi cuma kalau di halaman Chat
+<script>
+let chatTerakhir = ""; let baruBuka = true; setTimeout(function(){ baruBuka = false; }, 5000);
+if ("Notification" in window) { if (Notification.permission === "default") { Notification.requestPermission(); } }
+function bunyiChat(){ if (baruBuka) return; try { let ctx = new (window.AudioContext || window.webkitAudioContext)(); let osc = ctx.createOscillator(); let gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.type = "sine"; osc.frequency.value = 880; gain.gain.value = 0.3; osc.start(); setTimeout(function(){ osc.frequency.value = 1100; }, 150); setTimeout(function(){ osc.stop(); ctx.close(); }, 400); } catch(e) {} try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch(e) {} }
+function tampilkanNotif(pesan){ if (baruBuka) return; if (Notification.permission !== "granted") return; try { let n = new Notification("💬 Chat Baru - SMKS Al Manar", { body: pesan }); setTimeout(function(){ n.close(); }, 5000); } catch(e) {} }
+function ambilIsiChat(){ let el = document.querySelector("#chatBox") || document.querySelector("#daftarChat") || document.querySelector("#listChat"); if (el) return el.innerText; let semua = document.querySelectorAll("div"); for (let i=0; i<semua.length; i++) { if (semua[i].innerText && semua[i].innerText.includes("Kirim Pesan") && semua[i].innerText.length < 5000) { return semua[i].innerText; } } return ""; }
+function cekChatBaru(){ let adaTombolKirim = document.body.innerText.includes("Kirim Pesan"); if (!adaTombolKirim) { return; } let isiSekarang = ambilIsiChat(); if (isiSekarang === "") return; if (chatTerakhir === "") { chatTerakhir = isiSekarang; return; } if (isiSekarang.length > chatTerakhir.length && isiSekarang !== chatTerakhir) { bunyiChat(); tampilkanNotif("Ada pesan Chat baru, silakan buka aplikasi."); document.title = "🔔 PESAN BARU! - SMKS Al Manar"; setTimeout(function(){ document.title = "SMKS AL MANAR ISLAMIC SCHOOL"; }, 5000); } chatTerakhir = isiSekarang; }
 setInterval(cekChatBaru, 2000);
 </script>
-  <script>
-// === SEMBUNYIKAN FILTER KELAS DI MODE ORTU ===
-setInterval(function(){
-  // Cek apakah lagi Mode Ortu?
-  let isOrtu = document.body.innerText.includes("MODE ORTU");
-  if(!isOrtu) return;
-
-  // Cari semua tulisan "Filter Kelas"
-  let semua = document.querySelectorAll("*");
-  for(let i=0; i<semua.length; i++){
-    let el = semua[i];
-    if(el.innerText && el.innerText.trim() === "Filter Kelas"){
-      // Sembunyikan tulisan nya + kotak pilih nya
-      el.style.display = "none";
-      if(el.nextElementSibling) el.nextElementSibling.style.display = "none";
-      if(el.parentElement) {
-        // Kalau parent nya cuma berisi filter, sembunyikan juga
-        let parent = el.parentElement;
-        // Cari select di dalam parent
-        let select = parent.querySelector("select");
-        if(select) select.style.display = "none";
-      }
-    }
-    // Sembunyikan juga select yang isinya Semua / XI 1 TKJ
-    if(el.tagName === "SELECT" && el.innerText.includes("XI 1 TKJ")){
-      el.style.display = "none";
-      if(el.previousElementSibling) el.previousElementSibling.style.display = "none";
-    }
-  }
-}, 1000);
+<script>
+setInterval(function(){ let isOrtu = document.body.innerText.includes("MODE ORTU"); if(!isOrtu) return; let semua = document.querySelectorAll("*"); for(let i=0; i<semua.length; i++){ let el = semua[i]; if(el.innerText && el.innerText.trim() === "Filter Kelas"){ el.style.display = "none"; if(el.nextElementSibling) el.nextElementSibling.style.display = "none"; if(el.parentElement) { let parent = el.parentElement; let select = parent.querySelector("select"); if(select) select.style.display = "none"; } } if(el.tagName === "SELECT" && el.innerText.includes("XI 1 TKJ")){ el.style.display = "none"; if(el.previousElementSibling) el.previousElementSibling.style.display = "none"; } } }, 1000);
 </script>
-  <script>
-// === SEMBUNYIKAN TOMBOL KELUAR YANG ATAS ===
-setInterval(function(){
-  // Cari semua tombol yang tulisan nya "Keluar"
-  let semuaTombol = document.querySelectorAll("button");
-  let tombolKeluar = [];
-  for(let i=0; i<semuaTombol.length; i++){
-    if(semuaTombol[i].innerText.trim() === "Keluar"){
-      tombolKeluar.push(semuaTombol[i]);
-    }
-  }
-  // Kalau ada 2 tombol Keluar, sembunyikan yang pertama (yang atas)
-  if(tombolKeluar.length >= 2){
-    tombolKeluar[0].style.display = "none";
-  }
-}, 1000);
+<script>
+setInterval(function(){ let semuaTombol = document.querySelectorAll("button"); let tombolKeluar = []; for(let i=0; i<semuaTombol.length; i++){ if(semuaTombol[i].innerText.trim() === "Keluar"){ tombolKeluar.push(semuaTombol[i]); } } if(tombolKeluar.length >= 2){ tombolKeluar[0].style.display = "none"; } }, 1000);
 </script>
-  <script>
-// === SEMBUNYIKAN KOLOM NO HP ORTU - VERSI AMAN ===
-setInterval(function(){
-  // Cuma cari input yang placeholder nya PERSIS No HP Ortu
-  let semuaInput = document.querySelectorAll("input");
-  for(let i=0; i<semuaInput.length; i++){
-    let inp = semuaInput[i];
-    let ph = (inp.placeholder || "");
-    // Harus ada tulisan "No HP Ortu" lengkap, bukan cuma "hp"
-    if(ph.includes("No HP Ortu")){
-      inp.style.display = "none";
-    }
-  }
-  // Sembunyikan label nya yang persis itu
-  let semua = document.querySelectorAll("label, div, span, p");
-  for(let i=0; i<semua.length; i++){
-    if(semua[i].innerText && semua[i].innerText.trim() === "No HP Ortu - Contoh: 081234567890"){
-      semua[i].style.display = "none";
-    }
-  }
-}, 1000);
+<script>
+setInterval(function(){ let semuaInput = document.querySelectorAll("input"); for(let i=0; i<semuaInput.length; i++){ let inp = semuaInput[i]; let ph = (inp.placeholder || ""); if(ph.includes("No HP Ortu")){ inp.style.display = "none"; } } let semua = document.querySelectorAll("label, div, span, p"); for(let i=0; i<semua.length; i++){ if(semua[i].innerText && semua[i].innerText.trim() === "No HP Ortu - Contoh: 081234567890"){ semua[i].style.display = "none"; } } }, 1000);
 </script>
-  <script>
-// === LEWATI DIALOG EDIT NO HP ORTU ===
-(function(){
-  // Simpan prompt asli
-  let promptAsli = window.prompt;
-  window.prompt = function(pesan, isiAwal){
-    pesan = pesan || "";
-    // Kalau pesan nya tentang No HP / HP Ortu, langsung lewati, jangan tampilkan
-    if(pesan.toLowerCase().includes("no hp") || pesan.toLowerCase().includes("hp ortu") || pesan.toLowerCase().includes("nomor hp")){
-      return ""; // Balikin kosong, biar langsung lanjut ke "Data sudah diperbaiki"
-    }
-    // Kalau pesan lain (Edit Nama), tampilkan seperti biasa
-    return promptAsli(pesan, isiAwal);
-  };
-})();
+<script>
+(function(){ let promptAsli = window.prompt; window.prompt = function(pesan, isiAwal){ pesan = pesan || ""; if(pesan.toLowerCase().includes("no hp") || pesan.toLowerCase().includes("hp ortu") || pesan.toLowerCase().includes("nomor hp")){ return ""; } return promptAsli(pesan, isiAwal); }; })();
 </script>
-  <script>
-// === BENERIN ICON DISETUJUI JADI CEKLIS ===
-setInterval(function(){
-  let semua = document.querySelectorAll("div, span, p, li, td");
-  for(let i=0; i<semua.length; i++){
-    let el = semua[i];
-    // Cuma yang teks nya persis ada "Disetujui"
-    if(el.children.length === 0 && el.textContent.includes("Disetujui")){
-      el.textContent = el.textContent.replace("⏳", "✅").replace("⌛", "✅");
-    }
-    // Kalau ada "Menunggu" biarin tetap jam pasir, jangan diganti
-    // Kalau ada "Ditolak" biarin tetap silang
-  }
-  // Benerin juga kalau di dalam tombol / badge
-  let badges = document.querySelectorAll("*");
-  for(let i=0; i<badges.length; i++){
-    if(badges[i].innerText && badges[i].innerText.includes("⏳ Disetujui")){
-      badges[i].innerText = badges[i].innerText.replace("⏳ Disetujui", "✅ Disetujui");
-    }
-  }
-}, 1000);
+<script>
+setInterval(function(){ let semua = document.querySelectorAll("div, span, p, li, td"); for(let i=0; i<semua.length; i++){ let el = semua[i]; if(el.children.length === 0 && el.textContent.includes("Disetujui")){ el.textContent = el.textContent.replace("⏳", "✅").replace("⌛", "✅"); } } let badges = document.querySelectorAll("*"); for(let i=0; i<badges.length; i++){ if(badges[i].innerText && badges[i].innerText.includes("⏳ Disetujui")){ badges[i].innerText = badges[i].innerText.replace("⏳ Disetujui", "✅ Disetujui"); } } }, 1000);
 </script>
-  <script>
-// === OTOMATIS IZIN -> ABSENSI - VERSI BENER, CUMA HARI INI ===
-setInterval(function(){
-  try{
-    let now = new Date();
-    let hariIni = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0");
-    let teks = document.body.innerText || "";
-    // 1. TITIPIN: cuma kalau izin nya tanggal hari ini
-    if(teks.includes("Daftar Pengajuan Izin")){
-      let titipan = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]");
-      titipan = titipan.filter(x => x.tanggal === hariIni);
-      let berubah = false;
-      let kotak = document.querySelectorAll("#listIzin div");
-      for(let i=0; i<kotak.length; i++){
-        let t = kotak[i].innerText || "";
-        if(t.includes("Disetujui") && t.includes("Tanggal: " + hariIni) && t.length < 350){
-          let baris = t.split("\n")[0];
-          let nama = baris.split(" - ")[0].replace(/[^A-Za-z ]/g,"").trim();
-          let jenis = baris.toLowerCase().includes("izin") ? "Izin" : "Sakit";
-          if(nama.length > 3 && !titipan.some(k => k.nama === nama)){
-            titipan.push({nama: nama, jenis: jenis, tanggal: hariIni}); berubah = true;
-          }
-        }
-      }
-      if(berubah) localStorage.setItem("autoAbsenIzin", JSON.stringify(titipan));
-    }
-    // 2. EKSEKUSI: cuma kalau titipan hari ini
-    if(teks.includes("Absensi") && teks.includes("Belum Absen")){
-      let titipan2 = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]").filter(x => x.tanggal === hariIni);
-      for(let j=0; j<titipan2.length; j++){
-        let data = titipan2[j];
-        let kartu = document.querySelectorAll("div");
-        for(let k=0; k<kartu.length; k++){
-          let c = kartu[k];
-          if(c.innerText && c.innerText.includes(data.nama) && c.innerText.includes("Belum Absen") && c.innerText.length < 400){
-            let tombol = c.querySelectorAll("button");
-            for(let b=0; b<tombol.length; b++){
-              if((tombol[b].innerText||"").includes(data.jenis) && !(tombol[b].innerText||"").includes("Hapus") && !(tombol[b].innerText||"").includes("Edit")){ tombol[b].click(); break; }
-            }
-            break;
-          }
-        }
-      }
-    }
-  }catch(e){}
-}, 1200);
+<script>
+setInterval(function(){ try{ let now = new Date(); let hariIni = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0"); let teks = document.body.innerText || ""; if(teks.includes("Daftar Pengajuan Izin")){ let titipan = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]"); titipan = titipan.filter(x => x.tanggal === hariIni); let berubah = false; let kotak = document.querySelectorAll("#listIzin div"); for(let i=0; i<kotak.length; i++){ let t = kotak[i].innerText || ""; if(t.includes("Disetujui") && t.includes("Tanggal: " + hariIni) && t.length < 350){ let baris = t.split("\n")[0]; let nama = baris.split(" - ")[0].replace(/[^A-Za-z ]/g,"").trim(); let jenis = baris.toLowerCase().includes("izin") ? "Izin" : "Sakit"; if(nama.length > 3 && !titipan.some(k => k.nama === nama)){ titipan.push({nama: nama, jenis: jenis, tanggal: hariIni}); berubah = true; } } } if(berubah) localStorage.setItem("autoAbsenIzin", JSON.stringify(titipan)); } if(teks.includes("Absensi") && teks.includes("Belum Absen")){ let titipan2 = JSON.parse(localStorage.getItem("autoAbsenIzin") || "[]").filter(x => x.tanggal === hariIni); for(let j=0; j<titipan2.length; j++){ let data = titipan2[j]; let kartu = document.querySelectorAll("div"); for(let k=0; k<kartu.length; k++){ let c = kartu[k]; if(c.innerText && c.innerText.includes(data.nama) && c.innerText.includes("Belum Absen") && c.innerText.length < 400){ let tombol = c.querySelectorAll("button"); for(let b=0; b<tombol.length; b++){ if((tombol[b].innerText||"").includes(data.jenis) && !(tombol[b].innerText||"").includes("Hapus") && !(tombol[b].innerText||"").includes("Edit")){ tombol[b].click(); break; } } break; } } } } }catch(e){} }, 1200);
 </script>
-  <script>
-// === IZIN OTOMATIS HILANG GANTI HARI - VERSI 1 ===
-function hapusIzinLama(){
-  try{
-    // Tanggal hari ini, misal 2026-11-21
-    let now = new Date();
-    let thn = now.getFullYear();
-    let bln = String(now.getMonth()+1).padStart(2,"0");
-    let tgl = String(now.getDate()).padStart(2,"0");
-    let hariIni = thn + "-" + bln + "-" + tgl;
-
-    // 1. Kalau ganti hari, hapus titipan absen kemarin
-    let tglSimpan = localStorage.getItem("tglTerakhirIzin");
-    if(tglSimpan && tglSimpan !== hariIni){
-      localStorage.removeItem("autoAbsenIzin");
-      localStorage.setItem("tglTerakhirIzin", hariIni);
-    }
-    if(!tglSimpan) localStorage.setItem("tglTerakhirIzin", hariIni);
-
-    // 2. Sembunyikan kartu izin yang tanggalnya bukan hari ini
-    let kartu = document.querySelectorAll("#listIzin div");
-    for(let i=0; i<kartu.length; i++){
-      let c = kartu[i];
-      let teks = c.innerText || "";
-      // Cuma kartu izin yang ada tulisan Tanggal:
-      if(teks.includes("Tanggal:") && teks.includes("Pengaju:") && c.children.length < 10){
-        // Cari tanggalnya, misal Tanggal: 2026-11-21
-        let ketemu = teks.match(/202\d-\d\d-\d\d/);
-        if(ketemu){
-          let tglIzin = ketemu[0];
-          if(tglIzin !== hariIni){
-            c.style.display = "none";
-          } else {
-            c.style.display = "";
-          }
-        }
-      }
-    }
-
-    // 3. Kalau semua izin kemarin udah disembunyiin, kasih tulisan kosong
-    let daftar = document.body.innerText || "";
-    if(daftar.includes("Daftar Pengajuan Izin")){
-      // Cek apakah masih ada kartu hari ini yang kelihatan
-      let adaHariIni = false;
-      let semua = document.querySelectorAll("div");
-      for(let i=0; i<semua.length; i++){
-        if((semua[i].innerText||"").includes("Tanggal: " + hariIni) && semua[i].style.display !== "none"){
-          adaHariIni = true;
-        }
-      }
-      // Kalau tidak ada, kita biarkan kosong, biar tidak numpuk
-    }
-  }catch(e){}
-}
-setInterval(hapusIzinLama, 2000);
-hapusIzinLama();
+<script>
+function hapusIzinLama(){ try{ let now = new Date(); let thn = now.getFullYear(); let bln = String(now.getMonth()+1).padStart(2,"0"); let tgl = String(now.getDate()).padStart(2,"0"); let hariIni = thn + "-" + bln + "-" + tgl; let tglSimpan = localStorage.getItem("tglTerakhirIzin"); if(tglSimpan && tglSimpan !== hariIni){ localStorage.removeItem("autoAbsenIzin"); localStorage.setItem("tglTerakhirIzin", hariIni); } if(!tglSimpan) localStorage.setItem("tglTerakhirIzin", hariIni); let kartu = document.querySelectorAll("#listIzin div"); for(let i=0; i<kartu.length; i++){ let c = kartu[i]; let teks = c.innerText || ""; if(teks.includes("Tanggal:") && teks.includes("Pengaju:") && c.children.length < 10){ let ketemu = teks.match(/202\d-\d\d-\d\d/); if(ketemu){ let tglIzin = ketemu[0]; if(tglIzin !== hariIni){ c.style.display = "none"; } else { c.style.display = ""; } } } } }catch(e){} }
+setInterval(hapusIzinLama, 2000); hapusIzinLama();
 </script>
 </body>
 </html>
