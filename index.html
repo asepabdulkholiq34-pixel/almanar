@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aplikasi Ulangan Pak Asep - V12.5</title>
+<title>Aplikasi Ulangan Pak Asep - V12.6</title>
 <style>
 *{box-sizing:border-box;font-family:system-ui,Arial,sans-serif}
 body{margin:0;background:#f1f5f9;color:#0f172a;padding-bottom:80px}
@@ -41,10 +41,9 @@ th{background:#f1f5f9}
 </head>
 <body>
 <header>
-<h1>🕌 Aplikasi Ulangan Pak Asep - V12.5</h1>
+<h1>🕌 Aplikasi Ulangan Pak Asep - V12.6</h1>
 <p>Absen • Nilai • Acak • Ulangan • Import Google Sheets</p>
 </header>
-
 <div class="wrap">
 <div class="tabs">
 <div class="tab active" onclick="showTab('guru',this)">👨‍🏫 Guru / Buat Soal</div>
@@ -52,8 +51,6 @@ th{background:#f1f5f9}
 <div class="tab" onclick="showTab('hasil',this)">📊 Hasil & Nilai</div>
 <div class="tab" onclick="showTab('absen',this)">✅ Absen</div>
 </div>
-
-<!-- GURU -->
 <div id="tab-guru">
 <div class="card">
 <h2>📝 Buat Ulangan Baru</h2>
@@ -67,7 +64,6 @@ th{background:#f1f5f9}
 <input id="durasiUlangan" type="number" value="60">
 <div class="small">Kode ini yang dikasih ke siswa, Pak.</div>
 </div>
-
 <div class="card" id="boxBuatSoal">
 <h2>➕ Tambah Soal Manual</h2>
 <label>Tipe Soal</label>
@@ -84,19 +80,16 @@ th{background:#f1f5f9}
 <select id="kunciPG"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select>
 </div>
 <button class="btn" onclick="tambahSoal()">+ Tambah Soal Ini</button>
-
 <div style="background:#e0f2fe;padding:12px;border-radius:10px;margin-top:12px">
-<b>📥 Import Soal dari Google Sheets - CSV (BARU V12.5)</b><br>
-<span class="small">1. Di Google Sheets: File &gt; Download &gt; Comma-separated values (.csv)<br>2. Pilih file CSV nya di sini, Pak.<br>Format kolom: tipe,teks,opsiA,opsiB,opsiC,opsiD,opsiE,kunci</span>
+<b>📥 Import Soal dari Google Sheets - CSV (BARU V12.6)</b><br>
+<span class="small">1. Di Google Sheets: File &gt; Download &gt; Comma-separated values (.csv)<br>2. Pilih file CSV nya di sini, Pak.<br>Format kolom: tipe,teks,opsiA,opsiB,opsiC,opsiD,opsiE,kunci<br>Bisa pakai koma (,) atau titik-koma (;) - otomatis terdeteksi, Pak.</span>
 <input type="file" id="fileImportSoal" accept=".csv" style="margin-top:8px">
 <button class="btn btn-blue" onclick="importSoalCSV()">📥 Import Soal dari CSV</button>
 <button class="btn2" onclick="downloadTemplateCSV()">📄 Download Contoh Format CSV</button>
 <button class="btn2" onclick="loadSoalYusuf()">🕌 Langsung Load 25 Soal Nabi Yusuf (Tanpa File)</button>
 </div>
-
 <div class="small" style="margin-top:10px">Total Soal: <b id="totalSoal">0</b> | PG: <b id="totalPG">0</b> | Essay: <b id="totalEssay">0</b></div>
 </div>
-
 <div class="card">
 <h2>📋 Daftar Soal - <span id="judulPreview">Kisah Nabi Yusuf AS</span></h2>
 <div id="listSoalGuru"><p class="small">Belum ada soal. Import atau tambah manual, Pak.</p></div>
@@ -107,14 +100,11 @@ th{background:#f1f5f9}
 <button class="btn" onclick="aktifkanUlangan()">✅ AKTIFKAN ULANGAN - Siswa Bisa Masuk</button>
 <div id="statusUlangan" style="margin-top:8px"></div>
 </div>
-
 <div class="card">
 <h2>📢 Bagikan ke Siswa</h2>
 <div class="kunci" id="infoBagikan">Aktifkan ulangan dulu, Pak.</div>
 </div>
 </div>
-
-<!-- SISWA -->
 <div id="tab-siswa" class="hidden">
 <div class="card">
 <h2>🧑‍🎓 Masuk Ulangan</h2>
@@ -132,8 +122,6 @@ th{background:#f1f5f9}
 </div>
 </div>
 </div>
-
-<!-- HASIL -->
 <div id="tab-hasil" class="hidden">
 <div class="card">
 <h2>📊 Hasil Ulangan Siswa</h2>
@@ -147,8 +135,6 @@ th{background:#f1f5f9}
 <div id="listNilaiEssay"></div>
 </div>
 </div>
-
-<!-- ABSEN -->
 <div id="tab-absen" class="hidden">
 <div class="card">
 <h2>✅ Absen Hari Ini</h2>
@@ -160,9 +146,7 @@ th{background:#f1f5f9}
 <button class="btn2" onclick="exportAbsenCSV()">⬇️ Export Absen ke CSV</button>
 </div>
 </div>
-
 </div>
-
 <script>
 let db = JSON.parse(localStorage.getItem('asep_v125')||'{"ulangan":{judul:"Kisah Nabi Yusuf AS",kelas:"7A",kode:"YUSUF25",durasi:60,soal:[],aktif:false},"hasil":[],"absen":[]}');
 function save(){ localStorage.setItem('asep_v125', JSON.stringify(db)); }
@@ -201,43 +185,45 @@ function downloadTemplateCSV(){
   let csv='tipe,teks,opsiA,opsiB,opsiC,opsiD,opsiE,kunci\npg,Contoh soal PG?,Jawaban A,Jawaban B,Jawaban C,Jawaban D,Jawaban E,B\nessay,Contoh soal Essay,,,,,';
   let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Template_Soal_Ulangan.csv'; a.click();
 }
-function parseCSVLine(line){
+function parseCSVLine(line, delim){
   let kolom=[]; let cur=''; let dalamPetik=false;
-  for(let c=0;c<line.length;c++){ let ch=line[c]; if(ch==='"'){ if(line[c+1]==='"'){cur+='"';c++;} else dalamPetik=!dalamPetik; } else if(ch===',' && !dalamPetik){ kolom.push(cur); cur=''; } else cur+=ch; }
-  kolom.push(cur); return kolom.map(s=>s.trim());
+  for(let c=0;c<line.length;c++){ let ch=line[c]; if(ch==='"'){ if(line[c+1]==='"'){cur+='"';c++;} else dalamPetik=!dalamPetik; } else if(ch===delim && !dalamPetik){ kolom.push(cur); cur=''; } else cur+=ch; }
+  kolom.push(cur); return kolom.map(s=>s.trim().replace(/^"|"$/g,''));
 }
 function importSoalCSV(){
   let fileInput=document.getElementById('fileImportSoal');
   if(!fileInput.files.length) return alert('Pilih file CSV dari Google Sheets dulu, Pak!');
   let reader=new FileReader();
   reader.onload=function(e){
-    let teks=e.target.result;
+    let teks=e.target.result.replace(/^\uFEFF/,'');
     let baris=teks.split(/\r?\n/).filter(b=>b.trim()!=='');
     if(baris.length<2) return alert('File CSV kosong, Pak!');
+    let delim = (baris[0].split(';').length > baris[0].split(',').length) ? ';' : ',';
     let header=baris[0].toLowerCase();
-    if(!header.includes('tipe')||!header.includes('teks')) return alert('Format salah, Pak! Harus ada kolom tipe dan teks. Download Template dulu, Pak.');
+    if(!header.includes('tipe')||!header.includes('teks')) return alert('Format salah, Pak! Harus ada kolom tipe dan teks. Download Template dulu, Pak.\nHeader terbaca: '+baris[0]+'\nPemisah terdeteksi: '+(delim===';'?'titik-koma (;)':'koma (,)'));
     db.ulangan.judul=document.getElementById('judulUlangan').value.trim()||db.ulangan.judul;
     db.ulangan.kelas=document.getElementById('kelasUlangan').value;
     db.ulangan.kode=document.getElementById('kodeUlangan').value.trim().toUpperCase()||db.ulangan.kode;
-    let jumlahBaru=0;
+    let jumlahBaru=0; let gagal=0;
     for(let i=1;i<baris.length;i++){
-      let kolom=parseCSVLine(baris[i]);
-      let tipe=(kolom[0]||'').toLowerCase();
+      let kolom=parseCSVLine(baris[i], delim);
+      let tipe=(kolom[0]||'').toLowerCase().replace(/"/g,'');
       let teksSoal=(kolom[1]||'').trim();
-      if(!teksSoal) continue;
+      if(!teksSoal){ gagal++; continue; }
       if(tipe==='pg'){
         let a=kolom[2]||'', b=kolom[3]||'', c=kolom[4]||'', d=kolom[5]||'', ee=kolom[6]||'';
-        let kunci=(kolom[7]||'B').toUpperCase();
-        if(!a||!b||!c||!d||!ee) continue;
+        let kunci=(kolom[7]||'B').toUpperCase().replace(/"/g,'');
+        if(!a||!b||!c||!d||!ee){ gagal++; continue; }
         if(!['A','B','C','D','E'].includes(kunci)) kunci='B';
         db.ulangan.soal.push({tipe:'pg',teks:teksSoal,opsi:[a,b,c,d,ee],kunci});
         jumlahBaru++;
       } else if(tipe==='essay'){
         db.ulangan.soal.push({tipe:'essay',teks:teksSoal}); jumlahBaru++;
-      }
+      } else { gagal++; }
     }
     save(); renderAll(); fileInput.value='';
-    alert('Berhasil import '+jumlahBaru+' soal dari Google Sheets, Pak! Total: '+db.ulangan.soal.length);
+    if(jumlahBaru===0) alert('Gagal import, Pak! 0 soal masuk.\nPemisah terdeteksi: '+(delim===';'?'titik-koma (;)':'koma (,)')+'\nBaris dibaca: '+(baris.length-1)+'\nCoba cek: header harus tipe,teks,opsiA... atau tipe;teks;opsiA...');
+    else alert('Berhasil import '+jumlahBaru+' soal dari Google Sheets, Pak! Total: '+db.ulangan.soal.length + (gagal?'\n('+gagal+' baris di-skip karena tidak lengkap)':''));
   };
   reader.readAsText(fileInput.files[0]);
 }
@@ -365,7 +351,6 @@ function renderAll(){
   });
   document.getElementById('listSoalGuru').innerHTML=html||'<p class="small">Belum ada soal.</p>';
   document.getElementById('infoBagikan').innerHTML = db.ulangan.aktif ? '✅ ULANGAN AKTIF<br>Judul: <b>'+db.ulangan.judul+'</b><br>Kelas: '+db.ulangan.kelas+'<br>Kode: <b style="font-size:20px">'+db.ulangan.kode+'</b><br>Bagikan kode ini ke siswa, Pak.' : 'Ulangan belum aktif. Pencet AKTIFKAN ULANGAN, Pak.';
-  // Hasil
   let htmlH='';
   if(db.hasil.length===0) htmlH='<p class="small">Belum ada yang mengerjakan.</p>';
   db.hasil.forEach((h,hi)=>{
@@ -375,7 +360,6 @@ function renderAll(){
   });
   document.getElementById('listHasil').innerHTML=htmlH;
   document.getElementById('listNilaiEssay').innerHTML = db.hasil.map(h=>'<div class="small">'+h.nama+' - PG: '+h.nilaiPG+' | Essay: '+(h.nilaiEssay??'Belum dinilai')+' | Akhir: '+(h.nilaiEssay!==null?Math.round((h.nilaiPG+h.nilaiEssay)/2):h.nilaiPG)+'</div>').join('') || '<p class="small">Belum ada nilai.</p>';
-  // Absen
   let htmlA='';
   db.absen.forEach(a=>{ htmlA+='<div class="small">'+a.tgl+' - '+a.nama+' - <b>'+a.status+'</b></div>'; });
   document.getElementById('listAbsen').innerHTML=htmlA||'<p class="small">Belum ada absen.</p>';
