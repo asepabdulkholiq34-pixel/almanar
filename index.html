@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SMKS AL MANAR - V12.3</title>
+<title>SMKS AL MANAR - V12.4</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
@@ -42,10 +42,10 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </style>
 </head>
 <body>
-<div class="header"><h2>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h2><p>V12.3 - CSV Pindah Ke Absensi</p></div>
+<div class="header"><h2>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h2><p>V12.4 - CSV Bersih Tanpa Sampah</p></div>
 
 <div id="loginPage" class="card">
-<h3>🔐 Login - V12.3</h3>
+<h3>🔐 Login - V12.4</h3>
 <label>Pilih Pintu Masuk</label>
 <select id="role" onchange="cekRole()">
 <option value="guru">👨‍🏫 Guru - Ada Password</option>
@@ -174,7 +174,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const dbRef = firebase.database().ref('almanar_v6');
-let db={"passGuru":"asep2672","kodeOrtu":"ORTU11","kodeUL10":"UL10","kodeUL11":"UL11","kodeUL12":"UL12","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\nV12.3","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]},"ulangan":{"judul":"Ulangan","kelas":"11","soal":[],"jawaban":[],"acak":false,"acakUrutan":false}};
+let db={"passGuru":"asep2672","kodeOrtu":"ORTU11","kodeUL10":"UL10","kodeUL11":"UL11","kodeUL12":"UL12","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\nV12.4","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]},"ulangan":{"judul":"Ulangan","kelas":"11","soal":[],"jawaban":[],"acak":false,"acakUrutan":false}};
 let sudahLoadFirebase=false;
 let jumlahPesanTerakhir=0; let jumlahIzinTerakhir=0; let pertamaLoad=true;
 const DEFAULT_SISWA=[
@@ -195,7 +195,7 @@ dbRef.on('value', (snap)=>{
     if(!db.kodeUL11) db.kodeUL11="UL11";
     if(!db.kodeUL12) db.kodeUL12="UL12";
     if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
-    if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV12.3";
+    if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV12.4";
     if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[],acak:false,acakUrutan:false};
     if(!db.ulangan.soal) db.ulangan.soal=[];
     if(!db.ulangan.jawaban) db.ulangan.jawaban=[];
@@ -297,7 +297,7 @@ function downloadCSV(){
     let esc = (v)=>'"'+String(v).replace(/"/g,'""')+'"';
     return [esc(j.nama), esc(j.kelas), esc(j.waktu), j.nilaiPG, j.benarPG, j.jmlPG, esc(j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay), j.nilaiAkhir, ...jwb.map(esc)].join(',');
   }).join('\n');
-  let blob = new Blob(['\ufeff'+header+baris], {type:'text/csv;charset=utf-8;'});
+  let blob = new Blob([header+baris], {type:'text/csv;charset=utf-8;'});
   let a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'Nilai_Ulangan_'+(db.ulangan.judul||'Ulangan').replace(/[^a-zA-Z0-9]/g,'_')+'_Kelas_'+(db.ulangan.kelas||'')+'.csv';
@@ -313,7 +313,7 @@ function downloadCSVAbsen(){
     let esc = (v)=>'"'+String(v||'').replace(/"/g,'""')+'"';
     return [esc(s.nama), esc(s.kelas), esc(st), esc(tampilHP(s.hp))].join(',');
   }).join('\n');
-  let blob = new Blob(['\ufeff'+header+baris], {type:'text/csv;charset=utf-8;'});
+  let blob = new Blob([header+baris], {type:'text/csv;charset=utf-8;'});
   let a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'Absen_Kelas11_'+new Date().toISOString().slice(0,10)+'.csv';
