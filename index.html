@@ -138,6 +138,13 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 </div>
 <div id="boxEssay" class="hidden"><p class="small">Essay: Siswa ketik panjang. Guru nilai manual 0-100.</p></div>
 <button class="btn" onclick="tambahSoal()">+ Tambah Soal Ini</button>
+<div style="background:#e0f2fe;padding:12px;border-radius:10px;margin-top:10px">
+<b>📥 Import Soal dari Google Sheets - CSV</b><br>
+<span class="small">1. Di Google Sheets: File > Download > CSV<br>2. Pilih file CSV nya di sini, Pak.</span>
+<input type="file" id="fileImportSoal" accept=".csv" style="margin-top:8px">
+<button class="btn" onclick="importSoalCSV()" style="background:#0ea5e9;margin-top:8px">📥 Import Soal dari CSV</button>
+<button class="btn2" onclick="downloadTemplateCSV()" style="margin-top:8px">📄 Download Contoh Format CSV</button>
+</div>
 <div class="flex" style="margin-top:8px"><button class="btn2" onclick="hapusSemuaSoal()" style="background:#fee2e2">🗑️ Hapus Semua Soal</button><button class="btn2" onclick="hapusSemuaJawaban()" style="background:#fee2e2">🗑️ Hapus Semua Jawaban</button></div>
 </div>
 
@@ -431,6 +438,65 @@ function tambahSoal(){
 }
 function hapusSoal(i){ if(!confirm('Hapus soal no '+(i+1)+', Pak?')) return; db.ulangan.soal.splice(i,1); save(); renderAll(); }
 function hapusSemuaSoal(){ if(!confirm('Hapus SEMUA soal, Pak?')) return; db.ulangan.soal=[]; save(); renderAll(); }
+    function downloadTemplateCSV(){
+  let csv = 'tipe,teks,opsiA,opsiB,opsiC,opsiD,opsiE,kunci\npg,Contoh soal PG?,Jawaban A,Jawaban B,Jawaban C,Jawaban D,Jawaban E,B\nessay,Contoh soal Essay,,,,,';
+  let blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Template_Soal_Ulangan.csv';
+  a.click();
+}
+function importSoalCSV(){
+  let fileInput = document.getElementById('fileImportSoal');
+  if(!fileInput.files.length) return alert('Pilih file CSV dari Google Sheets dulu, Pak!');
+  let file = fileInput.files[0];
+  let reader = new FileReader();
+  reader.onload = function(e){
+    let teks = e.target.result;
+    let baris = teks.split(/\r?\n/).filter(b=>b.trim()!=='');
+    if(baris.length < 2) return alert('File CSV kosong, Pak!');
+    let header = baris[0].toLowerCase();
+    if(!header.includes('tipe') || !header.includes('teks')) return alert('Format salah, Pak! Harus ada kolom tipe dan teks. Download Template dulu, Pak.');
+    let jumlahBaru = 0;
+    let judul = document.getElementById('judulUlangan').value.trim();
+    if(judul) db.ulangan.judul = judul;
+    db.ulangan.kelas = document.getElementById('kelasUlangan').value;
+    for(let i=1;i<baris.length;i++){
+      // Pecah CSV dengan benar, dukung koma di dalam tanda petik
+      let kolom = [];
+      let cur = ''; let dalamPetik = false;
+      for(let c=0;c<baris[i].length;c++){
+        let ch = baris[i][c];
+        if(ch === '"'){ dalamPetik = !dalamPetik; }
+        else if(ch === ',' && !dalamPetik){ kolom.push(cur); cur=''; }
+        else cur += ch;
+      }
+      kolom.push(cur);
+      let tipe = (kolom[0]||'').trim().toLowerCase();
+      let teksSoal = (kolom[1]||'').trim().replace(/^"|"$/g,'');
+      if(!teksSoal) continue;
+      if(tipe === 'pg'){
+        let a=(kolom[2]||'').trim().replace(/^"|"$/g,'');
+        let b=(kolom[3]||'').trim().replace(/^"|"$/g,'');
+        let c=(kolom[4]||'').trim().replace(/^"|"$/g,'');
+        let d=(kolom[5]||'').trim().replace(/^"|"$/g,'');
+        let e=(kolom[6]||'').trim().replace(/^"|"$/g,'');
+        let kunci=(kolom[7]||'B').trim().toUpperCase().replace(/"/g,'');
+        if(!a||!b||!c||!d||!e) continue;
+        if(!['A','B','C','D','E'].includes(kunci)) kunci='B';
+        db.ulangan.soal.push({tipe:'pg',teks:teksSoal,opsi:[a,b,c,d,e],kunci:kunci});
+        jumlahBaru++;
+      } else if(tipe === 'essay'){
+        db.ulangan.soal.push({tipe:'essay',teks:teksSoal});
+        jumlahBaru++;
+      }
+    }
+    save(); renderAll();
+    fileInput.value='';
+    alert('Berhasil import '+jumlahBaru+' soal dari Google Sheets, Pak! Total soal sekarang: '+db.ulangan.soal.length);
+  };
+  reader.readAsText(file);
+}
 function hapusSemuaJawaban(){ if(!confirm('Hapus SEMUA jawaban siswa, Pak?')) return; db.ulangan.jawaban=[]; save(); renderAll(); }
 function kirimJawabanUlangan(){
   let soal=db.ulangan.soal||[]; if(!soal.length) return alert('Belum ada soal, Pak!');
