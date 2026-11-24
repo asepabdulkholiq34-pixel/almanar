@@ -2,371 +2,532 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aplikasi Ulangan Pak Asep - V12.6</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SMKS AL MANAR - V12.4</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
-*{box-sizing:border-box;font-family:system-ui,Arial,sans-serif}
-body{margin:0;background:#f1f5f9;color:#0f172a;padding-bottom:80px}
-header{background:#0f766e;color:#fff;padding:16px;text-align:center;position:sticky;top:0;z-index:10}
-header h1{margin:0;font-size:19px}
-header p{margin:4px 0 0;font-size:12px;opacity:.9}
-.wrap{max-width:900px;margin:0 auto;padding:12px}
-.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-h2{margin:0 0 10px;font-size:16px}
-h3{margin:12px 0 6px;font-size:14px}
-label{font-size:13px;font-weight:600;display:block;margin:8px 0 4px}
-input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;background:#fff}
-textarea{min-height:70px}
-.btn{background:#0f766e;color:#fff;border:none;padding:11px 14px;border-radius:10px;font-weight:700;cursor:pointer;width:100%;margin-top:8px;font-size:14px}
-.btn2{background:#e2e8f0;color:#0f172a;border:none;padding:9px 12px;border-radius:10px;font-weight:600;cursor:pointer;margin-top:6px;width:100%}
-.btn-danger{background:#dc2626;color:#fff}
-.btn-blue{background:#0ea5e9;color:#fff}
-.small{font-size:12px;color:#64748b}
-.badge{display:inline-block;background:#ccfbf1;color:#0f766e;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
-.row{display:flex;gap:8px}
-.row>*{flex:1}
-.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.tab{flex:1;background:#fff;border:1px solid #cbd5e1;padding:10px;border-radius:10px;text-align:center;font-weight:700;cursor:pointer;font-size:13px}
-.tab.active{background:#0f766e;color:#fff;border-color:#0f766e}
-.soal-item{border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:10px;background:#f8fafc}
-.opt{border:1px solid #cbd5e1;border-radius:10px;padding:10px;margin:6px 0;cursor:pointer;background:#fff}
-.opt.sel{background:#ccfbf1;border-color:#0f766e;font-weight:700}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{border:1px solid #e2e8f0;padding:8px;text-align:left}
-th{background:#f1f5f9}
-.hidden{display:none}
-.kunci{background:#fef9c3;padding:10px;border-radius:10px;font-size:13px}
-.success{background:#dcfce7;padding:10px;border-radius:10px;font-size:13px}
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#eef2f5}
+.header{background:#0f766e;color:#fff;text-align:center;padding:16px 12px}
+.header h2{margin:0;font-size:20px}.header p{margin:4px 0 0;opacity:.9}
+.card{background:#fff;margin:12px;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;margin:6px 0;font-size:15px}
+button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:pointer}
+.btn{background:#0f766e;color:#fff;width:100%}
+.btn2{background:#eee}.ok{background:#16a34a;color:#fff}.no{background:#dc2626;color:#fff}
+.badge{display:inline-block;padding:5px 12px;border-radius:20px;font-weight:700;font-size:13px}
+.guru{background:#dcfce7;color:#166534}.ortu{background:#dbeafe;color:#1e40af}.siswa{background:#fef9c3;color:#854d0e}
+.item{border:1px solid #eee;border-radius:12px;padding:12px;margin:8px 0;background:#fffbe6}
+.small{font-size:13px;color:#555}.hidden{display:none!important}
+.flex{display:flex;gap:8px}.flex button{flex:1}
+.jadwal-hari{background:#f0fdf4;padding:10px;border-radius:10px;margin:10px 0}
+.jadwal-hari b{font-size:16px;color:#0f766e}
+.pass-wrap{position:relative;display:flex;align-items:center}
+.pass-wrap input{padding-right:48px}
+.eye-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;font-size:20px;padding:6px 10px;cursor:pointer;width:auto}
+.lihat-box{display:flex;align-items:center;gap:8px;margin:2px 0 8px;font-size:14px;color:#555}
+.lihat-box input{width:auto;margin:0;transform:scale(1.3)}
+.wa-btn{background:#25D366;color:#fff;width:100%;margin-top:6px;font-size:14px}
+.hp-info{background:#dcfce7;padding:6px 10px;border-radius:8px;font-size:13px;margin-top:6px;display:inline-block}
+.banner-notif{background:#fee2e2;border:2px solid #dc2626;border-radius:12px;padding:12px;margin:12px;text-align:center;font-weight:700;animation:kedip 1s infinite}
+@keyframes kedip{0%{opacity:1}50%{opacity:.6}100%{opacity:1}}
+.notif-badge{background:#dc2626;color:#fff;border-radius:20px;padding:2px 8px;font-size:12px;font-weight:700}
+.st-setuju{background:#16a34a;color:#fff;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px}
+.st-tolak{background:#dc2626;color:#fff;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px}
+.st-tunggu{background:#facc15;color:#000;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px}
+.opsi-label{display:block;background:#fff;padding:10px;border:1px solid #ddd;border-radius:10px;margin:5px 0;cursor:pointer}
+.opsi-label input{width:auto;margin-right:8px;transform:scale(1.3)}
+.soal-box{background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;margin:10px 0}
+.acak-box{background:#e0f2fe;padding:10px;border-radius:10px;margin-top:10px}
 </style>
 </head>
 <body>
-<header>
-<h1>🕌 Aplikasi Ulangan Pak Asep - V12.6</h1>
-<p>Absen • Nilai • Acak • Ulangan • Import Google Sheets</p>
-</header>
-<div class="wrap">
-<div class="tabs">
-<div class="tab active" onclick="showTab('guru',this)">👨‍🏫 Guru / Buat Soal</div>
-<div class="tab" onclick="showTab('siswa',this)">🧑‍🎓 Siswa / Kerjakan</div>
-<div class="tab" onclick="showTab('hasil',this)">📊 Hasil & Nilai</div>
-<div class="tab" onclick="showTab('absen',this)">✅ Absen</div>
+<div class="header"><h2>🕌 SMKS AL MANAR<br>ISLAMIC SCHOOL</h2><p>V12.4 - CSV Bersih Tanpa Sampah</p></div>
+
+<div id="loginPage" class="card">
+<h3>🔐 Login - V12.4</h3>
+<label>Pilih Pintu Masuk</label>
+<select id="role" onchange="cekRole()">
+<option value="guru">👨‍🏫 Guru - Ada Password</option>
+<option value="ortu">👪 Orang Tua Kelas 11 - Ada Kode Ortu</option>
+<option value="siswa">📝 Siswa Ulangan Kelas 10 / 11 / 12 - Ada Kode Ulangan</option>
+</select>
+<div id="boxGuru">
+<label>Nama Guru</label>
+<input id="namaLogin" placeholder="Contoh: Pak Asep">
+<label>Password Guru</label>
+<div class="pass-wrap"><input id="passGuru" type="password" placeholder="Password Guru"><button type="button" class="eye-btn" onclick="togglePass('passGuru',this)">👁️</button></div>
 </div>
-<div id="tab-guru">
+<div id="boxOrtu" class="hidden">
+<label>Nama Ortu</label>
+<input id="namaOrtu" placeholder="Contoh: Pak Herman">
+<label>Kelas Anak (Kelas 11 Saja)</label>
+<select id="kelasLogin"><option>XI 1 TKJ</option><option>XI 1 AKL</option><option>XI 1 AKL dan TKJ</option></select>
+<label>Pilih Anak</label><select id="pilihAnak"></select><p class="small" id="infoAnak"></p>
+<label>🔒 Kode Ortu (Tanya ke Guru via WA)</label>
+<div class="pass-wrap"><input id="kodeOrtu" type="password" placeholder="Masukkan Kode Ortu"><button type="button" class="eye-btn" onclick="togglePass('kodeOrtu',this)">👁️</button></div>
+<p class="small" style="color:#dc2626">Siswa tidak tau kode ini, jadi tidak bisa masuk ke Ortu.</p>
+</div>
+<div id="boxSiswa" class="hidden">
+<label>Kelas Ulangan</label>
+<select id="kelasSiswaUlangan"><option value="10">Kelas 10</option><option value="11">Kelas 11</option><option value="12">Kelas 12</option></select>
+<label>Nama Siswa</label>
+<input id="namaSiswaUlangan" placeholder="Tulis Nama Lengkap - Contoh: Tasya Aurelia">
+<label>🔒 Kode Ulangan (Guru Tulis di Papan Tulis)</label>
+<div class="pass-wrap"><input id="kodeUlangan" type="password" placeholder="Masukkan Kode Ulangan"><button type="button" class="eye-btn" onclick="togglePass('kodeUlangan',this)">👁️</button></div>
+<p class="small" style="color:#dc2626">Siswa langsung masuk ke Ulangan saja. Tidak bisa lihat Absen Kelas 11.</p>
+</div>
+<button class="btn" onclick="login()">Masuk</button>
+<p class="small" style="text-align:center"><span id="statusFirebase" style="color:#dc2626">⏳ Menghubungkan ke Firebase...</span></p>
+</div>
+
+<div id="mainPage" class="hidden">
+<div id="bannerNotif" class="banner-notif hidden" onclick="bukaNotif()">🔔 <span id="teksBannerNotif"></span><br><small>Pencet untuk lihat</small></div>
 <div class="card">
-<h2>📝 Buat Ulangan Baru</h2>
-<label>Judul Ulangan</label>
-<input id="judulUlangan" placeholder="Contoh: Kisah Nabi Yusuf AS" value="Kisah Nabi Yusuf AS">
-<div class="row">
-<div><label>Kelas</label><select id="kelasUlangan"><option>7A</option><option>7B</option><option>7C</option><option>8A</option><option>8B</option><option>8C</option><option>9A</option><option>9B</option><option>9C</option></select></div>
-<div><label>Kode Ulangan (buat siswa masuk)</label><input id="kodeUlangan" value="YUSUF25" placeholder="Contoh: YUSUF25"></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><div><b id="haloNama">Halo</b><br><span class="small" id="haloKelas"></span></div><span id="haloBadge" class="badge guru">GURU</span></div>
+<div id="modeLabel" style="margin-top:10px;padding:10px;border-radius:10px;background:#dcfce7;font-weight:700;text-align:center"></div>
+<div id="boxStatistik" class="flex" style="margin-top:10px;text-align:center">
+<div style="flex:1;background:#dcfce7;border-radius:10px;padding:10px"><b id="cHadir">0</b><br><span class="small">Hadir</span></div>
+<div style="flex:1;background:#fef9c3;border-radius:10px;padding:10px"><b id="cSakit">0</b><br><span class="small">Sakit</span></div>
+<div style="flex:1;background:#dbeafe;border-radius:10px;padding:10px"><b id="cIzin">0</b><br><span class="small">Izin</span></div>
+<div style="flex:1;background:#fee2e2;border-radius:10px;padding:10px"><b id="cAlpa">0</b><br><span class="small">Alpa</span></div>
 </div>
-<label>Durasi (menit)</label>
-<input id="durasiUlangan" type="number" value="60">
-<div class="small">Kode ini yang dikasih ke siswa, Pak.</div>
+<div class="flex" style="margin-top:10px"><button id="btnNotifTop" class="btn2" onclick="bukaNotif()">🔔 Notifikasi <span id="notifCount"></span></button><button class="btn2" onclick="logout()">Keluar</button></div>
 </div>
-<div class="card" id="boxBuatSoal">
-<h2>➕ Tambah Soal Manual</h2>
-<label>Tipe Soal</label>
-<select id="tipeSoal" onchange="gantiTipe()"><option value="pg">Pilihan Ganda (A-E)</option><option value="essay">Essay / Uraian</option></select>
-<label>Pertanyaan</label>
-<textarea id="teksSoal" placeholder="Tulis pertanyaan di sini..."></textarea>
-<div id="areaPG">
-<label>Opsi A</label><input id="opsiA" placeholder="Jawaban A">
-<label>Opsi B</label><input id="opsiB" placeholder="Jawaban B">
-<label>Opsi C</label><input id="opsiC" placeholder="Jawaban C">
-<label>Opsi D</label><input id="opsiD" placeholder="Jawaban D">
-<label>Opsi E</label><input id="opsiE" placeholder="Jawaban E">
-<label>Kunci Jawaban</label>
-<select id="kunciPG"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select>
+
+<div id="pageNotif" class="card hidden"><h3>🔔 Notifikasi</h3><div id="listNotif"></div><div class="flex" style="margin-top:10px"><button class="btn2" onclick="tutupNotif()">Tutup</button><button class="btn" onclick="masukNotif()">Masuk →</button></div><button class="btn2" onclick="tandaiBaca()" style="width:100%;margin-top:8px;background:#dcfce7">✅ Tandai Semua Sudah Dibaca</button></div>
+
+<div id="pageAbsensi" class="card"><h3>✅ Absensi - Kelas 11</h3><p class="small" id="tglAbsenTampil" style="font-weight:700"></p>
+<div id="boxTambahSiswa" class="hidden" style="background:#f0fdf4;padding:10px;border-radius:10px"><b>Tambah Siswa (Guru)</b><input id="namaBaru" placeholder="Nama siswa"><input id="hpBaru" placeholder="No HP Ortu - 081234567890"><select id="kelasBaru"><option>XI 1 TKJ</option><option>XI 1 AKL</option></select><button class="btn" onclick="tambahSiswa()">+ Tambah Siswa</button></div>
+<label style="margin-top:10px;display:block">Filter Kelas</label><select id="filterKelas" onchange="renderAll()"><option>Semua</option><option>XI 1 TKJ</option><option>XI 1 AKL</option></select>
+<button class="btn" onclick="downloadCSVAbsen()" style="background:#0ea5e9;margin-top:10px">📥 Download Absen Hari Ini - CSV (XI TKJ + XI AKL)</button>
+<p class="small">File ini khusus Absensi Kelas XI TKJ + XI AKL hari ini. Bukan Nilai Ulangan.</p>
+<div id="listSiswa"></div></div>
+
+<div id="pageIzin" class="card hidden"><h3>📝 Izin Online</h3><div id="formIzin" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px"><b>Ajukan Izin (Ortu)</b><select id="jenisIzin"><option>Sakit</option><option>Izin</option></select><input id="tglIzin" type="date"><textarea id="alasanIzin" placeholder="Alasan..."></textarea><button class="btn" onclick="ajukanIzin()">Kirim Izin</button></div><p class="small" id="infoIzin"></p><h3>Daftar Pengajuan Izin:</h3><div id="listIzin"></div></div>
+
+<div id="pagePesan" class="card hidden"><h3>💬 Pesan / Chat</h3><div id="listPesan"></div></div>
+
+<div id="pageJadwal" class="card hidden"><h3>📅 Jadwal Pelajaran</h3><p class="small" id="infoJadwal"></p><div id="listJadwal"></div><div id="boxSimpanJadwal" class="hidden" style="margin-top:10px"><button class="btn" onclick="simpanJadwal()">💾 Simpan Jadwal</button></div></div>
+
+<div id="pageInfo" class="card hidden"><h3>ℹ️ Info Sekolah + Ganti Kode</h3><p id="tampilInfo" style="white-space:pre-wrap;background:#f0fdf4;padding:12px;border-radius:10px"></p>
+<div id="boxEditInfo" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px"><b>Tulis Info Sekolah (Guru)</b><textarea id="inputInfo" rows="4"></textarea><button class="btn" onclick="simpanInfo()">💾 Simpan Info</button><button class="btn" onclick="hapusInfo()" style="background:#ffcccc;color:#cc0000;margin-top:8px">🗑️ Hapus Info</button></div>
+<div id="boxGantiKode" class="hidden" style="background:#fef9c3;padding:10px;border-radius:10px;margin-top:10px"><b>🔒 Ganti Kode - Guru Saja</b><label>Kode Ortu Baru</label><input id="kodeOrtuBaru" placeholder="Contoh: ORTU11"><label>Kode Ulangan Kelas 10</label><input id="kodeUL10Baru" placeholder="UL10"><label>Kode Ulangan Kelas 11</label><input id="kodeUL11Baru" placeholder="UL11"><label>Kode Ulangan Kelas 12</label><input id="kodeUL12Baru" placeholder="UL12"><button class="btn" onclick="simpanKode()" style="background:#f59e0b">💾 Simpan Kode Baru</button></div>
+<div id="boxGantiPass" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px;margin-top:10px"><b>🔑 Ganti Password Guru</b><div class="pass-wrap"><input id="passLama" type="password" placeholder="Password Lama"><button type="button" class="eye-btn" onclick="togglePass('passLama',this)">👁️</button></div><div class="pass-wrap"><input id="passBaru" type="password" placeholder="Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru',this)">👁️</button></div><div class="pass-wrap"><input id="passBaru2" type="password" placeholder="Ulangi Password Baru"><button type="button" class="eye-btn" onclick="togglePass('passBaru2',this)">👁️</button></div><label class="lihat-box"><input type="checkbox" onclick="toggleSemuaGanti(this)"> Lihat Password</label><button class="btn" onclick="gantiPassword()" style="background:#f59e0b">Simpan Password Baru</button></div>
+<div style="margin-top:10px"><button id="btnReset" class="btn2" onclick="resetData()">Reset Semua Data (Guru)</button></div></div>
+
+<div id="pageUlangan" class="card hidden">
+<h3>📝 Ulangan Online - PG ABCDE + Essay</h3>
+<p class="small" id="infoUlangan"></p>
+<div id="boxBuatSoal" class="hidden" style="background:#f0fdf4;padding:12px;border-radius:12px">
+<b>➕ Buat Soal Baru (Guru)</b><br><br>
+<label>Judul Ulangan</label><input id="judulUlangan" placeholder="Contoh: Ulangan TKJ - Jaringan">
+<label>Kelas Ulangan Ini Untuk:</label>
+<select id="kelasUlangan"><option value="10">Kelas 10 Saja</option><option value="11">Kelas 11 Saja</option><option value="12">Kelas 12 Saja</option><option value="Semua">Semua Kelas 10-11-12</option></select>
+<label>Jenis Soal</label>
+<select id="tipeSoal" onchange="gantiTipeSoal()"><option value="pg">Pilihan Ganda - ABCDE</option><option value="essay">Essay / Uraian</option></select>
+<label>Pertanyaan</label><textarea id="teksSoal" rows="3" placeholder="Tulis soal..."></textarea>
+<div id="boxPG">
+<label>Jawaban A</label><input id="opsiA" placeholder="Jawaban A">
+<label>Jawaban B</label><input id="opsiB" placeholder="Jawaban B">
+<label>Jawaban C</label><input id="opsiC" placeholder="Jawaban C">
+<label>Jawaban D</label><input id="opsiD" placeholder="Jawaban D">
+<label>Jawaban E</label><input id="opsiE" placeholder="Jawaban E - Tambahan">
+<label>Kunci Jawaban Benar</label>
+<select id="kunciPG"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select>
 </div>
+<div id="boxEssay" class="hidden"><p class="small">Essay: Siswa ketik panjang. Guru nilai manual 0-100.</p></div>
 <button class="btn" onclick="tambahSoal()">+ Tambah Soal Ini</button>
-<div style="background:#e0f2fe;padding:12px;border-radius:10px;margin-top:12px">
-<b>📥 Import Soal dari Google Sheets - CSV (BARU V12.6)</b><br>
-<span class="small">1. Di Google Sheets: File &gt; Download &gt; Comma-separated values (.csv)<br>2. Pilih file CSV nya di sini, Pak.<br>Format kolom: tipe,teks,opsiA,opsiB,opsiC,opsiD,opsiE,kunci<br>Bisa pakai koma (,) atau titik-koma (;) - otomatis terdeteksi, Pak.</span>
-<input type="file" id="fileImportSoal" accept=".csv" style="margin-top:8px">
-<button class="btn btn-blue" onclick="importSoalCSV()">📥 Import Soal dari CSV</button>
-<button class="btn2" onclick="downloadTemplateCSV()">📄 Download Contoh Format CSV</button>
-<button class="btn2" onclick="loadSoalYusuf()">🕌 Langsung Load 25 Soal Nabi Yusuf (Tanpa File)</button>
+<div class="flex" style="margin-top:8px"><button class="btn2" onclick="hapusSemuaSoal()" style="background:#fee2e2">🗑️ Hapus Semua Soal</button><button class="btn2" onclick="hapusSemuaJawaban()" style="background:#fee2e2">🗑️ Hapus Semua Jawaban</button></div>
 </div>
-<div class="small" style="margin-top:10px">Total Soal: <b id="totalSoal">0</b> | PG: <b id="totalPG">0</b> | Essay: <b id="totalEssay">0</b></div>
+
+<div class="acak-box" id="boxAcak">
+<b>🔀 Acak Soal PG - Anti Nyontek</b><br>
+<label class="lihat-box" style="margin-top:8px"><input type="checkbox" id="acakSoal" onchange="toggleAcak()"> Acak Pilihan A-E - Tiap Siswa Beda Urutan</label>
+<label class="lihat-box"><input type="checkbox" id="acakUrutanSoal" onchange="toggleAcakUrutan()"> Acak Urutan Soal - Soal No 1 di Guru, Bisa Jadi No 3 di Siswa</label>
+<p class="small" id="infoAcak" style="margin:4px 0 0"></p>
+<p class="small" id="infoAcakUrutan" style="margin:2px 0 0"></p>
+<p class="small" style="color:#dc2626">Guru yang atur. Siswa tidak bisa ubah. Nilai tetap benar otomatis.</p>
 </div>
-<div class="card">
-<h2>📋 Daftar Soal - <span id="judulPreview">Kisah Nabi Yusuf AS</span></h2>
-<div id="listSoalGuru"><p class="small">Belum ada soal. Import atau tambah manual, Pak.</p></div>
-<div class="row">
-<button class="btn2" onclick="acakSoal()">🔀 Acak Urutan Soal</button>
-<button class="btn2 btn-danger" onclick="hapusSemuaSoal()" style="color:#fff;background:#dc2626">🗑️ Hapus Semua Soal</button>
+
+<div id="bungkusDaftarSoal"><h3 style="margin-top:14px">Daftar Soal (Guru Saja):</h3><div id="listSoalUlangan"></div></div>
+<h3 style="margin-top:14px">Jawab Ulangan (Siswa):</h3><div id="boxJawabUlangan"></div>
+<h3 style="margin-top:14px">Hasil / Nilai:</h3>
+<button class="btn" onclick="downloadCSV()" style="background:#16a34a">📥 Download Nilai - CSV (Excel)</button>
+<p class="small" id="infoCSV"></p>
+<div id="listHasilUlangan"></div>
 </div>
-<button class="btn" onclick="aktifkanUlangan()">✅ AKTIFKAN ULANGAN - Siswa Bisa Masuk</button>
-<div id="statusUlangan" style="margin-top:8px"></div>
-</div>
-<div class="card">
-<h2>📢 Bagikan ke Siswa</h2>
-<div class="kunci" id="infoBagikan">Aktifkan ulangan dulu, Pak.</div>
-</div>
-</div>
-<div id="tab-siswa" class="hidden">
-<div class="card">
-<h2>🧑‍🎓 Masuk Ulangan</h2>
-<label>Nama Lengkap</label><input id="namaSiswa" placeholder="Contoh: Ahmad Fauzi">
-<label>Kelas</label><select id="kelasSiswa"><option>7A</option><option>7B</option><option>7C</option><option>8A</option><option>8B</option><option>8C</option><option>9A</option><option>9B</option><option>9C</option></select>
-<label>Kode Ulangan dari Guru</label><input id="kodeMasuk" placeholder="Contoh: YUSUF25">
-<button class="btn" onclick="masukUlangan()">Masuk & Kerjakan →</button>
-<div id="msgSiswa" style="margin-top:8px"></div>
-</div>
-<div id="areaKerjakan" class="hidden">
-<div class="card">
-<div class="row"><div><b id="judulKerjakan"></b><br><span class="small" id="infoSiswaKerjakan"></span></div><div style="text-align:right"><span class="badge" id="timerSiswa">60:00</span></div></div>
-<div id="listSoalSiswa" style="margin-top:12px"></div>
-<button class="btn" onclick="kumpulJawaban()">📤 KUMPULKAN JAWABAN</button>
-</div>
-</div>
-</div>
-<div id="tab-hasil" class="hidden">
-<div class="card">
-<h2>📊 Hasil Ulangan Siswa</h2>
-<div id="listHasil"></div>
-<button class="btn2" onclick="exportNilaiCSV()">⬇️ Export Nilai ke CSV (buka di Google Sheets)</button>
-<button class="btn2 btn-danger" onclick="hapusSemuaHasil()" style="color:#fff;background:#dc2626">🗑️ Hapus Semua Hasil</button>
-</div>
-<div class="card">
-<h2>🏆 Nilai Akhir (PG Otomatis + Essay Manual)</h2>
-<p class="small">Untuk Essay, Guru isi nilai manual di bawah. Nilai PG otomatis 0-100.</p>
-<div id="listNilaiEssay"></div>
-</div>
-</div>
-<div id="tab-absen" class="hidden">
-<div class="card">
-<h2>✅ Absen Hari Ini</h2>
-<label>Tanggal</label><input type="date" id="tglAbsen">
-<label>Nama Siswa</label><input id="namaAbsen" placeholder="Nama siswa">
-<label>Status</label><select id="statusAbsen"><option>Hadir</option><option>Izin</option><option>Sakit</option><option>Alfa</option></select>
-<button class="btn" onclick="tambahAbsen()">+ Tambah Absen</button>
-<div id="listAbsen" style="margin-top:10px"></div>
-<button class="btn2" onclick="exportAbsenCSV()">⬇️ Export Absen ke CSV</button>
-</div>
-</div>
-</div>
+
+<div style="height:80px"></div></div>
+<div id="bottomNav" class="hidden" style="position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;gap:8px;padding:10px;border-top:1px solid #ddd"><button id="btnPrev" class="btn2" style="flex:1" onclick="prevPage()">← Kembali</button><button class="btn2" style="flex:1;background:#fee2e2" onclick="logout()">Keluar</button><button id="btnNext" class="btn" style="flex:1" onclick="nextPage()">Berikutnya →</button></div>
+
 <script>
-let db = JSON.parse(localStorage.getItem('asep_v125')||'{"ulangan":{judul:"Kisah Nabi Yusuf AS",kelas:"7A",kode:"YUSUF25",durasi:60,soal:[],aktif:false},"hasil":[],"absen":[]}');
-function save(){ localStorage.setItem('asep_v125', JSON.stringify(db)); }
-function showTab(id,el){ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); ['guru','siswa','hasil','absen'].forEach(x=>document.getElementById('tab-'+x).classList.add('hidden')); document.getElementById('tab-'+id).classList.remove('hidden'); }
-function gantiTipe(){ document.getElementById('areaPG').style.display = document.getElementById('tipeSoal').value==='pg' ? 'block':'none'; }
-function tambahSoal(){
-  let tipe=document.getElementById('tipeSoal').value;
-  let teks=document.getElementById('teksSoal').value.trim();
-  if(!teks) return alert('Tulis pertanyaan dulu, Pak!');
-  if(tipe==='pg'){
-    let opsi=[document.getElementById('opsiA').value.trim(),document.getElementById('opsiB').value.trim(),document.getElementById('opsiC').value.trim(),document.getElementById('opsiD').value.trim(),document.getElementById('opsiE').value.trim()];
-    if(opsi.some(o=>!o)) return alert('Lengkapi opsi A-E, Pak!');
-    db.ulangan.soal.push({tipe:'pg',teks,kunci:document.getElementById('kunciPG').value,opsi});
-  } else { db.ulangan.soal.push({tipe:'essay',teks}); }
-  db.ulangan.judul=document.getElementById('judulUlangan').value.trim()||db.ulangan.judul;
-  db.ulangan.kelas=document.getElementById('kelasUlangan').value;
-  db.ulangan.kode=document.getElementById('kodeUlangan').value.trim().toUpperCase()||'YUSUF25';
-  db.ulangan.durasi=parseInt(document.getElementById('durasiUlangan').value)||60;
+const firebaseConfig = {
+    apiKey: "AIzaSyCdAUpkfh9O16OCkHXQRzBckX46nNE1MCE",
+    authDomain: "almanar-v6.firebaseapp.com",
+    databaseURL: "https://almanar-v6-default-rtdb.firebaseio.com",
+    projectId: "almanar-v6",
+    storageBucket: "almanar-v6.firebasestorage.app",
+    messagingSenderId: "344807325677",
+    appId: "1:344807325677:web:6040dadc4d09c81fb3b1e4",
+    measurementId: "G-N847DPXFTV"
+};
+firebase.initializeApp(firebaseConfig);
+const dbRef = firebase.database().ref('almanar_v6');
+let db={"passGuru":"asep2672","kodeOrtu":"ORTU11","kodeUL10":"UL10","kodeUL11":"UL11","kodeUL12":"UL12","siswa":[],"izin":[],"pesan":[],"absen":{},"infoSekolah":"SMKS Al Manar Islamic School\nV12.4","jadwal":{"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]},"ulangan":{"judul":"Ulangan","kelas":"11","soal":[],"jawaban":[],"acak":false,"acakUrutan":false}};
+let sudahLoadFirebase=false;
+let jumlahPesanTerakhir=0; let jumlahIzinTerakhir=0; let pertamaLoad=true;
+const DEFAULT_SISWA=[
+{nama:"Aira Zahrotus Sita",kelas:"XI 1 AKL"},{nama:"Alvin Ramadhan",kelas:"XI 1 AKL"},{nama:"Chiqa Aulia Widuri",kelas:"XI 1 AKL"},{nama:"Diva Dania",kelas:"XI 1 AKL"},{nama:"Elsa Savitri",kelas:"XI 1 AKL"},{nama:"Mutia Ainurahman",kelas:"XI 1 AKL"},{nama:"Novi Andini",kelas:"XI 1 AKL"},{nama:"Rachel Aulia",kelas:"XI 1 AKL"},{nama:"Rifi Marsella",kelas:"XI 1 AKL"},{nama:"Silvia Agustiyani",kelas:"XI 1 AKL"},{nama:"Siti Alena",kelas:"XI 1 AKL"},{nama:"Suci Anjani C",kelas:"XI 1 AKL"},{nama:"Wiwin Kartika",kelas:"XI 1 AKL"},{nama:"Adinda Kaya Dewi",kelas:"XI 1 TKJ"},{nama:"Anindita Yunisa Nurdyana",kelas:"XI 1 TKJ"},{nama:"Fahrid Hamzah",kelas:"XI 1 TKJ"},{nama:"Hani Asifa",kelas:"XI 1 TKJ"},{nama:"Muhamad Azkal Asfian",kelas:"XI 1 TKJ"},{nama:"Muhamad Alfiansah",kelas:"XI 1 TKJ"},{nama:"Pria Idul Akbar",kelas:"XI 1 TKJ"},{nama:"Tasya Aurelia",kelas:"XI 1 TKJ"}
+];
+dbRef.on('value', (snap)=>{
+  let val=snap.val();
+  let statusEl=document.getElementById('statusFirebase');
+  if(val){
+    db=val;
+    if(!db.siswa) db.siswa=[];
+    if(!db.izin) db.izin=[];
+    if(!db.pesan) db.pesan=[];
+    if(!db.absen) db.absen={};
+    if(!db.passGuru) db.passGuru="asep2672";
+    if(!db.kodeOrtu) db.kodeOrtu="ORTU11";
+    if(!db.kodeUL10) db.kodeUL10="UL10";
+    if(!db.kodeUL11) db.kodeUL11="UL11";
+    if(!db.kodeUL12) db.kodeUL12="UL12";
+    if(!db.jadwal) db.jadwal={"Senin":["","","","","","",""],"Selasa":["","","","","","",""],"Rabu":["","","","","","",""],"Kamis":["","","","","","",""],"Jumat":["","","","","","",""]};
+    if(!db.infoSekolah) db.infoSekolah="SMKS Al Manar Islamic School\nV12.4";
+    if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[],acak:false,acakUrutan:false};
+    if(!db.ulangan.soal) db.ulangan.soal=[];
+    if(!db.ulangan.jawaban) db.ulangan.jawaban=[];
+    if(!db.ulangan.kelas) db.ulangan.kelas="11";
+    if(db.ulangan.acak===undefined) db.ulangan.acak=false;
+    if(db.ulangan.acakUrutan===undefined) db.ulangan.acakUrutan=false;
+  } else {
+    db.siswa=DEFAULT_SISWA; dbRef.set(db);
+  }
+  sudahLoadFirebase=true;
+  if(statusEl){ statusEl.innerText="✅ Sudah Nyambung ke Firebase"; statusEl.style.color="#16a34a"; }
+  let jmlPesanOrtu=db.pesan.filter(p=>p.dari==='Ortu').length;
+  let jmlIzinMenunggu=db.izin.filter(x=>x.status==='Menunggu').length;
+  if(!pertamaLoad && !document.getElementById('mainPage').classList.contains('hidden')){
+    if(jmlPesanOrtu>jumlahPesanTerakhir || jmlIzinMenunggu>jumlahIzinTerakhir){
+      bunyiNotif(); if(navigator.vibrate) navigator.vibrate([300,100,300]);
+      document.title="🔔 PESAN BARU! - SMKS Al Manar"; setTimeout(()=>{document.title="SMKS AL MANAR";},5000);
+    }
+  }
+  jumlahPesanTerakhir=jmlPesanOrtu; jumlahIzinTerakhir=jmlIzinMenunggu; pertamaLoad=false;
+  if(!document.getElementById('mainPage').classList.contains('hidden')){ renderAll(); updateNotif(); }
+  if(document.getElementById('role').value==='ortu') isiPilihAnak();
+});
+function bunyiNotif(){ try{ let ctx=new (window.AudioContext||window.webkitAudioContext)(); let o=ctx.createOscillator(); let g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type="sine"; o.frequency.value=880; g.gain.value=0.4; o.start(); setTimeout(()=>{o.frequency.value=1100;},180); setTimeout(()=>{o.stop(); ctx.close();},500);}catch(e){} }
+function save(){ if(!sudahLoadFirebase) return; dbRef.set(db); }
+function cekPassword(pw){ pw=(pw||"").trim(); return pw==="asep2672" || pw==="1234" || pw===db.passGuru; }
+function badgeIzin(st){ if(st==='Disetujui') return '<span class="st-setuju">✅ Disetujui</span>'; if(st==='Ditolak') return '<span class="st-tolak">❌ Ditolak</span>'; return '<span class="st-tunggu">⏳ Menunggu</span>'; }
+function formatHP(hp){ if(!hp) return ""; hp=String(hp).replace(/[^0-9]/g,''); if(hp.startsWith('08')) hp='62'+hp.slice(1); if(hp.startsWith('8')) hp='62'+hp; return hp; }
+function tampilHP(hp){ let h=formatHP(hp); if(!h) return ""; if(h.startsWith('62')) return '0'+h.slice(2); return h; }
+function kirimWA(nama, jenisPesan){
+  let s=db.siswa.find(x=>x.nama===nama);
+  if(!s || !s.hp){ alert('No HP Ortu '+nama+' belum diisi, Pak!'); return; }
+  let hp=formatHP(s.hp);
+  let status=db.absen[nama]||'Belum Absen';
+  let pesan="";
+  if(jenisPesan==='absen'){ pesan="Assalamualaikum, Ortu "+nama+" ("+s.kelas+").\n\nSaya Pak "+currentNama+", Guru SMKS Al Manar.\nHari ini status absen "+nama+" : "+status+".\n\nTerima kasih."; }
+  else if(jenisPesan==='izin'){ pesan="Assalamualaikum, Ortu "+nama+".\n\nSaya Pak "+currentNama+", Guru SMKS Al Manar.\nPengajuan izin "+nama+" sudah kami terima / setujui.\nTerima kasih."; }
+  else { pesan="Assalamualaikum, Ortu "+nama+" ("+s.kelas+").\n\nSaya Pak "+currentNama+", Guru SMKS Al Manar.\nMohon info, terima kasih."; }
+  window.open("https://wa.me/"+hp+"?text="+encodeURIComponent(pesan), "_blank");
+}
+function kirimWAChat(nama){
+  let s=db.siswa.find(x=>x.nama===nama);
+  if(!s || !s.hp){ alert('No HP Ortu '+nama+' belum diisi, Pak!'); return; }
+  let hp=formatHP(s.hp);
+  let pesan="Assalamualaikum, Ortu "+nama+" ("+s.kelas+"). Saya Pak "+currentNama+", Guru SMKS Al Manar.";
+  window.open("https://wa.me/"+hp+"?text="+encodeURIComponent(pesan), "_blank");
+}
+let currentRole='guru', currentNama='', currentKelas='XI 1 TKJ', currentAnak='', currentKelasUlangan='11';
+function togglePass(id,btn){ let el=document.getElementById(id); if(el.type==='password'){el.type='text';btn.innerText='🙈';} else{el.type='password';btn.innerText='👁️';} }
+function toggleSemuaGanti(cb){ ['passLama','passBaru','passBaru2'].forEach(id=>{ document.getElementById(id).type=cb.checked?'text':'password'; }); }
+document.getElementById('kelasLogin').addEventListener('change',isiPilihAnak);
+function cekRole(){
+  let r=document.getElementById('role').value;
+  document.getElementById('boxGuru').classList.toggle('hidden',r!=='guru');
+  document.getElementById('boxOrtu').classList.toggle('hidden',r!=='ortu');
+  document.getElementById('boxSiswa').classList.toggle('hidden',r!=='siswa');
+  if(r==='ortu') isiPilihAnak();
+}
+function isiPilihAnak(){ let k=document.getElementById('kelasLogin').value.trim(); let kNormal=k.toUpperCase().replace(/\s+/g," "); let list=db.siswa.filter(s=>(s.kelas||"").trim().toUpperCase().replace(/\s+/g," ")===kNormal); let sel=document.getElementById('pilihAnak'); let info=document.getElementById('infoAnak'); if(list.length===0){ sel.innerHTML='<option value="">-- Belum ada siswa --</option>'; if(info) info.innerText='Belum ada siswa di kelas ini.'; }else{ sel.innerHTML=list.map(s=>`<option value="${s.nama}">${s.nama}</option>`).join(''); if(info) info.innerText=list.length+' siswa di kelas '+k; } }
+cekRole();
+function hashString(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function seededShuffle(arr, seedStr){
+  let a = [...arr];
+  let seed = hashString(seedStr || 'x');
+  function rnd(){ seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; seed = seed >>> 0; return seed / 4294967296; }
+  for(let i=a.length-1;i>0;i--){ let j=Math.floor(rnd()*(i+1)); let tmp=a[i]; a[i]=a[j]; a[j]=tmp; }
+  return a;
+}
+function getOpsiAcak(soal, soalIdx, namaSiswa){
+  let dasar = soal.opsi.map((o,oi)=>({teks:o, kunciAsli:['A','B','C','D','E'][oi]}));
+  if(!db.ulangan.acak) return dasar;
+  return seededShuffle(dasar, (namaSiswa||'') + '|soal-' + soalIdx + '|' + soal.teks);
+}
+function getUrutanSoalAcak(soalList, namaSiswa){
+  if(!db.ulangan.acakUrutan) return soalList.map((s,i)=>i);
+  return seededShuffle(soalList.map((s,i)=>i), (namaSiswa||'') + '|urutan-soal|' + (db.ulangan.judul||''));
+}
+function toggleAcak(){
+  if(currentRole!=='guru'){ alert('Hanya Guru yang bisa ubah Acak, Pak!'); document.getElementById('acakSoal').checked = !!db.ulangan.acak; return; }
+  db.ulangan.acak = document.getElementById('acakSoal').checked;
   save(); renderAll();
-  document.getElementById('teksSoal').value=''; ['opsiA','opsiB','opsiC','opsiD','opsiE'].forEach(id=>document.getElementById(id).value='');
-  alert('Soal ditambah, Pak!');
+  alert(db.ulangan.acak ? '🔀 Acak Pilihan AKTIF, Pak! Tiap siswa beda urutan A-E.' : 'Acak Pilihan MATI, Pak. Urutan normal lagi.');
 }
-function hapusSoal(i){ if(confirm('Hapus soal ini, Pak?')){ db.ulangan.soal.splice(i,1); save(); renderAll(); } }
-function hapusSemuaSoal(){ if(confirm('Hapus SEMUA soal, Pak?')){ db.ulangan.soal=[]; save(); renderAll(); } }
-function acakSoal(){ db.ulangan.soal.sort(()=>Math.random()-0.5); save(); renderAll(); alert('Soal sudah diacak, Pak!'); }
-function aktifkanUlangan(){
-  db.ulangan.judul=document.getElementById('judulUlangan').value.trim()||'Ulangan';
+function toggleAcakUrutan(){
+  if(currentRole!=='guru'){ alert('Hanya Guru yang bisa ubah Acak, Pak!'); document.getElementById('acakUrutanSoal').checked = !!db.ulangan.acakUrutan; return; }
+  db.ulangan.acakUrutan = document.getElementById('acakUrutanSoal').checked;
+  save(); renderAll();
+  alert(db.ulangan.acakUrutan ? '🔀 Acak Urutan Soal AKTIF, Pak! Soal No 1 di Guru bisa jadi No 3 di siswa.' : 'Acak Urutan Soal MATI, Pak.');
+}
+function downloadCSV(){
+  let jawab = db.ulangan.jawaban || [];
+  if(!jawab.length) return alert('Belum ada yang jawab, Pak!');
+  let soal = db.ulangan.soal || [];
+  let headerSoal = soal.map((s,i)=>'Soal '+(i+1)+' ('+(s.tipe==='pg'?'PG':'Essay')+')').join(',');
+  let header = 'Nama,Kelas,Waktu,Nilai PG,Benar PG,Jumlah PG,Nilai Essay,Nilai Akhir,' + headerSoal + '\n';
+  let baris = jawab.map(j=>{
+    let jwb = (j.jawaban||[]).map(v=>String(v).replace(/,/g,';').replace(/\n/g,' '));
+    while(jwb.length < soal.length) jwb.push('');
+    let esc = (v)=>'"'+String(v).replace(/"/g,'""')+'"';
+    return [esc(j.nama), esc(j.kelas), esc(j.waktu), j.nilaiPG, j.benarPG, j.jmlPG, esc(j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay), j.nilaiAkhir, ...jwb.map(esc)].join(',');
+  }).join('\n');
+  let blob = new Blob([header+baris], {type:'text/csv;charset=utf-8;'});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Nilai_Ulangan_'+(db.ulangan.judul||'Ulangan').replace(/[^a-zA-Z0-9]/g,'_')+'_Kelas_'+(db.ulangan.kelas||'')+'.csv';
+  a.click();
+  alert('CSV Nilai terdownload, Pak! Buka di Excel / Google Sheets, Pak.');
+}
+function downloadCSVAbsen(){
+  let list = db.siswa || [];
+  if(!list.length) return alert('Belum ada siswa, Pak!');
+  let header = 'Nama,Kelas,Status Absen Hari Ini,No HP Ortu\n';
+  let baris = list.map(s=>{
+    let st = db.absen[s.nama] || 'Belum Absen';
+    let esc = (v)=>'"'+String(v||'').replace(/"/g,'""')+'"';
+    return [esc(s.nama), esc(s.kelas), esc(st), esc(tampilHP(s.hp))].join(',');
+  }).join('\n');
+  let blob = new Blob([header+baris], {type:'text/csv;charset=utf-8;'});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Absen_Kelas11_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  alert('CSV Absen terdownload, Pak!');
+}
+function login(){
+  currentRole=document.getElementById('role').value;
+  if(currentRole==='guru'){
+    currentNama=document.getElementById('namaLogin').value.trim()||'Guru';
+    currentKelas='XI 1 TKJ'; currentAnak='';
+    let pw=document.getElementById('passGuru').value.trim();
+    if(!cekPassword(pw)){alert('Password Guru salah, Pak!');return;}
+  } else if(currentRole==='ortu'){
+    currentNama=document.getElementById('namaOrtu').value.trim()||'Ortu';
+    currentKelas=document.getElementById('kelasLogin').value;
+    currentAnak=document.getElementById('pilihAnak').value;
+    if(!currentAnak){alert('Belum ada siswa di kelas ini.');return;}
+    let kode=document.getElementById('kodeOrtu').value.trim();
+    if(kode!==db.kodeOrtu){alert('🔒 Kode Ortu salah! Tanya ke Guru via WA, Pak/Bu. Siswa tidak bisa masuk ke Ortu.');return;}
+  } else if(currentRole==='siswa'){
+    currentKelasUlangan=document.getElementById('kelasSiswaUlangan').value;
+    currentNama=document.getElementById('namaSiswaUlangan').value.trim();
+    currentAnak=currentNama;
+    currentKelas='Kelas '+currentKelasUlangan;
+    if(!currentNama){alert('Isi Nama Siswa dulu!');return;}
+    let kode=document.getElementById('kodeUlangan').value.trim();
+    let benar = currentKelasUlangan==='10' ? db.kodeUL10 : currentKelasUlangan==='11' ? db.kodeUL11 : db.kodeUL12;
+    if(kode!==benar){alert('🔒 Kode Ulangan salah! Tanya ke Guru, kode untuk Kelas '+currentKelasUlangan+' beda.');return;}
+  }
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('mainPage').classList.remove('hidden');
+  document.getElementById('bottomNav').classList.remove('hidden');
+  if(currentRole==='siswa'){
+    pageIdx=5; showTab('Ulangan');
+    document.getElementById('bottomNav').classList.add('hidden');
+    document.getElementById('boxStatistik').classList.add('hidden');
+    document.getElementById('btnNotifTop').classList.add('hidden');
+  } else {
+    pageIdx=0; showTab(pages[0]);
+    document.getElementById('bottomNav').classList.remove('hidden');
+    document.getElementById('boxStatistik').classList.remove('hidden');
+    document.getElementById('btnNotifTop').classList.remove('hidden');
+  }
+  renderAll(); updateNotif();
+}
+function simpanKode(){
+  let a=document.getElementById('kodeOrtuBaru').value.trim();
+  let b=document.getElementById('kodeUL10Baru').value.trim();
+  let c=document.getElementById('kodeUL11Baru').value.trim();
+  let d=document.getElementById('kodeUL12Baru').value.trim();
+  if(a) db.kodeOrtu=a; if(b) db.kodeUL10=b; if(c) db.kodeUL11=c; if(d) db.kodeUL12=d;
+  save(); renderAll(); alert('Kode baru tersimpan, Pak!');
+}
+function gantiPassword(){ let lama=document.getElementById('passLama').value; let baru=document.getElementById('passBaru').value; let baru2=document.getElementById('passBaru2').value; if(!cekPassword(lama)){alert('Password Lama salah, Pak!');return;} if(baru.length<4){alert('Password Baru minimal 4 huruf/angka, Pak!');return;} if(baru!==baru2){alert('Password Baru tidak sama, Pak!');return;} db.passGuru=baru; save(); document.getElementById('passLama').value=''; document.getElementById('passBaru').value=''; document.getElementById('passBaru2').value=''; alert('Password baru tersimpan, Pak!'); }
+function logout(){location.reload();}
+let pages=['Absensi','Izin','Pesan','Jadwal','Info','Ulangan']; let pageIdx=0;
+function showTab(n){
+  if(currentRole==='siswa' && n!=='Ulangan'){ alert('🔒 Siswa Ulangan hanya bisa buka Ulangan, tidak bisa lihat Absen Kelas 11.'); return; }
+  pageIdx=pages.indexOf(n); pages.forEach(x=>{document.getElementById('page'+x).classList.toggle('hidden',x!==n);}); document.getElementById('pageNotif').classList.add('hidden');
+  if(currentRole==='siswa'){ document.getElementById('btnPrev').style.display='none'; document.getElementById('btnNext').style.display='none'; }
+  else { document.getElementById('btnPrev').style.display=(pageIdx===0)?'none':'block'; document.getElementById('btnNext').style.display=(pageIdx===pages.length-1)?'none':'block'; }
+}
+function nextPage(){ if(currentRole==='siswa') return; if(pageIdx<pages.length-1){pageIdx++;showTab(pages[pageIdx]);} }
+function prevPage(){ if(currentRole==='siswa') return; if(pageIdx>0){pageIdx--;showTab(pages[pageIdx]);} }
+function simpanInfo(){ let v=document.getElementById('inputInfo').value.trim(); if(!v){alert('Isi dulu infonya, Pak');return;} db.infoSekolah=v; save(); renderAll(); alert('Info tersimpan, Pak!'); }
+function hapusInfo(){ if(!confirm('Hapus Info Sekolah ini, Pak?')){return;} db.infoSekolah=''; document.getElementById('inputInfo').value=''; save(); renderAll(); alert('Info sudah dihapus, Pak!'); }
+function simpanJadwal(){ let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"]; hariList.forEach(h=>{ for(let i=0;i<7;i++){ let el=document.getElementById('jadwal-'+h+'-'+i); if(el) db.jadwal[h][i]=el.value.trim(); } }); save(); renderAll(); alert('Jadwal tersimpan, Pak!'); }
+function tambahSiswa(){ let n=document.getElementById('namaBaru').value.trim(); let k=document.getElementById('kelasBaru').value; let hp=document.getElementById('hpBaru').value.trim(); if(!n) return alert('Isi nama dulu, Pak!'); hp=formatHP(hp); if(db.siswa.some(x=>x.nama===n)) return alert('Sudah ada, Pak!'); db.siswa.push({nama:n,kelas:k,hp:hp}); save(); document.getElementById('namaBaru').value=''; document.getElementById('hpBaru').value=''; renderAll(); alert('Siswa ditambah, Pak!'); }
+function editSiswa(namaLama){ let s=db.siswa.find(x=>x.nama===namaLama); if(!s) return; let namaBaru=prompt('Edit Nama Siswa:',s.nama); if(!namaBaru) return; namaBaru=namaBaru.trim(); let hpBaru=prompt('Edit No HP Ortu (081234567890):',tampilHP(s.hp)||''); if(hpBaru===null) return; hpBaru=formatHP(hpBaru.trim()); if(namaBaru!==namaLama && db.absen[namaLama]!==undefined){db.absen[namaBaru]=db.absen[namaLama]; delete db.absen[namaLama];} s.nama=namaBaru; s.hp=hpBaru; db.izin.forEach(x=>{if(x.nama===namaLama) x.nama=namaBaru;}); save(); renderAll(); alert('Data sudah diperbaiki, Pak!'); }
+function hapusSiswa(nama){ if(!confirm('Hapus '+nama+'?'))return; db.siswa=db.siswa.filter(s=>s.nama!==nama); save(); renderAll(); }
+function setAbsen(nama,status){ db.absen[nama]=status; save(); renderAll(); }
+function ajukanIzin(){ let jenis=document.getElementById('jenisIzin').value; let tgl=document.getElementById('tglIzin').value||new Date().toISOString().slice(0,10); let alasan=document.getElementById('alasanIzin').value.trim()||'-'; db.izin.unshift({nama:currentAnak,kelas:currentKelas,jenis:jenis,tanggal:tgl,alasan:alasan,pengaju:currentNama,status:'Menunggu'}); save(); document.getElementById('alasanIzin').value=''; renderAll(); alert('Izin terkirim'); }
+function accIzin(i,sts){
+  db.izin[i].status=sts;
+  if(sts==='Disetujui'){ let namaIzin=db.izin[i].nama; let jenisIzin=db.izin[i].jenis; db.absen[namaIzin]=jenisIzin; db.pesan.push({nama:namaIzin,dari:'Guru',isi:'Izin '+namaIzin+' ('+jenisIzin+') sudah Disetujui, Pak/Bu. Absen hari ini jadi '+jenisIzin+'. Terima kasih.'}); }
+  save(); renderAll(); updateNotif();
+  if(sts==='Disetujui'){ alert('Disetujui, Pak! Absen '+db.izin[i].nama+' langsung jadi '+db.izin[i].jenis+' otomatis!'); }
+}
+function resetData(){if(confirm('Hapus semua data?')){ dbRef.remove(); location.reload();}}
+function siswaTerlihat(){ if(currentRole==='ortu') return db.siswa.filter(s=>s.nama===currentAnak); let f=document.getElementById('filterKelas').value; if(f==='Semua') return db.siswa; return db.siswa.filter(s=>s.kelas===f); }
+function izinTerlihat(){ if(currentRole==='ortu') return db.izin.filter(x=>x.nama===currentAnak); return db.izin; }
+function hitungNotif(){
+  if(currentRole==='guru'){ let izinBaru=db.izin.filter(x=>x.status==='Menunggu').length; let dibaca=parseInt(localStorage.getItem('sudahBacaPesan')||'0'); let totalPesanOrtu=db.pesan.filter(p=>p.dari==='Ortu').length; let pesanBaru=Math.max(0, totalPesanOrtu-dibaca); return {izin:izinBaru,chat:pesanBaru,total:izinBaru+pesanBaru}; }
+  else if(currentRole==='ortu'){ let pesanGuru=db.pesan.filter(p=>p.nama===currentAnak && p.dari==='Guru').length; let dibacaOrtu=parseInt(localStorage.getItem('sudahBacaPesanOrtu_'+currentAnak)||'0'); let baru=Math.max(0, pesanGuru-dibacaOrtu); return {izin:0,chat:baru,total:baru}; }
+  else return {izin:0,chat:0,total:0};
+}
+function updateNotif(){
+  let n=hitungNotif(); let el=document.getElementById('notifCount'); if(el){ el.innerHTML=n.total>0?`<span class="notif-badge">${n.total}</span>`:''; }
+  let banner=document.getElementById('bannerNotif'); let teks=document.getElementById('teksBannerNotif');
+  if(banner && teks){ if(n.total>0 && currentRole!=='siswa'){ banner.classList.remove('hidden'); if(currentRole==='guru'){ teks.innerText=`ADA ${n.total} BARU! ${n.izin>0?n.izin+' Izin Menunggu ':''}${n.chat>0?n.chat+' Chat Baru dari Ortu':''}`; } else { teks.innerText=`ADA ${n.total} PESAN BARU DARI GURU!`; } } else { banner.classList.add('hidden'); } }
+  if(currentRole==='guru' && pages[pageIdx]==='Pesan'){ localStorage.setItem('sudahBacaPesan', String(db.pesan.filter(p=>p.dari==='Ortu').length)); }
+  if(currentRole==='ortu' && pages[pageIdx]==='Pesan'){ localStorage.setItem('sudahBacaPesanOrtu_'+currentAnak, String(db.pesan.filter(p=>p.nama===currentAnak && p.dari==='Guru').length)); }
+}
+function bukaNotif(){ document.getElementById('pageNotif').classList.remove('hidden'); let html=''; if(currentRole==='guru'){ let izinList=izinTerlihat().filter(x=>x.status==='Menunggu'); let chatList=db.pesan.filter(p=>p.dari==='Ortu').slice(-5).reverse(); if(izinList.length){ html+='<b>📝 Izin Menunggu:</b>'+izinList.map(x=>`<div class="item"><b>${x.nama} - ${x.jenis}</b> ${badgeIzin(x.status)}<br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span></div>`).join(''); } if(chatList.length){ html+='<b>💬 Chat Baru dari Ortu:</b>'+chatList.map(p=>`<div class="item"><b>${p.nama}</b><br><span class="small">Ortu: ${p.isi}</span><br><button class="btn" style="margin-top:6px" onclick="showTab('Pesan')">Balas Chat →</button></div>`).join(''); } if(!html) html='<p class="small">Tidak ada notifikasi.</p>'; } else { let chatGuru=db.pesan.filter(p=>p.nama===currentAnak && p.dari==='Guru').slice(-5).reverse(); if(chatGuru.length){ html+='<b>💬 Pesan dari Guru:</b>'+chatGuru.map(p=>`<div class="item"><b>Guru:</b> ${p.isi}</div>`).join(''); } else { html='<p class="small">Tidak ada notifikasi.</p>'; } } document.getElementById('listNotif').innerHTML=html; }
+function tandaiBaca(){ if(currentRole==='guru'){ localStorage.setItem('sudahBacaPesan', String(db.pesan.filter(p=>p.dari==='Ortu').length)); } else { localStorage.setItem('sudahBacaPesanOrtu_'+currentAnak, String(db.pesan.filter(p=>p.nama===currentAnak && p.dari==='Guru').length)); } updateNotif(); tutupNotif(); alert('Sudah ditandai dibaca, Pak!'); }
+function tutupNotif(){document.getElementById('pageNotif').classList.add('hidden');}
+function masukNotif(){ document.getElementById('pageNotif').classList.add('hidden'); if(hitungNotif().izin>0) showTab('Izin'); else showTab('Pesan'); window.scrollTo(0,0); updateNotif(); }
+function warnaStatus(st){ if(st==='Hadir') return 'background:#16a34a;color:#fff'; if(st==='Sakit') return 'background:#facc15;color:#000'; if(st==='Izin') return 'background:#60a5fa;color:#fff'; if(st==='Alpa') return 'background:#dc2626;color:#fff'; return 'background:#eee;color:#555'; }
+function gantiTipeSoal(){ let t=document.getElementById('tipeSoal').value; document.getElementById('boxPG').classList.toggle('hidden',t!=='pg'); document.getElementById('boxEssay').classList.toggle('hidden',t!=='essay'); }
+function tambahSoal(){
+  if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[],acak:false,acakUrutan:false};
+  let judul=document.getElementById('judulUlangan').value.trim(); if(judul) db.ulangan.judul=judul;
   db.ulangan.kelas=document.getElementById('kelasUlangan').value;
-  db.ulangan.kode=document.getElementById('kodeUlangan').value.trim().toUpperCase()||'YUSUF25';
-  db.ulangan.durasi=parseInt(document.getElementById('durasiUlangan').value)||60;
-  if(db.ulangan.soal.length===0) return alert('Belum ada soal, Pak! Import dulu.');
-  db.ulangan.aktif=true; save(); renderAll();
-  document.getElementById('statusUlangan').innerHTML='<div class="success">✅ Ulangan AKTIF! Siswa bisa masuk pakai kode: <b>'+db.ulangan.kode+'</b></div>';
+  let tipe=document.getElementById('tipeSoal').value; let teks=document.getElementById('teksSoal').value.trim();
+  if(!teks) return alert('Tulis soal dulu, Pak!');
+  if(tipe==='pg'){
+    let a=document.getElementById('opsiA').value.trim(); let b=document.getElementById('opsiB').value.trim(); let c=document.getElementById('opsiC').value.trim(); let d=document.getElementById('opsiD').value.trim(); let e=document.getElementById('opsiE').value.trim();
+    if(!a||!b||!c||!d||!e) return alert('Isi semua A sampai E dulu, Pak! 5 pilihan, Pak!');
+    let kunci=document.getElementById('kunciPG').value;
+    db.ulangan.soal.push({tipe:'pg',teks:teks,opsi:[a,b,c,d,e],kunci:kunci});
+    ['teksSoal','opsiA','opsiB','opsiC','opsiD','opsiE'].forEach(id=>document.getElementById(id).value='');
+  } else { db.ulangan.soal.push({tipe:'essay',teks:teks}); document.getElementById('teksSoal').value=''; }
+  save(); renderAll(); alert('Soal ditambah, Pak! Total: '+db.ulangan.soal.length+' | Kelas: '+db.ulangan.kelas);
 }
-function downloadTemplateCSV(){
-  let csv='tipe,teks,opsiA,opsiB,opsiC,opsiD,opsiE,kunci\npg,Contoh soal PG?,Jawaban A,Jawaban B,Jawaban C,Jawaban D,Jawaban E,B\nessay,Contoh soal Essay,,,,,';
-  let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Template_Soal_Ulangan.csv'; a.click();
-}
-function parseCSVLine(line, delim){
-  let kolom=[]; let cur=''; let dalamPetik=false;
-  for(let c=0;c<line.length;c++){ let ch=line[c]; if(ch==='"'){ if(line[c+1]==='"'){cur+='"';c++;} else dalamPetik=!dalamPetik; } else if(ch===delim && !dalamPetik){ kolom.push(cur); cur=''; } else cur+=ch; }
-  kolom.push(cur); return kolom.map(s=>s.trim().replace(/^"|"$/g,''));
-}
-function importSoalCSV(){
-  let fileInput=document.getElementById('fileImportSoal');
-  if(!fileInput.files.length) return alert('Pilih file CSV dari Google Sheets dulu, Pak!');
-  let reader=new FileReader();
-  reader.onload=function(e){
-    let teks=e.target.result.replace(/^\uFEFF/,'');
-    let baris=teks.split(/\r?\n/).filter(b=>b.trim()!=='');
-    if(baris.length<2) return alert('File CSV kosong, Pak!');
-    let delim = (baris[0].split(';').length > baris[0].split(',').length) ? ';' : ',';
-    let header=baris[0].toLowerCase();
-    if(!header.includes('tipe')||!header.includes('teks')) return alert('Format salah, Pak! Harus ada kolom tipe dan teks. Download Template dulu, Pak.\nHeader terbaca: '+baris[0]+'\nPemisah terdeteksi: '+(delim===';'?'titik-koma (;)':'koma (,)'));
-    db.ulangan.judul=document.getElementById('judulUlangan').value.trim()||db.ulangan.judul;
-    db.ulangan.kelas=document.getElementById('kelasUlangan').value;
-    db.ulangan.kode=document.getElementById('kodeUlangan').value.trim().toUpperCase()||db.ulangan.kode;
-    let jumlahBaru=0; let gagal=0;
-    for(let i=1;i<baris.length;i++){
-      let kolom=parseCSVLine(baris[i], delim);
-      let tipe=(kolom[0]||'').toLowerCase().replace(/"/g,'');
-      let teksSoal=(kolom[1]||'').trim();
-      if(!teksSoal){ gagal++; continue; }
-      if(tipe==='pg'){
-        let a=kolom[2]||'', b=kolom[3]||'', c=kolom[4]||'', d=kolom[5]||'', ee=kolom[6]||'';
-        let kunci=(kolom[7]||'B').toUpperCase().replace(/"/g,'');
-        if(!a||!b||!c||!d||!ee){ gagal++; continue; }
-        if(!['A','B','C','D','E'].includes(kunci)) kunci='B';
-        db.ulangan.soal.push({tipe:'pg',teks:teksSoal,opsi:[a,b,c,d,ee],kunci});
-        jumlahBaru++;
-      } else if(tipe==='essay'){
-        db.ulangan.soal.push({tipe:'essay',teks:teksSoal}); jumlahBaru++;
-      } else { gagal++; }
-    }
-    save(); renderAll(); fileInput.value='';
-    if(jumlahBaru===0) alert('Gagal import, Pak! 0 soal masuk.\nPemisah terdeteksi: '+(delim===';'?'titik-koma (;)':'koma (,)')+'\nBaris dibaca: '+(baris.length-1)+'\nCoba cek: header harus tipe,teks,opsiA... atau tipe;teks;opsiA...');
-    else alert('Berhasil import '+jumlahBaru+' soal dari Google Sheets, Pak! Total: '+db.ulangan.soal.length + (gagal?'\n('+gagal+' baris di-skip karena tidak lengkap)':''));
-  };
-  reader.readAsText(fileInput.files[0]);
-}
-function loadSoalYusuf(){
-  let soalYusuf=[
-    {tipe:'pg',teks:'Siapakah ayah dari Nabi Yusuf AS?',opsi:['Nabi Ibrahim AS','Nabi Yaqub AS','Nabi Ishaq AS','Nabi Musa AS','Nabi Ismail AS'],kunci:'B'},
-    {tipe:'pg',teks:'Berapa jumlah bintang dalam mimpi Nabi Yusuf AS?',opsi:['10 bintang','11 bintang','12 bintang','7 bintang','9 bintang'],kunci:'B'},
-    {tipe:'pg',teks:'Dalam mimpi Nabi Yusuf AS apa yang sujud kepadanya?',opsi:['11 bintang matahari dan bulan','7 sapi gemuk dan 7 sapi kurus','7 tangkai gandum','Langit dan bumi','Burung dan ikan'],kunci:'A'},
-    {tipe:'pg',teks:'Siapa adik kandung Nabi Yusuf AS?',opsi:['Yehuda','Ruben','Bunyamin','Simon','Levi'],kunci:'C'},
-    {tipe:'pg',teks:'Mengapa kakak-kakak Yusuf iri kepadanya?',opsi:['Karena Yusuf kaya','Karena ayahnya lebih menyayangi Yusuf dan Bunyamin','Karena Yusuf tampan','Karena Yusuf pintar berdagang','Karena Yusuf anak pertama'],kunci:'B'},
-    {tipe:'pg',teks:'Kemana kakak-kakaknya membuang Nabi Yusuf AS?',opsi:['Ke dalam hutan','Ke dalam sumur','Ke dalam laut','Ke dalam gua','Ke dalam sungai'],kunci:'B'},
-    {tipe:'pg',teks:'Apa alasan bohong yang disampaikan kakak-kakaknya kepada Nabi Yaqub AS?',opsi:['Yusuf tenggelam','Yusuf hilang di pasar','Yusuf dimakan serigala','Yusuf diculik perampok','Yusuf kabur dari rumah'],kunci:'C'},
-    {tipe:'pg',teks:'Siapa yang menemukan Nabi Yusuf AS di dalam sumur?',opsi:['Raja Mesir','Al-Aziz','Rombongan pedagang yang hendak mengambil air','Nabi Yaqub AS','Zulaikha'],kunci:'C'},
-    {tipe:'pg',teks:'Siapa pembesar Mesir yang membeli Nabi Yusuf AS?',opsi:['Raja Firaun','Al-Aziz','Haman','Qarun','Namrud'],kunci:'B'},
-    {tipe:'pg',teks:'Siapa istri Al-Aziz yang menggoda Nabi Yusuf AS?',opsi:['Sarah','Hajar','Zulaikha','Asiyah','Rahil'],kunci:'C'},
-    {tipe:'pg',teks:'Bagaimana tanda bahwa Nabi Yusuf AS tidak bersalah saat digoda Zulaikha?',opsi:['Baju Yusuf robek dari depan','Baju Yusuf robek dari belakang','Baju Yusuf tidak robek','Baju Zulaikha robek','Zulaikha mengaku salah'],kunci:'B'},
-    {tipe:'pg',teks:'Apa pilihan Nabi Yusuf AS ketika dihadapkan pada godaan Zulaikha?',opsi:['Menuruti godaan','Kabur dari Mesir','Memilih dipenjara daripada berbuat maksiat','Melawan Al-Aziz','Menikahi Zulaikha'],kunci:'C'},
-    {tipe:'pg',teks:'Berapa lama Nabi Yusuf AS dipenjara padahal tidak bersalah?',opsi:['1 tahun','2 tahun','3 tahun','Sekitar 7-12 tahun','20 tahun'],kunci:'D'},
-    {tipe:'pg',teks:'Apa tafsir mimpi Raja Mesir tentang 7 sapi gemuk dimakan 7 sapi kurus?',opsi:['Akan ada perang besar','Akan ada 7 tahun subur lalu 7 tahun paceklik','Akan ada banjir besar','Akan ada wabah penyakit','Akan ada gempa bumi'],kunci:'B'},
-    {tipe:'pg',teks:'Apa jabatan yang diberikan Raja Mesir kepada Nabi Yusuf AS setelah keluar dari penjara?',opsi:['Panglima perang','Bendahara negara / Penguasa kedua di Mesir','Tukang roti raja','Penjaga istana','Juru tulis kerajaan'],kunci:'B'},
-    {tipe:'pg',teks:'Apa yang dimasukkan Nabi Yusuf AS ke dalam karung Bunyamin untuk menahannya di Mesir?',opsi:['Emas','Permata','Piala raja','Pedang','Uang'],kunci:'C'},
-    {tipe:'pg',teks:'Apa jawaban Nabi Yusuf AS ketika kakak-kakaknya minta maaf?',opsi:['Aku akan menghukum kalian','Aku akan memenjarakan kalian','Tidak ada celaan untuk kalian hari ini Allah telah mengampuni kalian','Kalian harus pergi dari Mesir','Aku tidak akan memaafkan kalian'],kunci:'C'},
-    {tipe:'pg',teks:'Apa yang membuat mata Nabi Yaqub AS yang buta bisa melihat kembali?',opsi:['Air zam-zam','Obat dari dokter','Baju Nabi Yusuf AS yang diusapkan ke wajahnya','Air sumur','Doa kakak-kakaknya'],kunci:'C'},
-    {tipe:'pg',teks:'Apa sebutan Al-Quran untuk kisah Nabi Yusuf AS?',opsi:['Kisah yang menakutkan','Kisah yang paling baik / Ahsanal Qashash','Kisah yang paling sedih','Kisah yang paling panjang','Kisah yang paling pendek'],kunci:'B'},
-    {tipe:'pg',teks:'Apa pelajaran utama dari kisah Nabi Yusuf AS?',opsi:['Kekayaan membuat bahagia','Sabar jujur dan memaafkan akan mengangkat derajat seseorang','Balas dendam itu wajib','Ketampanan menjamin sukses','Penjara adalah akhir segalanya'],kunci:'B'},
-    {tipe:'essay',teks:'Ceritakan mimpi Nabi Yusuf AS saat kecil dan apa artinya menurut Nabi Yaqub AS!'},
-    {tipe:'essay',teks:'Mengapa kakak-kakak Nabi Yusuf AS membuangnya ke dalam sumur? Jelaskan kronologinya!'},
-    {tipe:'essay',teks:'Jelaskan ujian yang dihadapi Nabi Yusuf AS di rumah Al-Aziz dan bagaimana sikap beliau menghadapinya!'},
-    {tipe:'essay',teks:'Bagaimana Nabi Yusuf AS menafsirkan mimpi Raja Mesir dan apa dampaknya bagi rakyat Mesir?'},
-    {tipe:'essay',teks:'Apa yang dilakukan Nabi Yusuf AS ketika bertemu kembali dengan kakak-kakaknya yang dulu membuangnya? Apa pelajaran yang bisa kita ambil?'}
-  ];
-  db.ulangan.soal = soalYusuf;
-  db.ulangan.judul='Kisah Nabi Yusuf AS'; db.ulangan.kode='YUSUF25';
-  document.getElementById('judulUlangan').value='Kisah Nabi Yusuf AS'; document.getElementById('kodeUlangan').value='YUSUF25';
-  save(); renderAll(); alert('25 Soal Nabi Yusuf berhasil dimuat, Pak! 20 PG + 5 Essay. Tinggal AKTIFKAN!');
-}
-let jawabanSiswa={}; let timerInterval=null;
-function masukUlangan(){
-  let nama=document.getElementById('namaSiswa').value.trim();
-  let kode=document.getElementById('kodeMasuk').value.trim().toUpperCase();
-  if(!nama) return alert('Isi nama dulu!');
-  if(!db.ulangan.aktif) return alert('Ulangan belum diaktifkan guru!');
-  if(kode!==db.ulangan.kode) return alert('Kode salah! Tanya ke guru, Pak Asep.');
-  if(db.ulangan.soal.length===0) return alert('Soal belum ada!');
-  document.getElementById('areaKerjakan').classList.remove('hidden');
-  document.getElementById('judulKerjakan').innerText=db.ulangan.judul+' - '+db.ulangan.kelas;
-  document.getElementById('infoSiswaKerjakan').innerText=nama+' | '+document.getElementById('kelasSiswa').value;
-  jawabanSiswa={};
-  let html='';
-  db.ulangan.soal.forEach((s,i)=>{
-    html+='<div class="soal-item"><b>'+(i+1)+'. ['+(s.tipe==='pg'?'PG':'ESSAY')+'] '+s.teks+'</b>';
+function hapusSoal(i){ if(!confirm('Hapus soal no '+(i+1)+', Pak?')) return; db.ulangan.soal.splice(i,1); save(); renderAll(); }
+function hapusSemuaSoal(){ if(!confirm('Hapus SEMUA soal, Pak?')) return; db.ulangan.soal=[]; save(); renderAll(); }
+function hapusSemuaJawaban(){ if(!confirm('Hapus SEMUA jawaban siswa, Pak?')) return; db.ulangan.jawaban=[]; save(); renderAll(); }
+function kirimJawabanUlangan(){
+  let soal=db.ulangan.soal||[]; if(!soal.length) return alert('Belum ada soal, Pak!');
+  let namaJawab = currentRole==='siswa' ? currentNama : currentAnak;
+  if(db.ulangan.jawaban.some(j=>j.nama===namaJawab && j.kelasUlangan===currentKelasUlangan)) return alert('Sudah jawab, Pak! Tidak bisa jawab 2x.');
+  let urutanTampil = currentRole==='siswa' ? getUrutanSoalAcak(soal, currentNama) : soal.map((s,i)=>i);
+  let jawaban = new Array(soal.length);
+  let belum=0;
+  urutanTampil.forEach((idxAsli, posTampil)=>{
+    let s = soal[idxAsli];
     if(s.tipe==='pg'){
-      let huruf=['A','B','C','D','E'];
-      s.opsi.forEach((o,j)=>{ html+='<div class="opt" id="opt-'+i+'-'+j+'" onclick="pilihJawaban('+i+','+j+')"> '+huruf[j]+'. '+o+'</div>'; });
-    } else { html+='<textarea id="essay-'+i+'" placeholder="Tulis jawabanmu di sini..."></textarea>'; }
-    html+='</div>';
-  });
-  document.getElementById('listSoalSiswa').innerHTML=html;
-  let sisa=db.ulangan.durasi*60;
-  clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{
-    sisa--; let m=Math.floor(sisa/60); let d=sisa%60;
-    document.getElementById('timerSiswa').innerText=(m<10?'0'+m:m)+':'+(d<10?'0'+d:d);
-    if(sisa<=0){ clearInterval(timerInterval); alert('Waktu habis! Jawaban dikumpulkan otomatis.'); kumpulJawaban(); }
-  },1000);
-  document.getElementById('msgSiswa').innerHTML='<div class="success">Selamat mengerjakan, '+nama+'!</div>';
-  window.scrollTo(0, document.getElementById('areaKerjakan').offsetTop-70);
-}
-function pilihJawaban(i,j){ jawabanSiswa[i]=j; for(let k=0;k<5;k++){ let el=document.getElementById('opt-'+i+'-'+k); if(el) el.classList.remove('sel'); } document.getElementById('opt-'+i+'-'+j).classList.add('sel'); }
-function kumpulJawaban(){
-  let nama=document.getElementById('namaSiswa').value.trim();
-  let kelas=document.getElementById('kelasSiswa').value;
-  let totalPG=db.ulangan.soal.filter(s=>s.tipe==='pg').length;
-  let benar=0; let detail=[];
-  db.ulangan.soal.forEach((s,i)=>{
-    if(s.tipe==='pg'){
-      let huruf=['A','B','C','D','E'];
-      let jawab = jawabanSiswa[i]!==undefined ? huruf[jawabanSiswa[i]] : '-';
-      let isBenar = jawab===s.kunci;
-      if(isBenar) benar++;
-      detail.push({no:i+1,tipe:'PG',soal:s.teks,jawab,kunci:s.kunci,benar:isBenar});
+      let el=document.querySelector('input[name="jawab-'+idxAsli+'"]:checked');
+      if(!el) belum++; else jawaban[idxAsli]=el.value;
     } else {
-      let teksEssay=document.getElementById('essay-'+i) ? document.getElementById('essay-'+i).value : '';
-      detail.push({no:i+1,tipe:'Essay',soal:s.teks,jawab:teksEssay,kunci:'-',benar:null});
+      let el=document.getElementById('jawab-essay-'+idxAsli);
+      if(!el||!el.value.trim()) belum++; else jawaban[idxAsli]=el.value.trim();
     }
   });
-  let nilaiPG = totalPG? Math.round(benar/totalPG*100):0;
-  db.hasil.push({nama,kelas,judul:db.ulangan.judul,waktu:new Date().toLocaleString('id-ID'),nilaiPG,benar,totalPG,detail,nilaiEssay:null});
-  save(); renderAll(); clearInterval(timerInterval);
-  alert('Jawaban terkumpul! Nilai PG kamu: '+nilaiPG+' ('+benar+'/'+totalPG+' benar). Essay akan dinilai guru.');
-  document.getElementById('areaKerjakan').classList.add('hidden');
+  if(belum>0) return alert('Masih ada '+belum+' soal belum dijawab, Pak! Isi semua dulu.');
+  let jmlPG=soal.filter(s=>s.tipe==='pg').length; let benar=0; soal.forEach((s,i)=>{ if(s.tipe==='pg' && jawaban[i]===s.kunci) benar++; });
+  let nilaiPG=jmlPG>0?Math.round((benar/jmlPG)*100):0;
+  db.ulangan.jawaban.push({nama:namaJawab,kelas:currentRole==='siswa'?'Kelas '+currentKelasUlangan:currentKelas,kelasUlangan:currentRole==='siswa'?currentKelasUlangan:'11',jawaban:jawaban,nilaiPG:nilaiPG,benarPG:benar,jmlPG:jmlPG,nilaiEssay:'',nilaiAkhir:nilaiPG,waktu:new Date().toLocaleString('id-ID')});
+  save(); renderAll(); alert('Jawaban terkirim! Nilai PG: '+nilaiPG+' ('+benar+' benar dari '+jmlPG+' PG)');
 }
-function hapusSemuaHasil(){ if(confirm('Hapus semua hasil?')){ db.hasil=[]; save(); renderAll(); } }
-function exportNilaiCSV(){
-  let csv='Nama,Kelas,Judul,Waktu,Nilai PG,Benar,Total PG,Nilai Essay,Nilai Akhir\n';
-  db.hasil.forEach(h=>{ csv+='"'+h.nama+'","'+h.kelas+'","'+h.judul+'","'+h.waktu+'",'+h.nilaiPG+','+h.benar+','+h.totalPG+','+(h.nilaiEssay??'')+','+(h.nilaiEssay!==null?Math.round((h.nilaiPG+h.nilaiEssay)/2):h.nilaiPG)+'\n'; });
-  let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Nilai_Ulangan.csv'; a.click();
-}
-function tambahAbsen(){
-  let nama=document.getElementById('namaAbsen').value.trim();
-  if(!nama) return alert('Isi nama!');
-  db.absen.push({tgl:document.getElementById('tglAbsen').value||new Date().toISOString().slice(0,10),nama,status:document.getElementById('statusAbsen').value});
-  save(); renderAll(); document.getElementById('namaAbsen').value='';
-}
-function exportAbsenCSV(){
-  let csv='Tanggal,Nama,Status\n'; db.absen.forEach(a=>{ csv+='"'+a.tgl+'","'+a.nama+'","'+a.status+'"\n'; });
-  let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Absen.csv'; a.click();
-}
+function beriNilaiEssay(idx){ let j=db.ulangan.jawaban[idx]; let nilai=prompt('Beri nilai Essay untuk '+j.nama+' (0-100):',j.nilaiEssay||''); if(nilai===null) return; nilai=parseInt(nilai); if(isNaN(nilai)||nilai<0||nilai>100) return alert('Nilai harus 0-100, Pak!'); j.nilaiEssay=nilai; let soal=db.ulangan.soal||[]; let jmlPG=soal.filter(s=>s.tipe==='pg').length; let jmlEssay=soal.filter(s=>s.tipe==='essay').length; if(jmlPG>0 && jmlEssay>0){ j.nilaiAkhir=Math.round((j.nilaiPG+nilai)/2); } else if(jmlEssay>0 && jmlPG===0){ j.nilaiAkhir=nilai; } else { j.nilaiAkhir=j.nilaiPG; } save(); renderAll(); alert('Nilai Essay tersimpan, Pak! Nilai Akhir: '+j.nilaiAkhir); }
+function hapusJawabanSiswa(idx){ if(!confirm('Hapus jawaban ini, Pak? Siswa bisa jawab lagi.')) return; db.ulangan.jawaban.splice(idx,1); save(); renderAll(); }
 function renderAll(){
-  document.getElementById('judulUlangan').value=db.ulangan.judul;
-  document.getElementById('kelasUlangan').value=db.ulangan.kelas;
-  document.getElementById('kodeUlangan').value=db.ulangan.kode;
-  document.getElementById('durasiUlangan').value=db.ulangan.durasi;
-  document.getElementById('judulPreview').innerText=db.ulangan.judul;
-  let totalPG=db.ulangan.soal.filter(s=>s.tipe==='pg').length;
-  let totalEssay=db.ulangan.soal.filter(s=>s.tipe==='essay').length;
-  document.getElementById('totalSoal').innerText=db.ulangan.soal.length;
-  document.getElementById('totalPG').innerText=totalPG;
-  document.getElementById('totalEssay').innerText=totalEssay;
-  let html='';
-  db.ulangan.soal.forEach((s,i)=>{
-    html+='<div class="soal-item"><b>'+(i+1)+'. ['+(s.tipe==='pg'?'PG':'ESSAY')+']</b> '+s.teks;
-    if(s.tipe==='pg'){ let huruf=['A','B','C','D','E']; s.opsi.forEach((o,j)=>{ html+='<div class="small" style="'+(huruf[j]===s.kunci?'color:#15803d;font-weight:700':'')+'">'+huruf[j]+'. '+o+(huruf[j]===s.kunci?' ✅ KUNCI':'')+'</div>'; }); }
-    html+='<button class="btn2" style="color:#fff;background:#dc2626;margin-top:6px" onclick="hapusSoal('+i+')">Hapus Soal Ini</button></div>';
-  });
-  document.getElementById('listSoalGuru').innerHTML=html||'<p class="small">Belum ada soal.</p>';
-  document.getElementById('infoBagikan').innerHTML = db.ulangan.aktif ? '✅ ULANGAN AKTIF<br>Judul: <b>'+db.ulangan.judul+'</b><br>Kelas: '+db.ulangan.kelas+'<br>Kode: <b style="font-size:20px">'+db.ulangan.kode+'</b><br>Bagikan kode ini ke siswa, Pak.' : 'Ulangan belum aktif. Pencet AKTIFKAN ULANGAN, Pak.';
-  let htmlH='';
-  if(db.hasil.length===0) htmlH='<p class="small">Belum ada yang mengerjakan.</p>';
-  db.hasil.forEach((h,hi)=>{
-    htmlH+='<div class="soal-item"><b>'+h.nama+' - '+h.kelas+'</b><br><span class="small">'+h.waktu+' | '+h.judul+'</span><br>Nilai PG: <b>'+h.nilaiPG+'</b> ('+h.benar+'/'+h.totalPG+')<br>';
-    h.detail.forEach(d=>{ htmlH+='<div class="small" style="margin-top:4px">'+d.no+'. '+d.soal+'<br>Jawab: '+d.jawab+' | Kunci: '+d.kunci+' '+(d.benar===true?'✅':d.benar===false?'❌':'')+'</div>'; });
-    htmlH+='<label>Nilai Essay (0-100)</label><input type="number" id="nilaiEssay-'+hi+'" value="'+(h.nilaiEssay??'')+'" placeholder="Isi nilai essay"><button class="btn2" onclick="simpanNilaiEssay('+hi+')">Simpan Nilai Essay</button></div>';
-  });
-  document.getElementById('listHasil').innerHTML=htmlH;
-  document.getElementById('listNilaiEssay').innerHTML = db.hasil.map(h=>'<div class="small">'+h.nama+' - PG: '+h.nilaiPG+' | Essay: '+(h.nilaiEssay??'Belum dinilai')+' | Akhir: '+(h.nilaiEssay!==null?Math.round((h.nilaiPG+h.nilaiEssay)/2):h.nilaiPG)+'</div>').join('') || '<p class="small">Belum ada nilai.</p>';
-  let htmlA='';
-  db.absen.forEach(a=>{ htmlA+='<div class="small">'+a.tgl+' - '+a.nama+' - <b>'+a.status+'</b></div>'; });
-  document.getElementById('listAbsen').innerHTML=htmlA||'<p class="small">Belum ada absen.</p>';
-  document.getElementById('tglAbsen').value=new Date().toISOString().slice(0,10);
+  let now=new Date(); let hariIndo=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][now.getDay()]; let bulanIndo=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"][now.getMonth()]; let tglCantik=hariIndo+", "+now.getDate()+" "+bulanIndo+" "+now.getFullYear(); let hariIni=now.toISOString().slice(0,10);
+  let perluSave=false; db.izin.forEach(x=>{ if(x.status==='Disetujui' && !db.absen[x.nama]){ db.absen[x.nama]=x.jenis; perluSave=true; } }); if(perluSave) save();
+  if(db.tglAbsen!==hariIni){ db.absen={}; db.tglAbsen=hariIni; save(); }
+  document.getElementById('tglAbsenTampil').innerText='📅 '+tglCantik+' - Absen reset otomatis tiap ganti hari.';
+  document.getElementById('haloNama').innerText='Halo, '+currentNama;
+  document.getElementById('haloKelas').innerText = currentRole==='siswa' ? 'Kelas: '+currentKelas+' | MODE ULANGAN SAJA - Terkunci' : 'Kelas: '+currentKelas+(currentRole==='ortu'?' | Anak: '+currentAnak:'');
+  let badge=document.getElementById('haloBadge'); badge.innerText=currentRole==='guru'?'👨‍🏫 GURU':currentRole==='ortu'?'👪 ORTU':'📝 SISWA ULANGAN'; badge.className='badge '+(currentRole==='guru'?'guru':currentRole==='ortu'?'ortu':'siswa');
+  document.getElementById('modeLabel').innerText=currentRole==='guru'?'✅ MODE GURU - Bisa Edit, ACC Izin, Bikin Soal, Nilai':currentRole==='ortu'?'👪 MODE ORTU - Hanya Lihat Anak Sendiri (Kelas 11) - Terkunci Kode ORTU':'🔒 MODE SISWA ULANGAN - Hanya Ulangan Saja, Tidak Bisa Lihat Absen Kelas 11';
+  document.getElementById('modeLabel').style.background=currentRole==='guru'?'#dcfce7':currentRole==='ortu'?'#dbeafe':'#fef9c3';
+  document.getElementById('boxTambahSiswa').classList.toggle('hidden',currentRole!=='guru');
+  document.getElementById('formIzin').classList.toggle('hidden',currentRole!=='ortu');
+  document.getElementById('infoIzin').innerText=currentRole==='guru'?'Guru: Pencet Setuju agar absensi berubah otomatis.':'Ortu: Di bawah ini hanya izin anak Anda.';
+  document.getElementById('tampilInfo').innerText=db.infoSekolah; document.getElementById('boxEditInfo').classList.toggle('hidden',currentRole!=='guru'); document.getElementById('boxGantiKode').classList.toggle('hidden',currentRole!=='guru'); document.getElementById('boxGantiPass').classList.toggle('hidden',currentRole!=='guru'); document.getElementById('inputInfo').value=db.infoSekolah;
+  document.getElementById('kodeOrtuBaru').value=db.kodeOrtu||''; document.getElementById('kodeUL10Baru').value=db.kodeUL10||''; document.getElementById('kodeUL11Baru').value=db.kodeUL11||''; document.getElementById('kodeUL12Baru').value=db.kodeUL12||'';
+  let hariList=["Senin","Selasa","Rabu","Kamis","Jumat"]; document.getElementById('infoJadwal').innerText=currentRole==='guru'?'Guru: Isi 7 jam tiap hari, lalu pencet Simpan Jadwal.':'Ortu: Ini jadwal anak Anda.'; document.getElementById('boxSimpanJadwal').classList.toggle('hidden',currentRole!=='guru');
+  document.getElementById('listJadwal').innerHTML=hariList.map(h=>{ let isi=''; for(let i=0;i<7;i++){ let val=(db.jadwal[h]&&db.jadwal[h][i])?db.jadwal[h][i]:''; if(currentRole==='guru'){ isi+=`<input class="jadwal-input" id="jadwal-${h}-${i}" placeholder="Jam ${i+1} - Mata Pelajaran" value="${val.replace(/"/g,'&quot;')}">`; } else { isi+=`<div style="padding:8px;border:1px solid #eee;border-radius:8px;margin:4px 0;background:#fff"><b>Jam ${i+1}:</b> ${val||'-'}</div>`; } } return `<div class="jadwal-hari"><b>${h}</b>${isi}</div>`; }).join('');
+  let sList=siswaTerlihat(); document.getElementById('listSiswa').innerHTML=sList.length?sList.map(s=>{ let st=db.absen[s.nama]||'Belum Absen'; let hpTampil=(currentRole==='guru' && s.hp)?`<div><span class="hp-info">📱 HP Ortu: ${tampilHP(s.hp)}</span></div><button class="wa-btn" onclick="kirimWA('${s.nama}','absen')">💬 Kirim WA - Info Absen ${st}</button>`:(currentRole==='guru'?`<div><span class="hp-info" style="background:#fee2e2">⚠️ No HP belum diisi - Pencet Edit</span></div>`:''); let btns=currentRole=='guru'?`<div class="flex" style="margin-top:8px;flex-wrap:wrap"><button class="ok" onclick="setAbsen('${s.nama}','Hadir')">✅ Hadir</button><button onclick="setAbsen('${s.nama}','Sakit')" style="background:#facc15;">🤒 Sakit</button><button onclick="setAbsen('${s.nama}','Izin')" style="background:#60a5fa;color:#fff;">📝 Izin</button><button class="no" onclick="setAbsen('${s.nama}','Alpa')">❌ Alpa</button><button class="btn2" onclick="editSiswa('${s.nama}')" style="background:#f59e0b;color:#fff">✏️ Edit</button><button class="btn2" onclick="hapusSiswa('${s.nama}')">Hapus</button></div>`:``; return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<br><span style="display:inline-block;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px;${warnaStatus(st)}">Status: ${st}</span>${hpTampil}${btns}</div>`; }).join(''):'<p class="small">Belum ada siswa.</p>';
+  let iList=izinTerlihat(); document.getElementById('listIzin').innerHTML=iList.length?iList.map(x=>{ let idx=db.izin.indexOf(x); let btnGuru=(currentRole==='guru' && x.status==='Menunggu')?`<div class="flex" style="margin-top:8px"><button class="ok" onclick="accIzin(${idx},'Disetujui')">✅ Setuju</button><button class="no" onclick="accIzin(${idx},'Ditolak')">❌ Tolak</button></div><button class="wa-btn" onclick="kirimWA('${x.nama}','izin')">💬 WA Ortu - Balas Izin</button>`:(currentRole==='guru'?`<button class="wa-btn" onclick="kirimWA('${x.nama}','izin')">💬 WA Ortu</button>`:''); return `<div class="item"><b>📝 ${x.nama} - ${x.jenis}</b> <span style="float:right">${badgeIzin(x.status)}</span><br><span class="small">Tanggal: ${x.tanggal} | Pengaju: ${x.pengaju}<br>Alasan: ${x.alasan}</span>${btnGuru}</div>`; }).join(''):'<p class="small">Belum ada pengajuan izin.</p>';
+  let absenHitung=db.absen; if(currentRole==='ortu'){ absenHitung={}; if(db.absen[currentAnak]) absenHitung[currentAnak]=db.absen[currentAnak]; } if(currentRole==='siswa'){ absenHitung={}; }
+  let hadir=Object.values(absenHitung).filter(v=>v==='Hadir').length; let sakit=Object.values(absenHitung).filter(v=>v==='Sakit').length; let izinHitung=Object.values(absenHitung).filter(v=>v==='Izin').length; let alpa=Object.values(absenHitung).filter(v=>v==='Alpa'||v==='Tidak Hadir').length; document.getElementById('cHadir').innerText=hadir; document.getElementById('cSakit').innerText=sakit; document.getElementById('cIzin').innerText=izinHitung; document.getElementById('cAlpa').innerText=alpa;
+  updateNotif();
+  let pesanList=db.siswa.filter(s=>currentRole==='guru'?true:s.nama===currentAnak).map(s=>{let c=db.pesan.filter(p=>p.nama===s.nama);let isi=c.map(p=>`<div><b>${p.dari}:</b> ${p.isi}</div>`).join('');let waBtn=currentRole==='guru'?`<button class="wa-btn" onclick="kirimWAChat('${s.nama}')">💬 Lanjut ke WA Ortu</button>`:'';return `<div class="item"><b>${s.nama}</b> - ${s.kelas}<div style="background:#f0f0f0;padding:8px;margin:6px 0;max-height:120px;overflow:auto">${isi||'Belum ada pesan'}</div><input id="in-${s.nama}" placeholder="Ketik pesan..." style="width:100%;padding:8px"><button onclick="kirimPesan('${s.nama}')" style="width:100%;margin-top:6px">Kirim Pesan</button>${waBtn}<button onclick="hapusPesan('${s.nama}')" style="width:100%;margin-top:6px;background:#ffcccc">🗑️ Hapus Chat</button></div>`});
+  document.getElementById('listPesan').innerHTML=pesanList.length?pesanList.join(''):'<p class="small">Belum ada siswa.</p>';
+  if(!db.ulangan) db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[],acak:false,acakUrutan:false};
+  document.getElementById('boxBuatSoal').classList.toggle('hidden',currentRole!=='guru');
+  document.getElementById('judulUlangan').value=db.ulangan.judul||'';
+  document.getElementById('kelasUlangan').value=db.ulangan.kelas||'11';
+  let cekAcak=document.getElementById('acakSoal'); let cekUrutan=document.getElementById('acakUrutanSoal');
+  if(cekAcak){ cekAcak.checked=!!db.ulangan.acak; cekAcak.disabled = currentRole!=='guru'; document.getElementById('infoAcak').innerText = db.ulangan.acak ? '🔀 Acak Pilihan AKTIF - Tiap siswa beda urutan A-E.' : 'Acak Pilihan MATI - Urutan normal A-E.'; }
+  if(cekUrutan){ cekUrutan.checked=!!db.ulangan.acakUrutan; cekUrutan.disabled = currentRole!=='guru'; document.getElementById('infoAcakUrutan').innerText = db.ulangan.acakUrutan ? '🔀 Acak Urutan Soal AKTIF - Urutan soal beda tiap siswa.' : 'Acak Urutan Soal MATI - Urutan soal sama semua.'; }
+  document.getElementById('boxAcak').style.display = currentRole==='siswa' ? 'none' : 'block';
+  let kelasUlanganAktif=db.ulangan.kelas||'11';
+  document.getElementById('infoUlangan').innerText = currentRole==='guru' ? 'Guru: Bikin soal untuk Kelas '+kelasUlanganAktif+'. PG ABCDE + Essay. Nilai PG otomatis.' : currentRole==='siswa' ? 'Siswa Kelas '+currentKelasUlangan+': Ulangan ini untuk Kelas '+kelasUlanganAktif+'. Jawab semua, lalu Kirim.' + (db.ulangan.acak ? ' (Pilihan sudah diacak)' : '') : 'Ortu: Ulangan untuk Kelas '+kelasUlanganAktif+'. Anak Anda bisa jawab lewat Pintu Siswa Ulangan.';
+  let soal=db.ulangan.soal||[];
+  let bolehLihatSoal = currentRole==='guru' || currentRole==='ortu' || kelasUlanganAktif==='Semua' || kelasUlanganAktif===currentKelasUlangan;
+  let bungkus=document.getElementById('bungkusDaftarSoal');
+  if(bungkus) bungkus.style.display = (currentRole==='guru') ? 'block' : 'none';
+  if(!bolehLihatSoal){
+    document.getElementById('listSoalUlangan').innerHTML='<div style="background:#fee2e2;padding:12px;border-radius:12px"><b>🔒 Belum ada Ulangan untuk Kelas '+currentKelasUlangan+', tunggu Guru.</b><br>Ulangan yang aktif sekarang untuk Kelas '+kelasUlanganAktif+'.</div>';
+    document.getElementById('boxJawabUlangan').innerHTML='<p class="small">Tunggu Guru ganti ke Kelas '+currentKelasUlangan+'.</p>';
+    document.getElementById('listHasilUlangan').innerHTML='<p class="small">Belum ada hasil untuk kelas Anda.</p>';
+    return;
+  }
+  document.getElementById('listSoalUlangan').innerHTML=soal.length?soal.map((s,i)=>{ let isi=''; if(s.tipe==='pg'){ isi=s.opsi.map((o,oi)=>`<div style="padding:6px;background:${currentRole==='guru' && ['A','B','C','D','E'][oi]===s.kunci?'#dcfce7':'#fff'};border:1px solid #ddd;border-radius:8px;margin:4px 0"><b>${['A','B','C','D','E'][oi]}.</b> ${o} ${['A','B','C','D','E'][oi]===s.kunci && currentRole==='guru'?' ✅ KUNCI':''}</div>`).join(''); } else { isi=`<div class="small">Essay - Siswa jawab ketik panjang. Guru nilai 0-100.</div>`; } let btnHapus=currentRole==='guru'?`<button class="btn2" onclick="hapusSoal(${i})" style="background:#fee2e2;margin-top:6px">🗑️ Hapus Soal ${i+1}</button>`:''; return `<div class="soal-box"><b>Soal ${i+1} [${s.tipe==='pg'?'PG ABCDE':'ESSAY'}]</b><br>${s.teks}<br>${isi}${btnHapus}</div>`; }).join(''):'<p class="small">Belum ada soal. Guru silakan buat soal dulu.</p>';
+  let namaCek = currentRole==='siswa' ? currentNama : currentAnak;
+  let sudahJawab=db.ulangan.jawaban.find(j=>j.nama===namaCek);
+  if(currentRole==='siswa' || currentRole==='ortu'){
+    if(!soal.length){ document.getElementById('boxJawabUlangan').innerHTML='<p class="small">Belum ada soal.</p>'; }
+    else if(sudahJawab && currentRole==='siswa'){ document.getElementById('boxJawabUlangan').innerHTML=`<div style="background:#dcfce7;padding:12px;border-radius:12px"><b>✅ Sudah Dijawab!</b><br>Nilai PG: ${sudahJawab.nilaiPG} (${sudahJawab.benarPG} benar dari ${sudahJawab.jmlPG} PG)<br>Nilai Essay: ${sudahJawab.nilaiEssay===''?'Menunggu Guru':sudahJawab.nilaiEssay}<br><b>Nilai Akhir: ${sudahJawab.nilaiAkhir}</b></div>`; }
+    else if(currentRole==='siswa'){
+      let urutan = getUrutanSoalAcak(soal, currentNama);
+      document.getElementById('boxJawabUlangan').innerHTML=urutan.map((idxAsli, pos)=>{
+        let s = soal[idxAsli];
+        if(s.tipe==='pg'){
+          let opsiAcak = getOpsiAcak(s, idxAsli, currentNama);
+          return `<div class="soal-box"><b>Soal ${pos+1} - PG - Pilih A / B / C / D / E</b>${db.ulangan.acak?' <span class="small" style="color:#0ea5e9">(Diacak)</span>':''}<br>${s.teks}<br>`+opsiAcak.map((obj,oi)=>`<label class="opsi-label"><input type="radio" name="jawab-${idxAsli}" value="${obj.kunciAsli}"> <b>${['A','B','C','D','E'][oi]}.</b> ${obj.teks}</label>`).join('')+`</div>`;
+        } else { return `<div class="soal-box"><b>Soal ${pos+1} - ESSAY</b><br>${s.teks}<br><textarea id="jawab-essay-${idxAsli}" rows="4" placeholder="Ketik jawaban panjang..."></textarea></div>`; }
+      }).join('')+`<button class="btn" onclick="kirimJawabanUlangan()">📤 Kirim Jawaban</button><p class="small">Pastikan semua terisi. Hanya bisa kirim 1x.</p>`;
+    } else {
+      document.getElementById('boxJawabUlangan').innerHTML='<p class="small">Ortu tidak menjawab. Siswa jawab lewat Pintu Siswa Ulangan dengan Kode Ulangan.</p>';
+    }
+  } else {
+    document.getElementById('boxJawabUlangan').innerHTML='<p class="small">Guru tidak menjawab. Guru lihat hasil di bawah.</p>';
+  }
+  let hasil=currentRole==='siswa' ? (db.ulangan.jawaban||[]).filter(j=>j.nama===currentNama) : currentRole==='ortu' ? (db.ulangan.jawaban||[]).filter(j=>j.nama===currentAnak) : (db.ulangan.jawaban||[]);
+  document.getElementById('infoCSV').innerText = 'Total yang sudah jawab: '+(db.ulangan.jawaban||[]).length+' siswa. Pencet Download CSV untuk simpan ke Excel, Pak.';
+  document.getElementById('listHasilUlangan').innerHTML=hasil.length?hasil.map((j,idx)=>{ let idxAsli=db.ulangan.jawaban.indexOf(j); let detail=''; soal.forEach((s,i)=>{ let jwb=j.jawaban[i]||'-'; if(s.tipe==='pg'){ let benar=jwb===s.kunci; let tampilKunci = currentRole==='guru' ? ' | Kunci: <b>'+s.kunci+'</b>' : ''; detail+=`<div style="padding:6px;border:1px solid #ddd;border-radius:8px;margin:4px 0;background:${benar?'#dcfce7':'#fee2e2'}"><b>Soal ${i+1} PG:</b> ${s.teks}<br>Jawab: <b>${jwb}</b>${tampilKunci} ${benar?'✅ Benar':'❌ Salah'}</div>`; } else { detail+=`<div style="padding:6px;border:1px solid #ddd;border-radius:8px;margin:4px 0;background:#fffbe6"><b>Soal ${i+1} ESSAY:</b> ${s.teks}<br>Jawaban Siswa: ${jwb}</div>`; } }); let btnNilai=currentRole==='guru' && soal.some(s=>s.tipe==='essay')?`<button class="btn" onclick="beriNilaiEssay(${idxAsli})" style="background:#f59e0b;margin-top:6px">✏️ Beri / Ubah Nilai Essay</button>`:''; let btnHapus=currentRole==='guru'?`<button class="btn2" onclick="hapusJawabanSiswa(${idxAsli})" style="background:#fee2e2;margin-top:6px">🗑️ Hapus Jawaban (Biar Bisa Jawab Lagi)</button>`:''; return `<div class="soal-box"><b>${j.nama} - ${j.kelas}</b><br><span class="small">${j.waktu}</span><br><b>Nilai PG: ${j.nilaiPG}</b> (${j.benarPG} benar dari ${j.jmlPG})<br><b>Nilai Essay: ${j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay}</b><br><b style="font-size:18px">Nilai Akhir: ${j.nilaiAkhir}</b><br>${detail}${btnNilai}${btnHapus}</div>`; }).join(''):'<p class="small">Belum ada yang jawab.</p>';
 }
-function simpanNilaiEssay(hi){ let v=document.getElementById('nilaiEssay-'+hi).value; if(v==='') return alert('Isi nilai dulu, Pak!'); db.hasil[hi].nilaiEssay=parseInt(v); save(); renderAll(); alert('Nilai essay tersimpan, Pak!'); }
-renderAll(); gantiTipe();
+function kirimPesan(nama){let inp=document.getElementById('in-'+nama);if(!inp||!inp.value.trim())return;let teks=inp.value.trim(); db.pesan.push({nama:nama,dari:currentRole==='guru'?'Guru':'Ortu',isi:teks}); save(); inp.value=''; renderAll(); alert('Pesan terkirim ke '+nama+'!');}
+function hapusPesan(nama){if(!confirm('Hapus semua chat '+nama+'?'))return;db.pesan=db.pesan.filter(p=>p.nama!==nama);save();renderAll();}
 </script>
 </body>
 </html>
