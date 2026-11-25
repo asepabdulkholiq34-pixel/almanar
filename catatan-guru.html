@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catatan Guru - Pak Asep</title>
+<style>
+body{font-family:Arial;background:#FFF8E7;margin:0;padding:14px}
+h1{color:#0B6B3A;text-align:center;font-size:22px}
+input,textarea{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;box-sizing:border-box;font-size:16px}
+textarea{height:200px;margin-top:10px}
+button{padding:12px 16px;border:none;border-radius:10px;background:#0B6B3A;color:#fff;font-weight:bold;margin-top:10px;width:100%;font-size:16px}
+button.kuning{background:#F9A825}
+button.biru{background:#1565C0}
+.card{background:#fff;padding:14px;border-radius:12px;margin-top:14px;box-shadow:0 2px 8px #ddd}
+small{color:#666}
+</style></head>
+<body>
+<h1>📝 Catatan Guru<br><small>Pak Asep - AQIDAH AKHLAK</small></h1>
+
+<input id="judul" placeholder="Judul catatan, contoh: Materi Ulangan Senin">
+<textarea id="isi" placeholder="Tulis catatan Bapak di sini... Misal: Besok bahas Rukun Iman, siswa harus hafal 6..."></textarea>
+
+<button onclick="simpan()">💾 SIMPAN CATATAN</button>
+<button class="kuning" onclick="kirimWA()">📤 KIRIM KE WA / BAGIKAN</button>
+<button class="biru" onclick="download()">⬇️ DOWNLOAD JADI FILE</button>
+
+<div id="daftar"></div>
+
+<script>
+let data = JSON.parse(localStorage.getItem('catatanPakAsep')||'[]');
+function tampil(){
+  let h='';
+  data.forEach((c,i)=>{
+    h+=`<div class="card"><b>${c.judul}</b><br><small>${c.tanggal}</small><p>${c.isi.replace(/\n/g,'<br>')}</p><button onclick="hapus(${i})" style="background:#c62828">Hapus</button></div>`
+  });
+  document.getElementById('daftar').innerHTML = h || '<p style="text-align:center;color:#888">Belum ada catatan, Pak.</p>';
+}
+function simpan(){
+  let j=document.getElementById('judul').value, isi=document.getElementById('isi').value;
+  if(!isi){alert('Isi catatannya dulu, Pak');return}
+  data.unshift({judul:j||'Tanpa Judul', isi:isi, tanggal:new Date().toLocaleString('id-ID')});
+  localStorage.setItem('catatanPakAsep', JSON.stringify(data));
+  document.getElementById('judul').value=''; document.getElementById('isi').value='';
+  tampil(); alert('Tersimpan, Pak!');
+}
+function hapus(i){ if(confirm('Hapus catatan ini, Pak?')){data.splice(i,1); localStorage.setItem('catatanPakAsep', JSON.stringify(data)); tampil()} }
+function kirimWA(){
+  let j=document.getElementById('judul').value, isi=document.getElementById('isi').value;
+  let teks = 'CATATAN PAK ASEP\n' + (j||'') + '\n\n' + isi;
+  window.open('https://wa.me/?text='+encodeURIComponent(teks));
+}
+function download(){
+  let teks = data.map(c=> c.tanggal+' - '+c.judul+'\n'+c.isi+'\n\n').join('---\n');
+  let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([teks],{type:'text/plain'})); a.download='catatan-pak-asep.txt'; a.click();
+}
+tampil();
+</script>
+</body></html>
