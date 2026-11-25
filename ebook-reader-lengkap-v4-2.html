@@ -173,7 +173,7 @@ function pasangStabilo(){ let isi=document.getElementById('konten'); isi.onconte
 function hapusSemuaStabilo(){ document.querySelectorAll('#konten .stabilo').forEach(el=>el.classList.remove('stabilo')); alert('Semua stabilo sudah dihapus, Pak. Bersih lagi.'); }
 function bicara(){ speechSynthesis.speak(new speechSynthesisUtterance(document.getElementById('konten').innerText)); }
 function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase(); if(!k){tampilBab();return} let b=buku[bukuAktif].bab[babAktif]; if((b.judul+b.isi).toLowerCase().includes(k)){ document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${k}" ada di bab ini, Pak.</p>`+bersihkanIsi(b.judul,b.isi); pasangStabilo(); } else { document.getElementById('konten').innerHTML=`<p>❌ Tidak ada di bab ini, Pak.</p>` } }
-function tambahBuku(){ let // V4.6 - Tambah Buku Baru juga pakai Pengantar + Kuis Otomatis, sama kayak Upload, Pak.
+ 
 function tambahBuku(){
   let j=document.getElementById('judulBaru').value;
   let d=document.getElementById('descBaru').value;
