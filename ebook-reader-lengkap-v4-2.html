@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>E-Book Reader V4.5 - SMKS Al Manar</title>
+<title>E-Book Reader V4.6 - SMKS Al Manar</title>
 <style>
 *{box-sizing:border-box} body{font-family:Arial;background:#FFF8E7;margin:0;padding-bottom:95px} body.malam{background:#1a1a1a;color:#eee} body.sepia{background:#f4ecd8;color:#433}
 header{background:#0B6B3A;color:#fff;padding:14px;text-align:center;position:sticky;top:0;z-index:10}
@@ -29,7 +29,7 @@ mark{background:yellow;color:#000} .catatanBox{background:#E3F2FD;padding:12px;b
 .tombolKuisBesar{display:block;width:92%;max-width:500px;margin:16px auto;padding:16px;font-size:18px;background:#0B6B3A}
 </style></head>
 <body>
-<header><h1>📚 E-Book Reader V4.5 - FINAL</h1><p>SMKS Al Manar • Baca Dulu Sampai Habis, Baru Kuis</p></header>
+<header><h1>📚 E-Book Reader V4.6 - FINAL</h1><p>SMKS Al Manar • Baca Dulu Sampai Habis, Baru Kuis</p></header>
 <div id="home">
 <div class="toolbar">
 <input id="cari" placeholder="🔍 Cari buku..." oninput="tampilBuku()"><br>
@@ -173,7 +173,7 @@ function pasangStabilo(){ let isi=document.getElementById('konten'); isi.onconte
 function hapusSemuaStabilo(){ document.querySelectorAll('#konten .stabilo').forEach(el=>el.classList.remove('stabilo')); alert('Semua stabilo sudah dihapus, Pak. Bersih lagi.'); }
 function bicara(){ speechSynthesis.speak(new speechSynthesisUtterance(document.getElementById('konten').innerText)); }
 function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase(); if(!k){tampilBab();return} let b=buku[bukuAktif].bab[babAktif]; if((b.judul+b.isi).toLowerCase().includes(k)){ document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${k}" ada di bab ini, Pak.</p>`+bersihkanIsi(b.judul,b.isi); pasangStabilo(); } else { document.getElementById('konten').innerHTML=`<p>❌ Tidak ada di bab ini, Pak.</p>` } }
- 
+// V4.6 - Tambah Buku Baru juga pakai Pengantar + Kuis Otomatis, sama kayak Upload, Pak.
 function tambahBuku(){
   let j=document.getElementById('judulBaru').value;
   let d=document.getElementById('descBaru').value;
@@ -195,7 +195,6 @@ function pecahBabOtomatis(teks){
   parts.forEach((p)=>{
     let t = p.trim();
     if(!t) return;
-    // Kalau tidak ada kata BAB, ini Pembuka. Simpan dulu, jangan ditempel ke Bab 1, Pak.
     if(!/BAB\s*\d+/i.test(t.slice(0,200))){
       pembuka = t;
       return;
@@ -209,12 +208,9 @@ function pecahBabOtomatis(teks){
     let isi = t.replace(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i,'').trim();
     bab.push({judul: judul, isi:'<p>'+isi.replace(/\n/g,'<br>')+'</p>'});
   });
-  // Kalau ada pembuka, jadikan Bab paling depan: Pengantar, Pak.
   if(pembuka){
-    // Ambil baris pertama sebagai judul utama, sisanya sebagai isi pembuka, Pak.
     let baris = pembuka.split('\n').map(s=>s.trim()).filter(s=>s);
     let judulUtama = baris[0] || 'Pengantar';
-    let isiPembuka = baris.join('<br>');
     bab.unshift({judul: 'Pengantar: '+judulUtama, isi:'<p>'+baris.slice(1).join('<br>')+'</p>'});
   }
   if(bab.length===0){
