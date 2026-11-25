@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>E-Book Reader V4.2 - SMKS Al Manar</title>
+<title>E-Book Reader V4.5 - SMKS Al Manar</title>
 <style>
 *{box-sizing:border-box} body{font-family:Arial;background:#FFF8E7;margin:0;padding-bottom:95px} body.malam{background:#1a1a1a;color:#eee} body.sepia{background:#f4ecd8;color:#433}
 header{background:#0B6B3A;color:#fff;padding:14px;text-align:center;position:sticky;top:0;z-index:10}
@@ -29,7 +29,7 @@ mark{background:yellow;color:#000} .catatanBox{background:#E3F2FD;padding:12px;b
 .tombolKuisBesar{display:block;width:92%;max-width:500px;margin:16px auto;padding:16px;font-size:18px;background:#0B6B3A}
 </style></head>
 <body>
-<header><h1>📚 E-Book Reader V4.2 - FINAL</h1><p>SMKS Al Manar • Baca Dulu Sampai Habis, Baru Kuis</p></header>
+<header><h1>📚 E-Book Reader V4.5 - FINAL</h1><p>SMKS Al Manar • Baca Dulu Sampai Habis, Baru Kuis</p></header>
 <div id="home">
 <div class="toolbar">
 <input id="cari" placeholder="🔍 Cari buku..." oninput="tampilBuku()"><br>
@@ -57,8 +57,6 @@ mark{background:yellow;color:#000} .catatanBox{background:#E3F2FD;padding:12px;b
 <button onclick="setTema('malam')">🌙</button><button onclick="setTema('sepia')">📜</button><br>
 <input id="cariIsi" placeholder="🔍 Cari di buku ini..." oninput="cariDalam()"><br>
 <select id="daftarBab" onchange="loncatBab()"></select></div>
-
-<!-- HALAMAN BACA - Cuma bacaan, tidak ada kuis di bawah -->
 <div id="halamanBaca">
 <div class="progress"><div id="bar"></div></div>
 <p class="center" style="margin:0"><span id="infoBab"></span> • <span id="infoPersen"></span></p>
@@ -79,14 +77,11 @@ mark{background:yellow;color:#000} .catatanBox{background:#E3F2FD;padding:12px;b
 <button class="kuning" onclick="kirimCatatanWA()">📤 Kirim ke WA</button>
 <button class="biru" onclick="downloadCatatan()">⬇️ Download Catatan</button>
 <div id="listCatatan"></div></div>
-<!-- Tombol ke Kuis - Muncul di Bab Terakhir, dan juga selalu ada di bawah -->
 <div id="tombolKeKuis">
 <button class="tombolKuisBesar" onclick="bukaKuis()">✏️ Selesai Baca - Lanjut ke Kuis ➡️</button>
 <p class="center" style="font-size:13px;color:#666">Siswa baca dulu sampai habis, baru klik tombol ini untuk mengerjakan soal, Pak.</p>
 </div>
 </div>
-
-<!-- HALAMAN KUIS - Terpisah total, Pak. Baru muncul kalau klik tombol di atas -->
 <div id="halamanKuis" class="hidden">
 <div class="center" style="margin-top:10px">
 <button class="abu" onclick="tutupKuis()">⬅️ Kembali ke Bacaan</button>
@@ -100,7 +95,6 @@ mark{background:yellow;color:#000} .catatanBox{background:#E3F2FD;padding:12px;b
 <button class="abu" onclick="resetKuis()">🔄 Ulang Kuis (Mulai dari 0)</button></div>
 <div class="center"><button class="biru" onclick="tutupKuis()">⬅️ Kembali ke Bacaan</button></div>
 </div>
-
 </div>
 <div id="tombolBawah">
   <button onclick="kembali()" style="background:#c62828">🏠 Kembali ke Daftar</button>
@@ -150,7 +144,6 @@ function bersihkanIsi(judul, isi){ let teks=isi.trim(); let tanpaTag=teks.replac
 function tampilBuku(){ let f=(document.getElementById('cari').value||'').toLowerCase(); let h=''; buku.forEach((b,i)=>{ if((b.judul+b.desc).toLowerCase().includes(f)){ h+=`<div class="buku" onclick="bukaBuku(${i})"><h2>📖 ${b.judul}</h2><p>${b.desc}</p><p>📄 ${b.bab.length} Bab • Terakhir: Bab ${parseInt(localStorage.getItem('bm_'+i)||0)+1}</p><button class="merah" onclick="event.stopPropagation();hapusBuku(${i})">Hapus Buku</button></div>` } }); document.getElementById('listBuku').innerHTML=h||'<p class=center>Belum ada buku, Pak.</p>'; document.getElementById('terakhir').innerText=localStorage.getItem('terakhirBaca')||'Belum ada'; }
 function bukaBuku(i){ bukuAktif=i; babAktif=parseInt(localStorage.getItem('bm_'+i)||0); document.getElementById('home').classList.add('hidden'); document.getElementById('baca').classList.remove('hidden'); document.getElementById('tombolBawah').style.display='flex'; tutupKuis(); let sel=''; buku[i].bab.forEach((bb,idx)=>{ sel+=`<option value="${idx}" ${idx==babAktif?'selected':''}>${bb.judul}</option>` }); document.getElementById('daftarBab').innerHTML=sel; tampilBab(); }
 function tampilBab(){ let b=buku[bukuAktif].bab[babAktif]; let isiBersih=bersihkanIsi(b.judul,b.isi); document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2>`+isiBersih; document.getElementById('konten').style.fontSize=fontSize+'px'; document.getElementById('infoBab').innerText=`Bab ${babAktif+1} dari ${buku[bukuAktif].bab.length} • ${b.judul}`; let p=Math.round(((babAktif+1)/buku[bukuAktif].bab.length)*100); document.getElementById('bar').style.width=p+'%'; document.getElementById('infoPersen').innerText=p+'% dibaca'; document.getElementById('daftarBab').value=babAktif; localStorage.setItem('terakhirBaca',buku[bukuAktif].judul+' - '+b.judul); tampilCatatan(); pasangStabilo(); window.scrollTo(0,0); }
-// V4.2 - KUIS DIPISAH, Pak. Buka / Tutup halaman kuis.
 function bukaKuis(){ document.getElementById('halamanBaca').classList.add('hidden'); document.getElementById('halamanKuis').classList.remove('hidden'); tampilKuis(); window.scrollTo(0,0); }
 function tutupKuis(){ document.getElementById('halamanKuis').classList.add('hidden'); document.getElementById('halamanBaca').classList.remove('hidden'); window.scrollTo(0,0); }
 function updateSkorKuis(){ document.getElementById('skorBenar').innerText=benar; document.getElementById('skorSalah').innerText=salah; }
@@ -181,9 +174,7 @@ function hapusSemuaStabilo(){ document.querySelectorAll('#konten .stabilo').forE
 function bicara(){ speechSynthesis.speak(new speechSynthesisUtterance(document.getElementById('konten').innerText)); }
 function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase(); if(!k){tampilBab();return} let b=buku[bukuAktif].bab[babAktif]; if((b.judul+b.isi).toLowerCase().includes(k)){ document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${k}" ada di bab ini, Pak.</p>`+bersihkanIsi(b.judul,b.isi); pasangStabilo(); } else { document.getElementById('konten').innerHTML=`<p>❌ Tidak ada di bab ini, Pak.</p>` } }
 function tambahBuku(){ let j=document.getElementById('judulBaru').value, d=document.getElementById('descBaru').value, isi=document.getElementById('isiBaru').value; if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return} let parts=isi.split('---BAB---'); let bab=parts.map((p,i)=>{ let lines=p.trim().split('\n'); return {judul:lines[0]||('Bab '+(i+1)), isi:'<p>'+p.trim().replace(/\n/g,'<br>').replace(lines[0],'')+'</p>'} }); buku.push({judul:j,desc:d||'Buku Baru',bab:bab,kuis:[{q:"Apa judul buku ini?",pil:[j,"Bukan ini"],benar:0}]}); saveBuku(); tampilBuku(); alert('Buku tersimpan, Pak!'); show('tambahBuku'); }
-function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }// V4.3 - Pecah Bab Otomatis + Kuis Otomatis dari Isi Buku, Pak.
-function pecahBabOtomatis(teks){
-// V4.4 - Pembuka digabung ke BAB 1, Judul dipendekin, Pak.
+function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }
 function pecahBabOtomatis(teks){
   let parts = teks.split(/(?=^.*\bBAB\s*\d+.*$)|(?=---BAB---)/gim);
   let bab = [];
@@ -191,26 +182,22 @@ function pecahBabOtomatis(teks){
   parts.forEach((p,i)=>{
     let t = p.trim();
     if(!t) return;
-    // Kalau tidak ada kata BAB, ini pembuka. Jangan jadi Bab sendiri, Pak. Simpan dulu.
     if(!/BAB\s*\d+/i.test(t.slice(0,200))){
       pembuka = t;
       return;
     }
     let m = t.match(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i);
     let judul = m ? m[0].trim() : 'Bab '+(bab.length+1);
-    // Pendekin judul: maksimal 35 huruf, potong di spasi terakhir, Pak.
     if(judul.length > 35){
       judul = judul.slice(0,35);
       judul = judul.slice(0, judul.lastIndexOf(' ')) + '...';
     }
     let isi = t.replace(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i,'').trim();
-    // Kalau ini BAB pertama, tempelkan pembukanya di atasnya, Pak.
     if(bab.length===0 && pembuka){
       isi = pembuka + '\n\n' + isi;
     }
     bab.push({judul: judul, isi:'<p>'+isi.replace(/\n/g,'<br>')+'</p>'});
   });
-  // Kalau file-nya memang tidak ada BAB sama sekali, potong per 3000 huruf, Pak.
   if(bab.length===0){
     for(let i=0;i<teks.length;i+=3000){
       bab.push({judul:'Bab '+(bab.length+1), isi:'<p>'+teks.slice(i,i+3000).replace(/\n/g,'<br>')+'</p>'});
@@ -218,10 +205,8 @@ function pecahBabOtomatis(teks){
   }
   return bab;
 }
-// V4.5 - Soal Macam-macam: Siapakah, Berapakah, Di manakah, Apakah, Mengapa. Bukan cuma Lengkapi, Pak.
 function buatKuisOtomatis(teks){
   let t = teks.toLowerCase();
-  // Kalau ini Kisah Nabi Yusuf, pakai 10 soal yang sudah Bapak setujui isinya, Pak. Bukan robot ngawur lagi.
   if(t.includes('yusuf')){
     return [
       {q:'Siapakah ayah Nabi Yusuf AS?', pil:['Nabi Ya\'qub','Nabi Muhammad','Nabi Isa','Nabi Ibrahim'], benar:0},
@@ -236,27 +221,23 @@ function buatKuisOtomatis(teks){
       {q:'Apa yang dilakukan Yusuf ketika kakak-kakaknya datang dan sudah hancur?', pil:['Memaafkan mereka, tidak ada celaan','Menghukum mereka di penjara','Mengusir mereka dari Mesir','Menjual mereka jadi budak'], benar:0}
     ];
   }
-  // Kalau buku lain, pakai pola Siapakah / Berapakah / Di manakah dari isi teks, Pak.
   let bankNama = [...new Set((teks.match(/\b[A-Z][a-z]{3,}(?:\s[A-Z][a-z]{3,})?\b/g)||[]))].filter(w=>!['Jika','Engkau','Sejak','Ketika','Setelah','Karena','Untuk','Dengan','Adalah','Tidak','Sudah','Akan','Yang','Dan','Dari','Pada'].includes(w)).slice(0,20);
   let bankAngka = [...new Set((teks.match(/\b\d+\b/g)||[]))].filter(n=>parseInt(n)>0 && parseInt(n)<1000);
   let pengecohNama = ['Nabi Muhammad','Nabi Isa','Nabi Ibrahim','Nabi Musa'];
   let pengecohAngka = ['3','5','7','10','12'];
   let kuis = [];
-  // Pola Siapakah - dari "bernama X" atau "anak dari X", Pak.
   let mNama = [...teks.matchAll(/(?:bernama|anak dari|ayahnya|ibunya)\s+([A-Z][a-z]+)/g)];
   mNama.slice(0,3).forEach(m=>{
     let benar=m[1];
     let pil=[benar, ...pengecohNama.filter(x=>x!==benar).slice(0,3)].sort(()=>Math.random()-0.5);
     kuis.push({q:'Siapakah '+m[0].split(' ')[0]+' yang dimaksud dalam kisah ini? Jawabannya: '+benar, pil:pil, benar:pil.indexOf(benar)});
   });
-  // Pola Berapakah - dari angka + satuan, Pak.
   let mAngka = [...teks.matchAll(/(\d+)\s+(tahun|bintang|saudara|sapi|tangkai|hari|bulan|orang)/gi)];
   mAngka.slice(0,3).forEach(m=>{
     let benar=m[1]+' '+m[2];
     let pil=[benar, ...pengecohAngka.filter(x=>x!==m[1]).slice(0,3).map(x=>x+' '+m[2])].sort(()=>Math.random()-0.5);
     kuis.push({q:'Berapakah '+m[2]+' yang disebutkan dalam kisah ini?', pil:pil, benar:pil.indexOf(benar)});
   });
-  // Pola Di manakah / Apakah - dari kalimat penting, Pak.
   let kalimat = teks.split(/[\.\n]/).map(s=>s.trim()).filter(s=>s.length>50 && s.length<180);
   kalimat.sort(()=>Math.random()-0.5).slice(0,4).forEach(k=>{
     let kata = bankNama.find(n=>k.includes(n));
