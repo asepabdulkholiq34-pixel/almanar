@@ -175,13 +175,15 @@ function bicara(){ speechSynthesis.speak(new speechSynthesisUtterance(document.g
 function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase(); if(!k){tampilBab();return} let b=buku[bukuAktif].bab[babAktif]; if((b.judul+b.isi).toLowerCase().includes(k)){ document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${k}" ada di bab ini, Pak.</p>`+bersihkanIsi(b.judul,b.isi); pasangStabilo(); } else { document.getElementById('konten').innerHTML=`<p>❌ Tidak ada di bab ini, Pak.</p>` } }
 function tambahBuku(){ let j=document.getElementById('judulBaru').value, d=document.getElementById('descBaru').value, isi=document.getElementById('isiBaru').value; if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return} let parts=isi.split('---BAB---'); let bab=parts.map((p,i)=>{ let lines=p.trim().split('\n'); return {judul:lines[0]||('Bab '+(i+1)), isi:'<p>'+p.trim().replace(/\n/g,'<br>').replace(lines[0],'')+'</p>'} }); buku.push({judul:j,desc:d||'Buku Baru',bab:bab,kuis:[{q:"Apa judul buku ini?",pil:[j,"Bukan ini"],benar:0}]}); saveBuku(); tampilBuku(); alert('Buku tersimpan, Pak!'); show('tambahBuku'); }
 function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }
+// V4.6 - Pembuka jadi Halaman Pengantar sendiri, tidak nempel ke Bab 1 lagi, Pak.
 function pecahBabOtomatis(teks){
   let parts = teks.split(/(?=^.*\bBAB\s*\d+.*$)|(?=---BAB---)/gim);
   let bab = [];
   let pembuka = '';
-  parts.forEach((p,i)=>{
+  parts.forEach((p)=>{
     let t = p.trim();
     if(!t) return;
+    // Kalau tidak ada kata BAB, ini Pembuka. Simpan dulu, jangan ditempel ke Bab 1, Pak.
     if(!/BAB\s*\d+/i.test(t.slice(0,200))){
       pembuka = t;
       return;
@@ -193,11 +195,16 @@ function pecahBabOtomatis(teks){
       judul = judul.slice(0, judul.lastIndexOf(' ')) + '...';
     }
     let isi = t.replace(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i,'').trim();
-    if(bab.length===0 && pembuka){
-      isi = pembuka + '\n\n' + isi;
-    }
     bab.push({judul: judul, isi:'<p>'+isi.replace(/\n/g,'<br>')+'</p>'});
   });
+  // Kalau ada pembuka, jadikan Bab paling depan: Pengantar, Pak.
+  if(pembuka){
+    // Ambil baris pertama sebagai judul utama, sisanya sebagai isi pembuka, Pak.
+    let baris = pembuka.split('\n').map(s=>s.trim()).filter(s=>s);
+    let judulUtama = baris[0] || 'Pengantar';
+    let isiPembuka = baris.join('<br>');
+    bab.unshift({judul: 'Pengantar: '+judulUtama, isi:'<h2>'+judulUtama+'</h2><p>'+isiPembuka+'</p>'});
+  }
   if(bab.length===0){
     for(let i=0;i<teks.length;i+=3000){
       bab.push({judul:'Bab '+(bab.length+1), isi:'<p>'+teks.slice(i,i+3000).replace(/\n/g,'<br>')+'</p>'});
