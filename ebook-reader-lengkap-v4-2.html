@@ -179,8 +179,11 @@ function tambahBuku(){
   let d=document.getElementById('descBaru').value;
   let isi=document.getElementById('isiBaru').value;
   if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return}
-  let babBaru = pecahBabOtomatis(isi);
-  let kuisBaru = buatKuisOtomatis(isi);
+  // Gabungkan Judul + Keterangan jadi Pengantar, baru isi Bab-nya, Pak.
+  // Jadi Bapak tidak perlu tulis judul lagi di dalam kolom Isi, Pak.
+  let teksLengkap = j + '\n' + (d||'') + '\n\n' + isi;
+  let babBaru = pecahBabOtomatis(teksLengkap);
+  let kuisBaru = buatKuisOtomatis(teksLengkap);
   buku.push({judul:j, desc:d||'Buku Baru', bab:babBaru, kuis:kuisBaru});
   saveBuku(); tampilBuku();
   alert('Buku tersimpan, Pak! Jadi '+babBaru.length+' Bab + '+kuisBaru.length+' soal otomatis, Pak!');
