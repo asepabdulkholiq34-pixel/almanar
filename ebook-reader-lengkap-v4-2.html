@@ -203,7 +203,7 @@ function pecahBabOtomatis(teks){
     let baris = pembuka.split('\n').map(s=>s.trim()).filter(s=>s);
     let judulUtama = baris[0] || 'Pengantar';
     let isiPembuka = baris.join('<br>');
-    bab.unshift({judul: 'Pengantar: '+judulUtama, isi:'<h2>'+judulUtama+'</h2><p>'+isiPembuka+'</p>'});
+    bab.unshift({judul: 'Pengantar: '+judulUtama, isi:'<p>'+baris.slice(1).join('<br>')+'</p>'});
   }
   if(bab.length===0){
     for(let i=0;i<teks.length;i+=3000){
