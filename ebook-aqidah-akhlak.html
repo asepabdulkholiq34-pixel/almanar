@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E-Book AQIDAH AKHLAK - SMKS Al Manar</title>
+<style>
+body{font-family:Arial;background:#FFF8E7;margin:0;padding:0}
+header{background:#0B6B3A;color:#fff;padding:16px;text-align:center}
+header h1{margin:0;font-size:22px}
+header p{margin:4px 0 0}
+nav{position:sticky;top:0;background:#fff;padding:10px;text-align:center;box-shadow:0 2px 5px #ccc}
+nav button{padding:10px 14px;border:none;border-radius:8px;background:#0B6B3A;color:#fff;font-weight:bold}
+.card{background:#fff;margin:14px;padding:16px;border-radius:12px;box-shadow:0 2px 8px #ddd;line-height:1.7}
+h2{color:#0B6B3A}
+.kotak{background:#E8F5E9;padding:12px;border-radius:10px}
+.soal{background:#FFF3CD;padding:12px;border-radius:10px;margin-top:10px}
+</style></head>
+<body>
+<header><h1>📚 E-Book AQIDAH AKHLAK</h1><p>SMKS Al Manar • Akhlak & Aqidah</p></header>
+<nav><button onclick="prev()">◀ Prev</button> <span id="info">Bab 1 dari 3</span> <button onclick="next()">Next ▶</button></nav>
+
+<div id="bab1" class="card">
+<h2>BAB 1: AQIDAH - IMAN KEPADA ALLAH</h2>
+<p><b>Aqidah</b> artinya keyakinan yang kuat dalam hati tentang Allah SWT.</p>
+<div class="kotak"><b>6 Rukun Iman:</b><br>1. Iman kepada Allah<br>2. Iman kepada Malaikat<br>3. Iman kepada Kitab-kitab Allah<br>4. Iman kepada Rasul-rasul Allah<br>5. Iman kepada Hari Akhir<br>6. Iman kepada Qada dan Qadar</div>
+<p><b>Sifat Wajib Allah yang harus dihafal:</b> Wujud, Qidam, Baqa, Mukhalafatu lilhawaditsi, Qiyamuhu binafsihi, Wahdaniyah, Qudrat, Iradat, Ilmu, Hayat, Sama', Bashar, Kalam.</p>
+<div class="soal"><b>✏️ Latihan:</b><br>1. Apa arti Aqidah?<br>2. Sebutkan 6 Rukun Iman!<br>3. Apa arti sifat Wahdaniyah?</div>
+</div>
+
+<div id="bab2" class="card" style="display:none">
+<h2>BAB 2: AKHLAK TERPUJI</h2>
+<p><b>Akhlak</b> adalah tingkah laku / budi pekerti.</p>
+<div class="kotak"><b>Contoh Akhlak Terpuji:</b><br>• Jujur - berkata benar<br>• Amanah - dapat dipercaya<br>• Hormat kepada Guru & Orang Tua<br>• Sopan, Santun, Disiplin<br>• Menolong teman</div>
+<p><b>Akhlak Tercela yang harus dijauhi:</b> Bohong, sombong, malas, mencuri, membully, berkata kasar.</p>
+<div class="soal"><b>✏️ Latihan:</b><br>1. Berikan 3 contoh akhlak terpuji di sekolah!<br>2. Apa akibat suka berbohong?<br>3. Bagaimana cara hormat kepada guru?</div>
+</div>
+
+<div id="bab3" class="card" style="display:none">
+<h2>BAB 3: AKHLAK DALAM KEHIDUPAN SEHARI-HARI</h2>
+<p><b>Di Rumah:</b> Membantu orang tua, berkata lembut, sholat tepat waktu.</p>
+<p><b>Di Sekolah:</b> Datang tepat waktu, memakai seragam rapi, tidak mencontek, menjaga kebersihan.</p>
+<p><b>Di Masyarakat:</b> Mengucap salam, tidak mengganggu tetangga, gotong royong.</p>
+<div class="kotak"><b>Hafalan Penting untuk Ulangan Jumat & Senin:</b><br>• Rukun Iman ada 6<br>• Sifat Wajib Allah ada 20, yang wajib hafal 13 di Bab 1<br>• Akhlak Terpuji = Jujur, Amanah, Sopan, Disiplin</div>
+<div class="soal"><b>✅ Siap Ulangan? Cek:</b><br>Sudah hafal 6 Rukun Iman? Sudah bisa bedakan akhlak terpuji & tercela?</div>
+</div>
+
+<script>
+let bab=1;
+function tampil(){for(let i=1;i<=3;i++){document.getElementById('bab'+i).style.display=(i==bab?'block':'none')}document.getElementById('info').innerText='Bab '+bab+' dari 3';window.scrollTo(0,0)}
+function next(){if(bab<3){bab++;tampil()}}
+function prev(){if(bab>1){bab--;tampil()}}
+</script>
+</body></html>
