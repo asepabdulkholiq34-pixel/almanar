@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E-Book Reader - SMKS Al Manar</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial;background:#FFF8E7;margin:0;padding:0}
+body.malam{background:#1a1a1a;color:#eee}
+header{background:#0B6B3A;color:#fff;padding:16px;text-align:center;position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:20px}
+header p{margin:4px 0 0;font-size:13px;opacity:.9}
+.toolbar{background:#fff;padding:10px;text-align:center;box-shadow:0 2px 5px #ccc;position:sticky;top:66px;z-index:9}
+body.malam .toolbar{background:#2a2a2a}
+.toolbar button{padding:8px 12px;border:none;border-radius:8px;background:#0B6B3A;color:#fff;font-weight:bold;margin:2px}
+.toolbar button.abu{background:#eee;color:#333}
+body.malam .toolbar button.abu{background:#444;color:#fff}
+input.cari{width:90%;max-width:400px;padding:10px;border-radius:10px;border:1px solid #ccc;margin-top:8px}
+.buku{background:#fff;margin:14px;padding:16px;border-radius:12px;box-shadow:0 2px 8px #ddd;cursor:pointer}
+body.malam .buku{background:#2a2a2a}
+.buku h2{margin:0;color:#0B6B3A;font-size:18px}
+.buku p{margin:6px 0 0;color:#666;font-size:14px}
+body.malam .buku p{color:#bbb}
+.isi{background:#fff;margin:14px;padding:18px;border-radius:12px;box-shadow:0 2px 8px #ddd;line-height:1.8;font-size:18px}
+body.malam .isi{background:#2a2a2a}
+.isi h2{color:#0B6B3A}
+.kotak{background:#E8F5E9;padding:12px;border-radius:10px;margin:10px 0}
+body.malam .kotak{background:#334433}
+.soal{background:#FFF3CD;padding:12px;border-radius:10px;margin-top:10px;color:#333}
+.progress{height:8px;background:#ddd;border-radius:10px;overflow:hidden;margin:10px 14px}
+.progress div{height:100%;background:#0B6B3A;width:0%}
+.navbawah{text-align:center;padding:10px}
+.navbawah button{padding:12px 18px;border:none;border-radius:10px;background:#0B6B3A;color:#fff;font-weight:bold;margin:4px}
+</style></head>
+<body>
+<header><h1>📚 E-Book Reader</h1><p>SMKS Al Manar • Baca Jadi Mudah</p></header>
+
+<div id="home">
+<div class="toolbar">
+<input class="cari" id="cari" placeholder="🔍 Cari buku... contoh: Aqidah" oninput="filterBuku()">
+<br><button onclick="toggleMalam()">🌙 Mode Malam / Siang</button>
+</div>
+<div id="listBuku"></div>
+<p style="text-align:center;color:#888;font-size:13px">Klik buku untuk mulai membaca, Pak.</p>
+</div>
+
+<div id="baca" style="display:none">
+<div class="toolbar">
+<button onclick="kembali()">🏠 Daftar Buku</button>
+<button class="abu" onclick="ubahFont(-2)">A- Kecil</button>
+<button class="abu" onclick="ubahFont(2)">A+ Besar</button>
+<button onclick="toggleMalam()">🌙 Malam</button>
+<br><input class="cari" id="cariIsi" placeholder="🔍 Cari di dalam buku ini..." oninput="cariDalam()">
+</div>
+<div class="progress"><div id="bar"></div></div>
+<p style="text-align:center;margin:0"><span id="infoBab">Bab 1 dari 3</span> • <span id="infoPersen">0% dibaca</span></p>
+<div id="konten" class="isi"></div>
+<div class="navbawah">
+<button onclick="prev()">◀ Sebelumnya</button>
+<button onclick="bookmark()">🔖 Bookmark Halaman Ini</button>
+<button onclick="next()">Berikutnya ▶</button>
+</div>
+<p style="text-align:center;color:#888;font-size:13px" id="infoBookmark"></p>
+</div>
+
+<script>
+let buku = [
+{judul:"AQIDAH AKHLAK", desc:"Kelas X • Aqidah, Akhlak Terpuji & Kehidupan Sehari-hari • 3 Bab", bab:[
+{judul:"BAB 1: AQIDAH - IMAN KEPADA ALLAH", isi:`<p><b>Aqidah</b> artinya keyakinan yang kuat dalam hati tentang Allah SWT.</p><div class="kotak"><b>6 Rukun Iman:</b><br>1. Iman kepada Allah<br>2. Iman kepada Malaikat<br>3. Iman kepada Kitab-kitab Allah<br>4. Iman kepada Rasul-rasul Allah<br>5. Iman kepada Hari Akhir<br>6. Iman kepada Qada dan Qadar</div><p><b>Sifat Wajib Allah yang harus dihafal:</b> Wujud, Qidam, Baqa, Mukhalafatu lilhawaditsi, Qiyamuhu binafsihi, Wahdaniyah, Qudrat, Iradat, Ilmu, Hayat, Sama', Bashar, Kalam.</p><div class="soal"><b>✏️ Latihan:</b><br>1. Apa arti Aqidah?<br>2. Sebutkan 6 Rukun Iman!<br>3. Apa arti sifat Wahdaniyah?</div>`},
+{judul:"BAB 2: AKHLAK TERPUJI", isi:`<p><b>Akhlak</b> adalah tingkah laku / budi pekerti.</p><div class="kotak"><b>Contoh Akhlak Terpuji:</b><br>• Jujur - berkata benar<br>• Amanah - dapat dipercaya<br>• Hormat kepada Guru & Orang Tua<br>• Sopan, Santun, Disiplin<br>• Menolong teman</div><p><b>Akhlak Tercela yang harus dijauhi:</b> Bohong, sombong, malas, mencuri, membully, berkata kasar.</p><div class="soal"><b>✏️ Latihan:</b><br>1. Berikan 3 contoh akhlak terpuji di sekolah!<br>2. Apa akibat suka berbohong?<br>3. Bagaimana cara hormat kepada guru?</div>`},
+{judul:"BAB 3: AKHLAK DALAM KEHIDUPAN SEHARI-HARI", isi:`<p><b>Di Rumah:</b> Membantu orang tua, berkata lembut, sholat tepat waktu.</p><p><b>Di Sekolah:</b> Datang tepat waktu, memakai seragam rapi, tidak mencontek, menjaga kebersihan.</p><p><b>Di Masyarakat:</b> Mengucap salam, tidak mengganggu tetangga, gotong royong.</p><div class="kotak"><b>Hafalan Penting untuk Ulangan:</b><br>• Rukun Iman ada 6<br>• Sifat Wajib Allah ada 20, yang wajib hafal 13 di Bab 1<br>• Akhlak Terpuji = Jujur, Amanah, Sopan, Disiplin</div>`}
+]},
+{judul:"PAI - FIQIH SHOLAT", desc:"Kelas X • Tata Cara Sholat & Wudhu • 2 Bab", bab:[
+{judul:"BAB 1: WUDHU", isi:`<p><b>Wudhu</b> adalah bersuci dari hadas kecil sebelum sholat.</p><div class="kotak"><b>Rukun Wudhu:</b><br>1. Niat<br>2. Membasuh muka<br>3. Membasuh kedua tangan sampai siku<br>4. Mengusap sebagian kepala<br>5. Membasuh kedua kaki sampai mata kaki<br>6. Tertib / Berurutan</div>`},
+{judul:"BAB 2: SHOLAT", isi:`<p><b>Sholat 5 Waktu:</b> Subuh 2 rakaat, Dzuhur 4, Ashar 4, Maghrib 3, Isya 4.</p><div class="kotak"><b>Syarat Sah Sholat:</b> Suci dari hadas & najis, menutup aurat, menghadap kiblat, sudah masuk waktu, mengetahui cara sholat.</div>`}
+]}
+];
+
+let bukuAktif=0, babAktif=0, fontSize=18;
+function tampilBuku(filter=""){
+  let h="";
+  buku.forEach((b,i)=>{
+    if(b.judul.toLowerCase().includes(filter.toLowerCase()) || b.desc.toLowerCase().includes(filter.toLowerCase())){
+      h+=`<div class="buku" onclick="bukaBuku(${i})"><h2>📖 ${b.judul}</h2><p>${b.desc}</p><p>📄 ${b.bab.length} Bab • Klik untuk membaca</p></div>`
+    }
+  });
+  document.getElementById('listBuku').innerHTML = h || '<p style="text-align:center">Buku tidak ditemukan, Pak.</p>';
+}
+function filterBuku(){ tampilBuku(document.getElementById('cari').value) }
+function bukaBuku(i){
+  bukuAktif=i;
+  let saved = localStorage.getItem('bookmark_'+i);
+  babAktif = saved ? parseInt(saved) : 0;
+  document.getElementById('home').style.display='none';
+  document.getElementById('baca').style.display='block';
+  tampilBab();
+}
+function tampilBab(){
+  let b = buku[bukuAktif].bab[babAktif];
+  document.getElementById('konten').innerHTML = `<h2>${b.judul}</h2>` + b.isi;
+  document.getElementById('infoBab').innerText = `Bab ${babAktif+1} dari ${buku[bukuAktif].bab.length} • ${b.judul}`;
+  let persen = Math.round(((babAktif+1)/buku[bukuAktif].bab.length)*100);
+  document.getElementById('bar').style.width = persen+'%';
+  document.getElementById('infoPersen').innerText = persen+'% dibaca';
+  document.getElementById('infoBookmark').innerText = 'Bookmark tersimpan di Bab ' + (parseInt(localStorage.getItem('bookmark_'+bukuAktif)||0)+1);
+  window.scrollTo(0,0);
+}
+function next(){ if(babAktif < buku[bukuAktif].bab.length-1){ babAktif++; tampilBab(); } else { alert('Sudah bab terakhir, Pak. Alhamdulillah selesai!'); } }
+function prev(){ if(babAktif>0){ babAktif--; tampilBab(); } }
+function kembali(){ document.getElementById('baca').style.display='none'; document.getElementById('home').style.display='block'; }
+function ubahFont(n){ fontSize+=n; document.getElementById('konten').style.fontSize = fontSize+'px'; }
+function toggleMalam(){ document.body.classList.toggle('malam'); }
+function bookmark(){ localStorage.setItem('bookmark_'+bukuAktif, babAktif); alert('Bookmark tersimpan di '+buku[bukuAktif].bab[babAktif].judul+', Pak.'); tampilBab(); }
+function cariDalam(){
+  let kata = document.getElementById('cariIsi').value.toLowerCase();
+  if(!kata) { tampilBab(); return; }
+  let b = buku[bukuAktif].bab[babAktif];
+  if((b.judul+b.isi).toLowerCase().includes(kata)){
+    document.getElementById('konten').innerHTML = `<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${kata}" ditemukan di bab ini, Pak.</p>` + b.isi;
+  } else {
+    document.getElementById('konten').innerHTML = `<p>❌ Kata "${kata}" tidak ada di bab ini, Pak. Coba bab lain.</p>`;
+  }
+}
+tampilBuku();
+</script>
+</body></html>
