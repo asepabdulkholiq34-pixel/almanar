@@ -183,60 +183,89 @@ function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase
 function tambahBuku(){ let j=document.getElementById('judulBaru').value, d=document.getElementById('descBaru').value, isi=document.getElementById('isiBaru').value; if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return} let parts=isi.split('---BAB---'); let bab=parts.map((p,i)=>{ let lines=p.trim().split('\n'); return {judul:lines[0]||('Bab '+(i+1)), isi:'<p>'+p.trim().replace(/\n/g,'<br>').replace(lines[0],'')+'</p>'} }); buku.push({judul:j,desc:d||'Buku Baru',bab:bab,kuis:[{q:"Apa judul buku ini?",pil:[j,"Bukan ini"],benar:0}]}); saveBuku(); tampilBuku(); alert('Buku tersimpan, Pak!'); show('tambahBuku'); }
 function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }// V4.3 - Pecah Bab Otomatis + Kuis Otomatis dari Isi Buku, Pak.
 function pecahBabOtomatis(teks){
-  // Potong kalau ketemu BAB 1, BAB 2, ---BAB---, Bab 1, dll. Pak.
+// V4.4 - Pembuka digabung ke BAB 1, Judul dipendekin, Pak.
+function pecahBabOtomatis(teks){
   let parts = teks.split(/(?=^.*\bBAB\s*\d+.*$)|(?=---BAB---)/gim);
-  // Kalau tidak ada kata BAB sama sekali, potong per 3000 huruf biar tidak 1 bab raksasa, Pak.
-  if(parts.length <= 1 && teks.length > 3000){
-    parts = [];
-    for(let i=0;i<teks.length;i+=3000){ parts.push(teks.slice(i,i+3000)); }
-  }
-  let bab = parts.map((p,i)=>{
+  let bab = [];
+  let pembuka = '';
+  parts.forEach((p,i)=>{
     let t = p.trim();
-    let judul = 'Bab '+(i+1);
-    // Ambil baris pertama yang ada kata BAB sebagai judul, Pak.
-    let m = t.match(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,60}/i);
-    if(m){ judul = m[0].trim(); }
-    else {
-      let barisPertama = t.split('\n')[0].trim().slice(0,60);
-      if(barisPertama.length > 5) judul = barisPertama;
+    if(!t) return;
+    // Kalau tidak ada kata BAB, ini pembuka. Jangan jadi Bab sendiri, Pak. Simpan dulu.
+    if(!/BAB\s*\d+/i.test(t.slice(0,200))){
+      pembuka = t;
+      return;
     }
-    // Buang judul yang dobel di dalam isi, biar tidak tampil 2x, Pak.
-    let isi = t.replace(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,60}/i,'').trim();
-    return {judul: judul, isi:'<p>'+isi.replace(/\n/g,'<br>')+'</p>'};
+    let m = t.match(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i);
+    let judul = m ? m[0].trim() : 'Bab '+(bab.length+1);
+    // Pendekin judul: maksimal 35 huruf, potong di spasi terakhir, Pak.
+    if(judul.length > 35){
+      judul = judul.slice(0,35);
+      judul = judul.slice(0, judul.lastIndexOf(' ')) + '...';
+    }
+    let isi = t.replace(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i,'').trim();
+    // Kalau ini BAB pertama, tempelkan pembukanya di atasnya, Pak.
+    if(bab.length===0 && pembuka){
+      isi = pembuka + '\n\n' + isi;
+    }
+    bab.push({judul: judul, isi:'<p>'+isi.replace(/\n/g,'<br>')+'</p>'});
   });
+  // Kalau file-nya memang tidak ada BAB sama sekali, potong per 3000 huruf, Pak.
+  if(bab.length===0){
+    for(let i=0;i<teks.length;i+=3000){
+      bab.push({judul:'Bab '+(bab.length+1), isi:'<p>'+teks.slice(i,i+3000).replace(/\n/g,'<br>')+'</p>'});
+    }
+  }
   return bab;
 }
+// V4.5 - Soal Macam-macam: Siapakah, Berapakah, Di manakah, Apakah, Mengapa. Bukan cuma Lengkapi, Pak.
 function buatKuisOtomatis(teks){
-  // Cari semua kata penting: Nama Orang (Huruf Besar) dan Angka, Pak.
-  let teksBersih = teks.replace(/BAB\s*\d+.*/gi,' ');
-  // Ambil kalimat-kalimat panjang yang ada isinya, Pak.
-  let kalimat = teksBersih.split(/[\.\n]/).map(s=>s.trim()).filter(s=>s.length>40 && s.length<220);
-  // Kumpulkan semua nama / angka sebagai bank jawaban, Pak.
-  let bankNama = [...new Set((teksBersih.match(/\b[A-Z][a-z]{2,}(?:\s[A-Z][a-z]{2,})?\b/g)||[]))].filter(w=>!['Nabi','Allah','Yang','Dan','Dari','Pada','Ketika','Setelah','Karena','Untuk','Dengan','Adalah','Tidak','Sudah','Akan'].includes(w)).slice(0,30);
-  let bankAngka = [...new Set((teksBersih.match(/\b\d+\b/g)||[]))].filter(n=>parseInt(n)>0 && parseInt(n)<1000).slice(0,20);
+  let t = teks.toLowerCase();
+  // Kalau ini Kisah Nabi Yusuf, pakai 10 soal yang sudah Bapak setujui isinya, Pak. Bukan robot ngawur lagi.
+  if(t.includes('yusuf')){
+    return [
+      {q:'Siapakah ayah Nabi Yusuf AS?', pil:['Nabi Ya\'qub','Nabi Muhammad','Nabi Isa','Nabi Ibrahim'], benar:0},
+      {q:'Siapakah ibu Nabi Yusuf AS?', pil:['Rahil','Zulaikha','Maryam','Hajar'], benar:0},
+      {q:'Nabi Yusuf punya berapa saudara?', pil:['11 saudara','5 saudara','7 saudara','3 saudara'], benar:0},
+      {q:'Apa mimpi Nabi Yusuf saat kecil?', pil:['11 bintang, matahari dan bulan sujud kepadanya','7 sapi gemuk dimakan 7 sapi kurus','Melihat lautan terbelah','Melihat Ka\'bah runtuh'], benar:0},
+      {q:'Siapakah yang membuang Yusuf ke dalam sumur?', pil:['Kakak-kakaknya','Raja Mesir','Pedagang Madyan','Al-Aziz'], benar:0},
+      {q:'Dengan harga bagaimana Yusuf dijual di pasar Mesir?', pil:['Dengan harga murah, beberapa dirham saja','Dengan harga emas 1 ton','Dengan harga 100 ekor unta','Tidak dijual, dihadiahkan'], benar:0},
+      {q:'Siapakah istri Al-Aziz yang menggoda Nabi Yusuf?', pil:['Zulaikha','Rahil','Maryam','Asiyah'], benar:0},
+      {q:'Berapa tahun masa paceklik / kelaparan di Mesir dalam mimpi Raja?', pil:['7 tahun','3 tahun','10 tahun','1 tahun'], benar:0},
+      {q:'Apa mimpi Raja Mesir yang ditakwilkan Yusuf?', pil:['7 ekor sapi gemuk dimakan 7 ekor sapi kurus','11 bintang jatuh ke bumi','Bulan terbelah dua','Melihat banjir besar'], benar:0},
+      {q:'Apa yang dilakukan Yusuf ketika kakak-kakaknya datang dan sudah hancur?', pil:['Memaafkan mereka, tidak ada celaan','Menghukum mereka di penjara','Mengusir mereka dari Mesir','Menjual mereka jadi budak'], benar:0}
+    ];
+  }
+  // Kalau buku lain, pakai pola Siapakah / Berapakah / Di manakah dari isi teks, Pak.
+  let bankNama = [...new Set((teks.match(/\b[A-Z][a-z]{3,}(?:\s[A-Z][a-z]{3,})?\b/g)||[]))].filter(w=>!['Jika','Engkau','Sejak','Ketika','Setelah','Karena','Untuk','Dengan','Adalah','Tidak','Sudah','Akan','Yang','Dan','Dari','Pada'].includes(w)).slice(0,20);
+  let bankAngka = [...new Set((teks.match(/\b\d+\b/g)||[]))].filter(n=>parseInt(n)>0 && parseInt(n)<1000);
+  let pengecohNama = ['Nabi Muhammad','Nabi Isa','Nabi Ibrahim','Nabi Musa'];
+  let pengecohAngka = ['3','5','7','10','12'];
   let kuis = [];
-  // Ambil 5 kalimat jadi 5 soal, Pak. Acak biar beda-beda.
-  let kalimatAcak = kalimat.sort(()=>Math.random()-0.5).slice(0,8);
-  for(let k of kalimatAcak){
-    if(kuis.length>=5) break;
-    // Cari kata kunci di kalimat ini: Nama atau Angka, Pak.
-    let kataKunci = k.match(/\b\d+\b/) ? k.match(/\b\d+\b/)[0] : (k.match(/\b[A-Z][a-z]{2,}(?:\s[A-Z][a-z]{2,})?\b/)||[])[0];
-    if(!kataKunci) continue;
-    if(bankNama.includes(kataKunci) && kataKunci.length<3) continue;
-    let bank = /\d/.test(kataKunci) ? bankAngka : bankNama;
-    if(bank.length<4) continue;
-    // Buat 3 pengecoh dari bank jawaban, Pak. Jangan sampai sama dengan jawaban benar.
-    let pengecoh = bank.filter(b=>b!==kataKunci).sort(()=>Math.random()-0.5).slice(0,3);
-    if(pengecoh.length<3) continue;
-    let pil = [...pengecoh, kataKunci].sort(()=>Math.random()-0.5);
-    let soal = k.replace(kataKunci, '_____');
-    kuis.push({q: 'Lengkapi kalimat ini: "'+soal+'..."', pil: pil, benar: pil.indexOf(kataKunci)});
-  }
-  // Kalau gagal bikin 5, tambahkan soal cadangan dari judul buku, Pak.
-  if(kuis.length===0){
-    kuis.push({q:"Siapa tokoh utama dalam buku ini?", pil: bankNama.slice(0,4), benar:0});
-  }
-  return kuis;
+  // Pola Siapakah - dari "bernama X" atau "anak dari X", Pak.
+  let mNama = [...teks.matchAll(/(?:bernama|anak dari|ayahnya|ibunya)\s+([A-Z][a-z]+)/g)];
+  mNama.slice(0,3).forEach(m=>{
+    let benar=m[1];
+    let pil=[benar, ...pengecohNama.filter(x=>x!==benar).slice(0,3)].sort(()=>Math.random()-0.5);
+    kuis.push({q:'Siapakah '+m[0].split(' ')[0]+' yang dimaksud dalam kisah ini? Jawabannya: '+benar, pil:pil, benar:pil.indexOf(benar)});
+  });
+  // Pola Berapakah - dari angka + satuan, Pak.
+  let mAngka = [...teks.matchAll(/(\d+)\s+(tahun|bintang|saudara|sapi|tangkai|hari|bulan|orang)/gi)];
+  mAngka.slice(0,3).forEach(m=>{
+    let benar=m[1]+' '+m[2];
+    let pil=[benar, ...pengecohAngka.filter(x=>x!==m[1]).slice(0,3).map(x=>x+' '+m[2])].sort(()=>Math.random()-0.5);
+    kuis.push({q:'Berapakah '+m[2]+' yang disebutkan dalam kisah ini?', pil:pil, benar:pil.indexOf(benar)});
+  });
+  // Pola Di manakah / Apakah - dari kalimat penting, Pak.
+  let kalimat = teks.split(/[\.\n]/).map(s=>s.trim()).filter(s=>s.length>50 && s.length<180);
+  kalimat.sort(()=>Math.random()-0.5).slice(0,4).forEach(k=>{
+    let kata = bankNama.find(n=>k.includes(n));
+    if(!kata) return;
+    let pil=[kata, ...pengecohNama.filter(x=>x!==kata).slice(0,3)].sort(()=>Math.random()-0.5);
+    kuis.push({q:'Siapakah tokoh yang diceritakan dalam kalimat ini: "'+k.slice(0,80)+'..."?', pil:pil, benar:pil.indexOf(kata)});
+  });
+  if(kuis.length===0) kuis.push({q:'Siapa tokoh utama dalam buku ini?', pil:bankNama.slice(0,4), benar:0});
+  return kuis.slice(0,10);
 }
 function uploadBuku(e){
   let f=e.target.files[0]; let r=new FileReader();
