@@ -173,7 +173,19 @@ function pasangStabilo(){ let isi=document.getElementById('konten'); isi.onconte
 function hapusSemuaStabilo(){ document.querySelectorAll('#konten .stabilo').forEach(el=>el.classList.remove('stabilo')); alert('Semua stabilo sudah dihapus, Pak. Bersih lagi.'); }
 function bicara(){ speechSynthesis.speak(new speechSynthesisUtterance(document.getElementById('konten').innerText)); }
 function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase(); if(!k){tampilBab();return} let b=buku[bukuAktif].bab[babAktif]; if((b.judul+b.isi).toLowerCase().includes(k)){ document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${k}" ada di bab ini, Pak.</p>`+bersihkanIsi(b.judul,b.isi); pasangStabilo(); } else { document.getElementById('konten').innerHTML=`<p>❌ Tidak ada di bab ini, Pak.</p>` } }
-function tambahBuku(){ let j=document.getElementById('judulBaru').value, d=document.getElementById('descBaru').value, isi=document.getElementById('isiBaru').value; if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return} let parts=isi.split('---BAB---'); let bab=parts.map((p,i)=>{ let lines=p.trim().split('\n'); return {judul:lines[0]||('Bab '+(i+1)), isi:'<p>'+p.trim().replace(/\n/g,'<br>').replace(lines[0],'')+'</p>'} }); buku.push({judul:j,desc:d||'Buku Baru',bab:bab,kuis:[{q:"Apa judul buku ini?",pil:[j,"Bukan ini"],benar:0}]}); saveBuku(); tampilBuku(); alert('Buku tersimpan, Pak!'); show('tambahBuku'); }
+function tambahBuku(){ let // V4.6 - Tambah Buku Baru juga pakai Pengantar + Kuis Otomatis, sama kayak Upload, Pak.
+function tambahBuku(){
+  let j=document.getElementById('judulBaru').value;
+  let d=document.getElementById('descBaru').value;
+  let isi=document.getElementById('isiBaru').value;
+  if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return}
+  let babBaru = pecahBabOtomatis(isi);
+  let kuisBaru = buatKuisOtomatis(isi);
+  buku.push({judul:j, desc:d||'Buku Baru', bab:babBaru, kuis:kuisBaru});
+  saveBuku(); tampilBuku();
+  alert('Buku tersimpan, Pak! Jadi '+babBaru.length+' Bab + '+kuisBaru.length+' soal otomatis, Pak!');
+  show('tambahBuku');
+}
 function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }
 // V4.6 - Pembuka jadi Halaman Pengantar sendiri, tidak nempel ke Bab 1 lagi, Pak.
 function pecahBabOtomatis(teks){
