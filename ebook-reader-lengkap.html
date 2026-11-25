@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E-Book Reader LENGKAP - SMKS Al Manar</title>
+<style>
+*{box-sizing:border-box} body{font-family:Arial;background:#FFF8E7;margin:0} body.malam{background:#1a1a1a;color:#eee} body.sepia{background:#f4ecd8;color:#433}
+header{background:#0B6B3A;color:#fff;padding:14px;text-align:center;position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:20px} header p{margin:4px 0 0;font-size:13px}
+.toolbar{background:#fff;padding:10px;text-align:center;box-shadow:0 2px 5px #ccc;position:sticky;top:62px;z-index:9} body.malam .toolbar,body.sepia .toolbar{background:#2a2a2a}
+body.sepia .toolbar{background:#e8dcc0}
+button{padding:10px 12px;border:none;border-radius:10px;background:#0B6B3A;color:#fff;font-weight:bold;margin:3px} button.abu{background:#eee;color:#333} button.kuning{background:#F9A825;color:#000} button.biru{background:#1565C0} button.merah{background:#c62828}
+input,textarea,select{width:92%;max-width:500px;padding:11px;border-radius:10px;border:1px solid #ccc;margin:5px;font-size:15px}
+textarea{height:120px} .buku{background:#fff;margin:12px;padding:14px;border-radius:12px;box-shadow:0 2px 8px #ddd;cursor:pointer} body.malam .buku{background:#2a2a2a} body.sepia .buku{background:#fff8e1}
+.buku h2{margin:0;color:#0B6B3A;font-size:18px} .buku p{margin:5px 0;color:#666;font-size:14px}
+.isi{background:#fff;margin:12px;padding:18px;border-radius:12px;box-shadow:0 2px 8px #ddd;line-height:1.8;font-size:18px} body.malam .isi{background:#2a2a2a} body.sepia .isi{background:#fff8e1}
+.kotak{background:#E8F5E9;padding:12px;border-radius:10px;margin:10px 0} .soal{background:#FFF3CD;padding:12px;border-radius:10px;margin-top:10px;color:#333}
+.progress{height:10px;background:#ddd;border-radius:10px;overflow:hidden;margin:10px 12px} .progress div{height:100%;background:#0B6B3A;width:0%}
+mark{background:yellow;color:#000} .catatanBox{background:#E3F2FD;padding:12px;border-radius:10px;margin-top:12px;color:#333}
+.hidden{display:none} .center{text-align:center}
+</style></head>
+<body>
+<header><h1>📚 E-Book Reader LENGKAP</h1><p>SMKS Al Manar • Semua Fitur Dalam 1 Aplikasi</p></header>
+
+<div id="home">
+<div class="toolbar">
+<input id="cari" placeholder="🔍 Cari buku di semua buku..." oninput="tampilBuku()">
+<br>
+<button onclick="setTema('terang')">☀️ Terang</button><button onclick="setTema('malam')">🌙 Malam</button><button onclick="setTema('sepia')">📜 Sepia</button>
+<br>
+<button class="biru" onclick="show('tambahBuku')">➕ Tambah Buku Baru</button>
+<button class="kuning" onclick="document.getElementById('fileBuku').click()">📂 Upload Buku dari HP</button>
+<input type="file" id="fileBuku" accept=".txt" class="hidden" onchange="uploadBuku(event)">
+<button onclick="exportSemua()">⬇️ Ekspor Semua Catatan</button>
+<button onclick="document.getElementById('fileCatatan').click()">📥 Impor Catatan</button>
+<input type="file" id="fileCatatan" accept=".txt,.json" class="hidden" onchange="imporCatatan(event)">
+</div>
+
+<div id="tambahBuku" class="hidden center">
+<h3>➕ Tambah Buku Baru</h3>
+<input id="judulBaru" placeholder="Judul Buku, contoh: Sejarah Islam"><br>
+<input id="descBaru" placeholder="Keterangan, contoh: Kelas X • 2 Bab"><br>
+<textarea id="isiBaru" placeholder="Tulis isi buku di sini... Pisahkan Bab dengan ---BAB--- contoh: BAB 1: Judul ---BAB--- BAB 2: Judul"></textarea><br>
+<button onclick="tambahBuku()">💾 Simpan Buku</button>
+<button class="abu" onclick="show('tambahBuku')">Tutup</button>
+</div>
+
+<div id="listBuku"></div>
+<p class="center" style="color:#888;font-size:13px">Terakhir dibaca: <span id="terakhir">Belum ada</span></p>
+</div>
+
+<div id="baca" class="hidden">
+<div class="toolbar">
+<button onclick="kembali()">🏠 Daftar</button>
+<button class="abu" onclick="ubahFont(-2)">A-</button><button class="abu" onclick="ubahFont(2)">A+</button>
+<button onclick="setTema('malam')">🌙</button><button onclick="setTema('sepia')">📜</button>
+<br><input id="cariIsi" placeholder="🔍 Cari di buku ini..." oninput="cariDalam()">
+<br><select id="daftarBab" onchange="loncatBab()"></select>
+</div>
+<div class="progress"><div id="bar"></div></div>
+<p class="center" style="margin:0"><span id="infoBab"></span> • <span id="infoPersen"></span></p>
+<div id="konten" class="isi"></div>
+<div class="center">
+<button onclick="prev()">◀ Prev</button>
+<button class="kuning" onclick="highlight()">🖍️ Stabilo / Highlight</button>
+<button onclick="bookmark()">🔖 Bookmark</button>
+<button onclick="next()">Next ▶</button>
+</div>
+<div class="center">
+<button class="biru" onclick="bicara()">🔊 Bacakan / Suara</button>
+<button onclick="bagikanWA()">📤 Bagikan ke WA</button>
+<button onclick="downloadBuku()">⬇️ Download Buku Ini</button>
+</div>
+
+<div class="catatanBox">
+<h3>📝 Catatan Saya Untuk Buku Ini</h3>
+<textarea id="catatanIsi" placeholder="Tulis catatan Bapak / siswa di sini..."></textarea><br>
+<button onclick="simpanCatatan()">💾 Simpan Catatan</button>
+<button class="kuning" onclick="kirimCatatanWA()">📤 Kirim Catatan ke WA</button>
+<button class="biru" onclick="downloadCatatan()">⬇️ Download Catatan</button>
+<div id="listCatatan"></div>
+</div>
+
+<div class="soal">
+<h3>✏️ Kuis Cepat - Cek Pemahaman</h3>
+<p id="soalTeks">1. Apa arti Aqidah?</p>
+<button onclick="cekKuis(true)">Jawaban: Keyakinan yang kuat ✅</button>
+<button class="merah" onclick="cekKuis(false)">Saya Belum Hafal ❌</button>
+<p id="hasilKuis"></p>
+<p>Skor Saya: <b id="skor">0</b> benar</p>
+</div>
+</div>
+
+<script>
+let defaultBuku=[
+{judul:"AQIDAH AKHLAK",desc:"Kelas X • Aqidah, Akhlak Terpuji • 3 Bab",bab:[
+{judul:"BAB 1: AQIDAH - IMAN KEPADA ALLAH",isi:"<p><b>Aqidah</b> artinya keyakinan yang kuat dalam hati tentang Allah SWT.</p><div class='kotak'><b>6 Rukun Iman:</b><br>1. Iman kepada Allah<br>2. Iman kepada Malaikat<br>3. Iman kepada Kitab-kitab Allah<br>4. Iman kepada Rasul-rasul Allah<br>5. Iman kepada Hari Akhir<br>6. Iman kepada Qada dan Qadar</div><p><b>Sifat Wajib Allah:</b> Wujud, Qidam, Baqa, Wahdaniyah, Qudrat, Iradat, Ilmu, Hayat, Sama', Bashar, Kalam.</p>"},
+{judul:"BAB 2: AKHLAK TERPUJI",isi:"<p><b>Akhlak</b> adalah tingkah laku.</p><div class='kotak'>Jujur, Amanah, Hormat Guru & Orang Tua, Sopan, Disiplin, Menolong teman.</div><p><b>Akhlak Tercela:</b> Bohong, sombong, malas, mencuri, membully.</p>"},
+{judul:"BAB 3: AKHLAK SEHARI-HARI",isi:"<p><b>Di Rumah:</b> Bantu orang tua, berkata lembut, sholat tepat waktu.<br><b>Di Sekolah:</b> Tepat waktu, rapi, tidak mencontek.<br><b>Di Masyarakat:</b> Salam, gotong royong.</p>"}
+]},
+{judul:"PAI - FIQIH SHOLAT",desc:"Kelas X • Wudhu & Sholat • 2 Bab",bab:[
+{judul:"BAB 1: WUDHU",isi:"<p><b>Rukun Wudhu:</b> Niat, basuh muka, tangan sampai siku, usap kepala, basuh kaki, tertib.</p>"},
+{judul:"BAB 2: SHOLAT",isi:"<p><b>Sholat 5 Waktu:</b> Subuh 2, Dzuhur 4, Ashar 4, Maghrib 3, Isya 4.</p>"}
+]}
+];
+let buku = JSON.parse(localStorage.getItem('bukuLengkap')||'null') || defaultBuku;
+let bukuAktif=0, babAktif=0, fontSize=18, skor=parseInt(localStorage.getItem('skor')||0);
+document.getElementById('skor').innerText=skor;
+function saveBuku(){ localStorage.setItem('bukuLengkap', JSON.stringify(buku)); }
+function show(id){ document.getElementById(id).classList.toggle('hidden'); }
+function setTema(t){ document.body.className=''; if(t!='terang') document.body.classList.add(t); localStorage.setItem('tema',t); }
+if(localStorage.getItem('tema')) setTema(localStorage.getItem('tema'));
+function tampilBuku(){
+  let f=(document.getElementById('cari').value||'').toLowerCase();
+  let h=''; buku.forEach((b,i)=>{ if((b.judul+b.desc).toLowerCase().includes(f)){ h+=`<div class="buku" onclick="bukaBuku(${i})"><h2>📖 ${b.judul}</h2><p>${b.desc}</p><p>📄 ${b.bab.length} Bab • Terakhir: Bab ${parseInt(localStorage.getItem('bm_'+i)||0)+1}</p><button class="merah" onclick="event.stopPropagation();hapusBuku(${i})">Hapus Buku</button></div>` } });
+  document.getElementById('listBuku').innerHTML=h||'<p class=center>Belum ada buku, Pak.</p>';
+  document.getElementById('terakhir').innerText = localStorage.getItem('terakhirBaca')||'Belum ada';
+}
+function bukaBuku(i){ bukuAktif=i; babAktif=parseInt(localStorage.getItem('bm_'+i)||0); document.getElementById('home').classList.add('hidden'); document.getElementById('baca').classList.remove('hidden'); let sel=''; buku[i].bab.forEach((bb,idx)=>{ sel+=`<option value="${idx}" ${idx==babAktif?'selected':''}>${bb.judul}</option>` }); document.getElementById('daftarBab').innerHTML=sel; tampilBab(); }
+function tampilBab(){
+  let b=buku[bukuAktif].bab[babAktif];
+  document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2>`+b.isi;
+  document.getElementById('konten').style.fontSize=fontSize+'px';
+  document.getElementById('infoBab').innerText=`Bab ${babAktif+1} dari ${buku[bukuAktif].bab.length} • ${b.judul}`;
+  let p=Math.round(((babAktif+1)/buku[bukuAktif].bab.length)*100); document.getElementById('bar').style.width=p+'%'; document.getElementById('infoPersen').innerText=p+'% dibaca';
+  document.getElementById('daftarBab').value=babAktif;
+  localStorage.setItem('terakhirBaca', buku[bukuAktif].judul+' - '+b.judul);
+  tampilCatatan(); window.scrollTo(0,0);
+}
+function next(){ if(babAktif<buku[bukuAktif].bab.length-1){babAktif++; tampilBab();} else alert('Selesai, Pak! Alhamdulillah.'); }
+function prev(){ if(babAktif>0){babAktif--; tampilBab();} }
+function loncatBab(){ babAktif=parseInt(document.getElementById('daftarBab').value); tampilBab(); }
+function kembali(){ document.getElementById('baca').classList.add('hidden'); document.getElementById('home').classList.remove('hidden'); tampilBuku(); }
+function ubahFont(n){ fontSize+=n; document.getElementById('konten').style.fontSize=fontSize+'px'; }
+function bookmark(){ localStorage.setItem('bm_'+bukuAktif,babAktif); alert('Bookmark tersimpan di '+buku[bukuAktif].bab[babAktif].judul+', Pak.'); }
+function highlight(){ let s=window.getSelection().toString(); if(!s){alert('Blok dulu kalimatnya, Pak. Tekan lama kalimatnya, lalu klik Stabilo.');return} let html=document.getElementById('konten').innerHTML; document.getElementById('konten').innerHTML=html.replace(s,'<mark>'+s+'</mark>'); alert('Sudah di-stabilo, Pak!'); }
+function bicara(){ let t=document.getElementById('konten').innerText; speechSynthesis.speak(new speechSynthesisUtterance(t)); }
+function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase(); if(!k){tampilBab();return} let b=buku[bukuAktif].bab[babAktif]; if((b.judul+b.isi).toLowerCase().includes(k)){ document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${k}" ada di bab ini, Pak.</p>`+b.isi } else { document.getElementById('konten').innerHTML=`<p>❌ Tidak ada di bab ini, Pak. Coba bab lain.</p>` } }
+function tambahBuku(){
+  let j=document.getElementById('judulBaru').value, d=document.getElementById('descBaru').value, isi=document.getElementById('isiBaru').value;
+  if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return}
+  let parts=isi.split('---BAB---'); let bab=parts.map((p,i)=>{ let lines=p.trim().split('\n'); return {judul:lines[0]||('Bab '+(i+1)), isi:'<p>'+p.trim().replace(/\n/g,'<br>')+'</p>'} });
+  buku.push({judul:j,desc:d||'Buku Baru',bab:bab}); saveBuku(); tampilBuku(); alert('Buku tersimpan, Pak!'); show('tambahBuku');
+}
+function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }
+function uploadBuku(e){
+  let f=e.target.files[0]; let r=new FileReader(); r.onload=function(){ let teks=r.result; buku.push({judul:f.name.replace('.txt',''),desc:'Upload dari HP • '+new Date().toLocaleDateString('id-ID'),bab:[{judul:'Isi Buku',isi:'<p>'+teks.replace(/\n/g,'<br>')+'</p>'}]}); saveBuku(); tampilBuku(); alert('Buku berhasil di-upload, Pak!'); }; r.readAsText(f);
+}
+function getCatatanKey(){ return 'catatan_'+bukuAktif; }
+function tampilCatatan(){ let c=JSON.parse(localStorage.getItem(getCatatanKey())||'[]'); let h=''; c.forEach((x,i)=>{ h+=`<div style="background:#fff;padding:10px;border-radius:10px;margin-top:8px"><small>${x.tanggal}</small><p>${x.isi.replace(/\n/g,'<br>')}</p><button class="merah" onclick="hapusCatatan(${i})">Hapus</button></div>` }); document.getElementById('listCatatan').innerHTML=h; }
+function simpanCatatan(){ let isi=document.getElementById('catatanIsi').value; if(!isi){alert('Tulis catatan dulu, Pak');return} let c=JSON.parse(localStorage.getItem(getCatatanKey())||'[]'); c.unshift({isi:isi,tanggal:new Date().toLocaleString('id-ID')}); localStorage.setItem(getCatatanKey(),JSON.stringify(c)); document.getElementById('catatanIsi').value=''; tampilCatatan(); alert('Catatan tersimpan, Pak!'); }
+function hapusCatatan(i){ let c=JSON.parse(localStorage.getItem(getCatatanKey())||'[]'); c.splice(i,1); localStorage.setItem(getCatatanKey(),JSON.stringify(c)); tampilCatatan(); }
+function kirimCatatanWA(){ let isi=document.getElementById('catatanIsi').value; window.open('https://wa.me/?text='+encodeURIComponent('CATATAN - '+buku[bukuAktif].judul+'\n\n'+isi)); }
+function downloadCatatan(){ let c=JSON.parse(localStorage.getItem(getCatatanKey())||'[]'); let t=c.map(x=>x.tanggal+'\n'+x.isi+'\n\n').join('---\n'); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'})); a.download='catatan-'+buku[bukuAktif].judul+'.txt'; a.click(); }
+function exportSemua(){ let semua={}; for(let k in localStorage){ if(k.startsWith('catatan_')) semua[k]=localStorage.getItem(k); } let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(semua)],{type:'text/plain'})); a.download='semua-catatan.json'; a.click(); alert('Semua catatan ter-download, Pak!'); }
+function imporCatatan(e){ let f=e.target.files[0]; let r=new FileReader(); r.onload=function(){ try{ let d=JSON.parse(r.result); for(let k in d) localStorage.setItem(k,d[k]); alert('Catatan berhasil di-impor, Pak!'); tampilBuku(); }catch(err){ alert('File catatan harus format JSON hasil ekspor, Pak.'); } }; r.readAsText(f); }
+function bagikanWA(){ window.open('https://wa.me/?text='+encodeURIComponent('Baca E-Book: '+buku[bukuAktif].judul+' - '+location.href)); }
+function downloadBuku(){ let b=buku[bukuAktif]; let t=b.judul+'\n'+b.desc+'\n\n'+b.bab.map(x=>x.judul+'\n'+x.isi.replace(/<[^>]*>/g,'')+'\n\n').join('---\n'); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'})); a.download=b.judul+'.txt'; a.click(); }
+function cekKuis(benar){ if(benar){ skor++; localStorage.setItem('skor',skor); document.getElementById('skor').innerText=skor; document.getElementById('hasilKuis').innerText='✅ Betul, Pak! Mantap! Skor +1'; } else { document.getElementById('hasilKuis').innerText='❌ Belum hafal, nggak apa-apa. Baca lagi Bab ini ya, Pak.'; } }
+tampilBuku();
+</script>
+</body></html>
