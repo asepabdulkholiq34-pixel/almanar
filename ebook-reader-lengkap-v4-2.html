@@ -181,8 +181,75 @@ function hapusSemuaStabilo(){ document.querySelectorAll('#konten .stabilo').forE
 function bicara(){ speechSynthesis.speak(new speechSynthesisUtterance(document.getElementById('konten').innerText)); }
 function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase(); if(!k){tampilBab();return} let b=buku[bukuAktif].bab[babAktif]; if((b.judul+b.isi).toLowerCase().includes(k)){ document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${k}" ada di bab ini, Pak.</p>`+bersihkanIsi(b.judul,b.isi); pasangStabilo(); } else { document.getElementById('konten').innerHTML=`<p>❌ Tidak ada di bab ini, Pak.</p>` } }
 function tambahBuku(){ let j=document.getElementById('judulBaru').value, d=document.getElementById('descBaru').value, isi=document.getElementById('isiBaru').value; if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return} let parts=isi.split('---BAB---'); let bab=parts.map((p,i)=>{ let lines=p.trim().split('\n'); return {judul:lines[0]||('Bab '+(i+1)), isi:'<p>'+p.trim().replace(/\n/g,'<br>').replace(lines[0],'')+'</p>'} }); buku.push({judul:j,desc:d||'Buku Baru',bab:bab,kuis:[{q:"Apa judul buku ini?",pil:[j,"Bukan ini"],benar:0}]}); saveBuku(); tampilBuku(); alert('Buku tersimpan, Pak!'); show('tambahBuku'); }
-function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }
-function uploadBuku(e){ let f=e.target.files[0]; let r=new FileReader(); r.onload=function(){ let teks=r.result; buku.push({judul:f.name.replace('.txt',''),desc:'Upload dari HP • '+new Date().toLocaleDateString('id-ID'),bab:[{judul:'Isi Buku',isi:'<p>'+teks.replace(/\n/g,'<br>')+'</p>'}],kuis:[{q:"Buku ini tentang apa?",pil:["Baca isi bukunya","Tidak tahu"],benar:0}]}); saveBuku(); tampilBuku(); alert('Buku berhasil di-upload, Pak!'); }; r.readAsText(f); }
+function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }// V4.3 - Pecah Bab Otomatis + Kuis Otomatis dari Isi Buku, Pak.
+function pecahBabOtomatis(teks){
+  // Potong kalau ketemu BAB 1, BAB 2, ---BAB---, Bab 1, dll. Pak.
+  let parts = teks.split(/(?=^.*\bBAB\s*\d+.*$)|(?=---BAB---)/gim);
+  // Kalau tidak ada kata BAB sama sekali, potong per 3000 huruf biar tidak 1 bab raksasa, Pak.
+  if(parts.length <= 1 && teks.length > 3000){
+    parts = [];
+    for(let i=0;i<teks.length;i+=3000){ parts.push(teks.slice(i,i+3000)); }
+  }
+  let bab = parts.map((p,i)=>{
+    let t = p.trim();
+    let judul = 'Bab '+(i+1);
+    // Ambil baris pertama yang ada kata BAB sebagai judul, Pak.
+    let m = t.match(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,60}/i);
+    if(m){ judul = m[0].trim(); }
+    else {
+      let barisPertama = t.split('\n')[0].trim().slice(0,60);
+      if(barisPertama.length > 5) judul = barisPertama;
+    }
+    // Buang judul yang dobel di dalam isi, biar tidak tampil 2x, Pak.
+    let isi = t.replace(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,60}/i,'').trim();
+    return {judul: judul, isi:'<p>'+isi.replace(/\n/g,'<br>')+'</p>'};
+  });
+  return bab;
+}
+function buatKuisOtomatis(teks){
+  // Cari semua kata penting: Nama Orang (Huruf Besar) dan Angka, Pak.
+  let teksBersih = teks.replace(/BAB\s*\d+.*/gi,' ');
+  // Ambil kalimat-kalimat panjang yang ada isinya, Pak.
+  let kalimat = teksBersih.split(/[\.\n]/).map(s=>s.trim()).filter(s=>s.length>40 && s.length<220);
+  // Kumpulkan semua nama / angka sebagai bank jawaban, Pak.
+  let bankNama = [...new Set((teksBersih.match(/\b[A-Z][a-z]{2,}(?:\s[A-Z][a-z]{2,})?\b/g)||[]))].filter(w=>!['Nabi','Allah','Yang','Dan','Dari','Pada','Ketika','Setelah','Karena','Untuk','Dengan','Adalah','Tidak','Sudah','Akan'].includes(w)).slice(0,30);
+  let bankAngka = [...new Set((teksBersih.match(/\b\d+\b/g)||[]))].filter(n=>parseInt(n)>0 && parseInt(n)<1000).slice(0,20);
+  let kuis = [];
+  // Ambil 5 kalimat jadi 5 soal, Pak. Acak biar beda-beda.
+  let kalimatAcak = kalimat.sort(()=>Math.random()-0.5).slice(0,8);
+  for(let k of kalimatAcak){
+    if(kuis.length>=5) break;
+    // Cari kata kunci di kalimat ini: Nama atau Angka, Pak.
+    let kataKunci = k.match(/\b\d+\b/) ? k.match(/\b\d+\b/)[0] : (k.match(/\b[A-Z][a-z]{2,}(?:\s[A-Z][a-z]{2,})?\b/)||[])[0];
+    if(!kataKunci) continue;
+    if(bankNama.includes(kataKunci) && kataKunci.length<3) continue;
+    let bank = /\d/.test(kataKunci) ? bankAngka : bankNama;
+    if(bank.length<4) continue;
+    // Buat 3 pengecoh dari bank jawaban, Pak. Jangan sampai sama dengan jawaban benar.
+    let pengecoh = bank.filter(b=>b!==kataKunci).sort(()=>Math.random()-0.5).slice(0,3);
+    if(pengecoh.length<3) continue;
+    let pil = [...pengecoh, kataKunci].sort(()=>Math.random()-0.5);
+    let soal = k.replace(kataKunci, '_____');
+    kuis.push({q: 'Lengkapi kalimat ini: "'+soal+'..."', pil: pil, benar: pil.indexOf(kataKunci)});
+  }
+  // Kalau gagal bikin 5, tambahkan soal cadangan dari judul buku, Pak.
+  if(kuis.length===0){
+    kuis.push({q:"Siapa tokoh utama dalam buku ini?", pil: bankNama.slice(0,4), benar:0});
+  }
+  return kuis;
+}
+function uploadBuku(e){
+  let f=e.target.files[0]; let r=new FileReader();
+  r.onload=function(){
+    let teks=r.result;
+    let babBaru = pecahBabOtomatis(teks);
+    let kuisBaru = buatKuisOtomatis(teks);
+    buku.push({judul:f.name.replace('.txt',''), desc:'Upload dari HP • '+new Date().toLocaleDateString('id-ID')+' • '+babBaru.length+' Bab • '+kuisBaru.length+' Soal Otomatis', bab: babBaru, kuis: kuisBaru});
+    saveBuku(); tampilBuku();
+    alert('Berhasil, Pak! Buku terpecah jadi '+babBaru.length+' Bab, dan dibuatkan '+kuisBaru.length+' soal otomatis dari isinya, Pak!');
+  };
+  r.readAsText(f);
+}
 function getCatatanKey(){ return 'catatan_'+bukuAktif; }
 function tampilCatatan(){ let c=JSON.parse(localStorage.getItem(getCatatanKey())||'[]'); let h=''; c.forEach((x,i)=>{ h+=`<div style="background:#fff;padding:10px;border-radius:10px;margin-top:8px"><small>${x.tanggal}</small><p>${x.isi.replace(/\n/g,'<br>')}</p><button class="merah" onclick="hapusCatatan(${i})">Hapus</button></div>` }); document.getElementById('listCatatan').innerHTML=h; }
 function simpanCatatan(){ let isi=document.getElementById('catatanIsi').value; if(!isi){alert('Tulis catatan dulu, Pak');return} let c=JSON.parse(localStorage.getItem(getCatatanKey())||'[]'); c.unshift({isi:isi,tanggal:new Date().toLocaleString('id-ID')}); localStorage.setItem(getCatatanKey(),JSON.stringify(c)); document.getElementById('catatanIsi').value=''; tampilCatatan(); alert('Catatan tersimpan, Pak!'); }
