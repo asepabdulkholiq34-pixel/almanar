@@ -17,6 +17,10 @@ textarea{height:120px} .buku{background:#fff;margin:12px;padding:14px;border-rad
 mark{background:yellow;color:#000} .catatanBox{background:#E3F2FD;padding:12px;border-radius:10px;margin-top:12px;color:#333}
 .hidden{display:none} .center{text-align:center} .kuisBtn{display:block;width:92%;text-align:left;margin:6px auto}
 </style></head>
+  <div style="position:fixed;bottom:10px;left:0;right:0;text-align:center;z-index:99">
+<button onclick="kembali()" style="background:#c62828;padding:12px 18px">🏠 Kembali ke Daftar</button>
+<button onclick="window.scrollTo(0,0)" style="background:#1565C0;padding:12px 18px">⬆️ Ke Atas</button>
+</div>
 <body>
 <header><h1>📚 E-Book Reader V2 - SUDAH DIPERBAIKI</h1><p>SMKS Al Manar • Judul Tidak Dobel • Kuis Sesuai Buku</p></header>
 <div id="home">
@@ -41,7 +45,7 @@ mark{background:yellow;color:#000} .catatanBox{background:#E3F2FD;padding:12px;b
 </div>
 <div id="baca" class="hidden">
 <div class="toolbar">
-<button onclick="kembali()">🏠 Daftar</button>
+<button onclick="kembali()" style="background:#c62828;padding:12px 18px;font-size:16px">🏠 Kembali ke Daftar Buku</button>
 <button class="abu" onclick="ubahFont(-2)">A-</button><button class="abu" onclick="ubahFont(2)">A+</button>
 <button onclick="setTema('malam')">🌙</button><button onclick="setTema('sepia')">📜</button><br>
 <input id="cariIsi" placeholder="🔍 Cari di buku ini..." oninput="cariDalam()"><br>
@@ -144,15 +148,24 @@ function tampilBab(){
 }
 // PERBAIKAN 2: Kuis sesuai buku
 function tampilKuis(){
-  let list = buku[bukuAktif].kuis || [{q:"Buku ini belum ada kuisnya, Pak. Baca dulu ya.", pil:["Siap, Pak!"], benar:0}];
-  if(soalAktif>=list.length) soalAktif=0;
-  let s=list[soalAktif];
+  let list = buku[bukuAktif].kuis || [];
   document.getElementById('judulKuis').innerText = buku[bukuAktif].judul;
-  document.getElementById('soalTeks').innerText = (soalAktif+1)+'. '+s.q;
-  document.getElementById('nomorSoal').innerText = soalAktif+1;
-  let h=''; s.pil.forEach((p,idx)=>{ h+=`<button class="kuisBtn" onclick="cekKuis(${idx})">${String.fromCharCode(65+idx)}. ${p}</button>` });
+  let h='';
+  list.forEach((s,idx)=>{
+    h+=`<p><b>${idx+1}. ${s.q}</b></p>`;
+    s.pil.forEach((p,pi)=>{
+      h+=`<button class="kuisBtn" onclick="cekKuisAll(${idx},${pi},this)">${String.fromCharCode(65+pi)}. ${p}</button>`;
+    });
+    h+=`<p id="hasil${idx}"></p><hr>`;
+  });
   document.getElementById('pilihanKuis').innerHTML=h;
-  document.getElementById('hasilKuis').innerText='';
+  document.getElementById('soalTeks').innerText='Jawab semua soal di bawah ini, Pak. Klik jawabannya.';
+  document.getElementById('nomorSoal').innerText=list.length;
+}
+function cekKuisAll(idx,pi,btn){
+  let s=buku[bukuAktif].kuis[idx];
+  if(pi===s.benar){ skor++; localStorage.setItem('skor',skor); document.getElementById('skor').innerText=skor; document.getElementById('hasil'+idx).innerText='✅ Betul!'; btn.style.background='green'; }
+  else { document.getElementById('hasil'+idx).innerText='❌ Salah. Jawaban benar: '+s.pil[s.benar]; btn.style.background='#c62828'; }
 }
 function cekKuis(idx){
   let list = buku[bukuAktif].kuis || [{benar:0}];
