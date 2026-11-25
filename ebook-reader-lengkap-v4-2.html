@@ -173,14 +173,12 @@ function pasangStabilo(){ let isi=document.getElementById('konten'); isi.onconte
 function hapusSemuaStabilo(){ document.querySelectorAll('#konten .stabilo').forEach(el=>el.classList.remove('stabilo')); alert('Semua stabilo sudah dihapus, Pak. Bersih lagi.'); }
 function bicara(){ speechSynthesis.speak(new speechSynthesisUtterance(document.getElementById('konten').innerText)); }
 function cariDalam(){ let k=document.getElementById('cariIsi').value.toLowerCase(); if(!k){tampilBab();return} let b=buku[bukuAktif].bab[babAktif]; if((b.judul+b.isi).toLowerCase().includes(k)){ document.getElementById('konten').innerHTML=`<h2>${b.judul}</h2><p style="background:yellow;padding:8px;border-radius:8px;color:#333">✅ Kata "${k}" ada di bab ini, Pak.</p>`+bersihkanIsi(b.judul,b.isi); pasangStabilo(); } else { document.getElementById('konten').innerHTML=`<p>❌ Tidak ada di bab ini, Pak.</p>` } }
-// V4.6 - Tambah Buku Baru juga pakai Pengantar + Kuis Otomatis, sama kayak Upload, Pak.
+// V4.7 - Tambah Buku: Judul + Keterangan jadi Cover sendiri, Pak.
 function tambahBuku(){
   let j=document.getElementById('judulBaru').value;
   let d=document.getElementById('descBaru').value;
   let isi=document.getElementById('isiBaru').value;
   if(!j||!isi){alert('Isi judul & isi buku dulu, Pak');return}
-  // Gabungkan Judul + Keterangan jadi Pengantar, baru isi Bab-nya, Pak.
-  // Jadi Bapak tidak perlu tulis judul lagi di dalam kolom Isi, Pak.
   let teksLengkap = j + '\n' + (d||'') + '\n\n' + isi;
   let babBaru = pecahBabOtomatis(teksLengkap);
   let kuisBaru = buatKuisOtomatis(teksLengkap);
@@ -190,9 +188,11 @@ function tambahBuku(){
   show('tambahBuku');
 }
 function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }
-// V4.6 - Pembuka jadi Halaman Pengantar sendiri, tidak nempel ke Bab 1 lagi, Pak.
+// V4.7 - Pecah Bab: ---BAB--- hanya pemisah, bukan Pengantar, Pak.
 function pecahBabOtomatis(teks){
-  let parts = teks.split(/(?=^.*\bBAB\s*\d+.*$)|(?=---BAB---)/gim);
+  // Buang dulu semua garis ---BAB---, biar tidak dikira Pengantar, Pak.
+  let bersih = teks.replace(/^---BAB---\s*$/gim,'').trim();
+  let parts = bersih.split(/(?=^.*\bBAB\s*\d+.*$)/gim);
   let bab = [];
   let pembuka = '';
   parts.forEach((p)=>{
@@ -202,6 +202,27 @@ function pecahBabOtomatis(teks){
       pembuka = t;
       return;
     }
+    let m = t.match(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i);
+    let judul = m ? m[0].trim() : 'Bab '+(bab.length+1);
+    if(judul.length > 35){
+      judul = judul.slice(0,35);
+      judul = judul.slice(0, judul.lastIndexOf(' ')) + '...';
+    }
+    let isi = t.replace(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i,'').trim();
+    bab.push({judul: judul, isi:'<p>'+isi.replace(/\n/g,'<br>')+'</p>'});
+  });
+  if(pembuka){
+    let baris = pembuka.split('\n').map(s=>s.trim()).filter(s=>s);
+    let judulUtama = baris[0] || 'Pengantar';
+    bab.unshift({judul: 'Pengantar: '+judulUtama, isi:'<p>'+baris.slice(1).join('<br>')+'</p>'});
+  }
+  if(bab.length===0){
+    for(let i=0;i<teks.length;i+=3000){
+      bab.push({judul:'Bab '+(bab.length+1), isi:'<p>'+teks.slice(i,i+3000).replace(/\n/g,'<br>')+'</p>'});
+    }
+  }
+  return bab;
+}
     let m = t.match(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i);
     let judul = m ? m[0].trim() : 'Bab '+(bab.length+1);
     if(judul.length > 35){
