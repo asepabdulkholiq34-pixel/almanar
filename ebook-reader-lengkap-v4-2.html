@@ -190,7 +190,6 @@ function tambahBuku(){
 function hapusBuku(i){ if(confirm('Hapus buku '+buku[i].judul+'?')){ buku.splice(i,1); saveBuku(); tampilBuku(); } }
 // V4.7 - Pecah Bab: ---BAB--- hanya pemisah, bukan Pengantar, Pak.
 function pecahBabOtomatis(teks){
-  // Buang dulu semua garis ---BAB---, biar tidak dikira Pengantar, Pak.
   let bersih = teks.replace(/^---BAB---\s*$/gim,'').trim();
   let parts = bersih.split(/(?=^.*\bBAB\s*\d+.*$)/gim);
   let bab = [];
@@ -202,27 +201,6 @@ function pecahBabOtomatis(teks){
       pembuka = t;
       return;
     }
-    let m = t.match(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i);
-    let judul = m ? m[0].trim() : 'Bab '+(bab.length+1);
-    if(judul.length > 35){
-      judul = judul.slice(0,35);
-      judul = judul.slice(0, judul.lastIndexOf(' ')) + '...';
-    }
-    let isi = t.replace(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i,'').trim();
-    bab.push({judul: judul, isi:'<p>'+isi.replace(/\n/g,'<br>')+'</p>'});
-  });
-  if(pembuka){
-    let baris = pembuka.split('\n').map(s=>s.trim()).filter(s=>s);
-    let judulUtama = baris[0] || 'Pengantar';
-    bab.unshift({judul: 'Pengantar: '+judulUtama, isi:'<p>'+baris.slice(1).join('<br>')+'</p>'});
-  }
-  if(bab.length===0){
-    for(let i=0;i<teks.length;i+=3000){
-      bab.push({judul:'Bab '+(bab.length+1), isi:'<p>'+teks.slice(i,i+3000).replace(/\n/g,'<br>')+'</p>'});
-    }
-  }
-  return bab;
-}
     let m = t.match(/BAB\s*\d+\s*[:.\-]?\s*[^\n\r]{0,80}/i);
     let judul = m ? m[0].trim() : 'Bab '+(bab.length+1);
     if(judul.length > 35){
