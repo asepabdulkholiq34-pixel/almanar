@@ -88,19 +88,31 @@ function cekRole(){let r=document.getElementById('role').value;document.getEleme
 function isiPilihAnak(){let k=document.getElementById('kelasLogin').value.trim();let kNormal=k.toUpperCase().replace(/\s+/g," ");let list=db.siswa.filter(s=>(s.kelas||"").trim().toUpperCase().replace(/\s+/g," ")===kNormal);let sel=document.getElementById('pilihAnak');let info=document.getElementById('infoAnak');if(list.length===0){sel.innerHTML='<option value="">-- Belum ada siswa --</option>';if(info)info.innerText='Belum ada siswa di kelas ini.';}else{sel.innerHTML=list.map(s=>`<option value="${s.nama}">${s.nama}</option>`).join('');if(info)info.innerText=list.length+' siswa di kelas '+k;}}
 cekRole();
 function copyCSVAbsen(){
+function copyCSVAbsen(){
   let list=db.siswa||[];
   if(!list.length) return alert('Belum ada siswa, Pak!');
-  let header='Nama\tKelas\tStatus Absen Hari Ini\tNo HP Ortu';
+
+  // JUDUL STATUS OTOMATIS ADA HARI + TANGGAL, PAK
+  let now=new Date();
+  let hariIndo=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][now.getDay()];
+  let tgl=String(now.getDate()).padStart(2,'0');
+  let bln=String(now.getMonth()+1).padStart(2,'0');
+  let thn=now.getFullYear();
+  // Hasilnya: Kamis, 26-11-2026
+  let judulStatus='Status Absen Hari '+hariIndo+', '+tgl+'-'+bln+'-'+thn;
+
+  // URUTAN TETEP SAMA KAYAK SHEET BAPAK, PAK: Nama | Kelas | Status | No HP
+  let header='Nama\tKelas\t'+judulStatus+'\tNo HP Ortu';
   let baris=list.map(s=>{
     let st=db.absen[s.nama]||'Belum Absen';
     return [s.nama, s.kelas, st, tampilHP(s.hp)].join('\t');
   }).join('\n');
+
   let teksCSV=header+'\n'+baris;
 
-  // Coba copy otomatis
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(teksCSV).then(()=>{
-      alert('BERHASIL DI-COPY, Pak! ✅\n\nTinggal buka Google Sheet Bapak, pencet di kolom yang mau ditempel, terus Pencet Paste, Pak.\n\nLangsung rapi jadi 4 kolom, Pak. Nggak numpuk di kolom A lagi, Pak.');
+      alert('BERHASIL DI-COPY, Pak! ✅\n\nJudulnya udah jadi:\n'+judulStatus+'\n\nTinggal paste di Google Sheet, Pak.');
     }).catch(()=>{ tampilCopyManual(teksCSV); });
   } else {
     tampilCopyManual(teksCSV);
