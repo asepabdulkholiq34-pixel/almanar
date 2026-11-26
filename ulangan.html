@@ -72,7 +72,17 @@ let idxSoalAktif=0, jawabanSementara={}, sudahKirim=false, sedangKirim=false;
 
 function hashString(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 function seededShuffle(arr,seedStr){let a=[...arr];let seed=hashString(seedStr||'x');function rnd(){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;seed=seed>>>0;return seed/4294967296;}for(let i=a.length-1;i>0;i--){let j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function getUrutanSoal(){let idx=soalList.map((s,i)=>i);if(!meta.acakUrutan) return idx;return seededShuffle(idx, currentNama+'|urutan|'+meta.judul);}
+function getUrutanSoal(){
+  let idxPG=[], idxEssay=[];
+  soalList.forEach((s,i)=>{ if(s.tipe==='essay') idxEssay.push(i); else idxPG.push(i); });
+  // Kalau Acak MATI, urutan normal: PG dulu, baru Essay
+  if(!meta.acakUrutan) return [...idxPG, ...idxEssay];
+  // Kalau Acak AKTIF, acak PG sesama PG, Essay sesama Essay
+  let acakPG = seededShuffle(idxPG, currentNama+'|urutan-PG|'+meta.judul);
+  let acakEssay = seededShuffle(idxEssay, currentNama+'|urutan-ESSAY|'+meta.judul);
+  // Gabung: PG dulu semua, baru Essay
+  return [...acakPG, ...acakEssay];
+}
 function getOpsiAcak(soal,idxAsli){let dasar=soal.opsi.map((o,oi)=>({teks:o,kunciAsli:['A','B','C','D','E'][oi]}));if(!meta.acak) return dasar;return seededShuffle(dasar, currentNama+'|soal-'+idxAsli+'|'+soal.teks);}
 
 function togglePass(id,btn){let el=document.getElementById(id);if(el.type==='password'){el.type='text';btn.innerText='🙈';}else{el.type='password';btn.innerText='👁️';}}
