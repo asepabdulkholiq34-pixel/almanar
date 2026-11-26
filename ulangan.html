@@ -36,6 +36,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="boxPG"><label>Jawaban A</label><input id="opsiA" placeholder="Jawaban A"><label>Jawaban B</label><input id="opsiB" placeholder="Jawaban B"><label>Jawaban C</label><input id="opsiC" placeholder="Jawaban C"><label>Jawaban D</label><input id="opsiD" placeholder="Jawaban D"><label>Jawaban E</label><input id="opsiE" placeholder="Jawaban E - Tambahan"><label>Kunci Jawaban Benar</label><select id="kunciPG"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
 <div id="boxEssay" class="hidden"><p class="small">Essay: Siswa ketik panjang. Guru nilai manual 0-100.</p></div>
 <button class="btn" onclick="tambahSoal()">+ Tambah Soal Ini</button>
+  <button class="btn" onclick="copyKeSheet()" style="background:#0F9D58;margin-top:8px">📋 Copy ke Google Sheet</button>
 <button class="btn" onclick="isiSoalYusuf()" style="background:#f59e0b;margin-top:8px">⚡ Isi Otomatis 8 Soal Kisah Nabi Yusuf AS</button>
 <p class="small">Pencet tombol kuning ini sekali aja, Pak. Langsung jadi 8 soal Yusuf yang di video Bapak tadi, Pak. Nggak usah ketik satu-satu, Pak.</p>
 <div style="background:#e0f2fe;padding:12px;border-radius:10px;margin-top:10px"><b>📥 Import Soal dari Google Sheets - CSV</b><br><span class="small">1. Di Google Sheets: File > Download > CSV<br>2. Pilih file CSV nya di sini, Pak.</span><input type="file" id="fileImportSoal" accept=".csv" style="margin-top:8px"><button class="btn" onclick="importSoalCSV()" style="background:#0ea5e9;margin-top:8px">📥 Import Soal dari CSV</button><button class="btn2" onclick="downloadTemplateCSV()" style="margin-top:8px">📄 Download Contoh Format CSV</button></div>
@@ -69,6 +70,24 @@ function login(){currentRole=document.getElementById('role').value;if(currentRol
 function simpanKode(){let b=document.getElementById('kodeUL10Baru').value.trim();let c=document.getElementById('kodeUL11Baru').value.trim();let d=document.getElementById('kodeUL12Baru').value.trim();if(b)db.kodeUL10=b;if(c)db.kodeUL11=c;if(d)db.kodeUL12=d;save();renderAll();alert('Kode baru tersimpan, Pak!');}
 function logout(){location.reload();}
 function gantiTipeSoal(){let t=document.getElementById('tipeSoal').value;document.getElementById('boxPG').classList.toggle('hidden',t!=='pg');document.getElementById('boxEssay').classList.toggle('hidden',t!=='essay');}
+  function copyKeSheet(){
+  if(!db.ulangan || !db.ulangan.soal || db.ulangan.soal.length==0){
+    return alert('Belum ada soal, Pak! Tambah soal dulu, Pak!');
+  }
+  let judul = db.ulangan.judul || 'Ulangan';
+  let kelas = db.ulangan.kelas || '';
+  let teks = "Judul\tKelas\tTipe\tSoal\tPilihan A\tPilihan B\tPilihan C\tPilihan D\tPilihan E\tKunci Jawaban\n";
+  db.ulangan.soal.forEach(s=>{
+    if(s.tipe=='pg'){
+      teks += judul + "\t" + kelas + "\tPG\t" + s.teks.replace(/\n/g,' ') + "\t" + s.opsi.join("\t") + "\t" + s.kunci + "\n";
+    } else {
+      teks += judul + "\t" + kelas + "\tEssay\t" + s.teks.replace(/\n/g,' ') + "\t\t\t\t\t\t" + (s.kunci||'') + "\n";
+    }
+  });
+  navigator.clipboard.writeText(teks).then(()=>{
+    alert('Udah ke-copy, Pak! ' + db.ulangan.soal.length + ' soal. Tinggal Paste di Google Sheet, Pak!');
+  });
+}
 function tambahSoal(){if(!db.ulangan)db.ulangan={judul:"Ulangan",kelas:"11",soal:[],jawaban:[],acak:false,acakUrutan:false};let judul=document.getElementById('judulUlangan').value.trim();if(judul)db.ulangan.judul=judul;db.ulangan.kelas=document.getElementById('kelasUlangan').value;let tipe=document.getElementById('tipeSoal').value;let teks=document.getElementById('teksSoal').value.trim();if(!teks)return alert('Tulis soal dulu, Pak!');if(tipe==='pg'){let a=document.getElementById('opsiA').value.trim();let b=document.getElementById('opsiB').value.trim();let c=document.getElementById('opsiC').value.trim();let d=document.getElementById('opsiD').value.trim();let e=document.getElementById('opsiE').value.trim();if(!a||!b||!c||!d||!e)return alert('Isi semua A sampai E dulu, Pak!');let kunci=document.getElementById('kunciPG').value;db.ulangan.soal.push({tipe:'pg',teks:teks,opsi:[a,b,c,d,e],kunci:kunci});['teksSoal','opsiA','opsiB','opsiC','opsiD','opsiE'].forEach(id=>document.getElementById(id).value='');}else{db.ulangan.soal.push({tipe:'essay',teks:teks});document.getElementById('teksSoal').value='';}save();renderAll();alert('Soal ditambah, Pak! Total: '+db.ulangan.soal.length+' | Kelas: '+db.ulangan.kelas);}
 function isiSoalYusuf(){
   if(!confirm('Isi 8 soal Kisah Nabi Yusuf AS, Pak? Soal lama tetap ada, Pak. Kalau mau bersih, Hapus Semua Soal dulu, Pak.')) return;
