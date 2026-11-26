@@ -87,7 +87,7 @@ document.getElementById('kelasLogin').addEventListener('change',isiPilihAnak);
 function cekRole(){let r=document.getElementById('role').value;document.getElementById('boxGuru').classList.toggle('hidden',r!=='guru');document.getElementById('boxOrtu').classList.toggle('hidden',r!=='ortu');if(r==='ortu')isiPilihAnak();}
 function isiPilihAnak(){let k=document.getElementById('kelasLogin').value.trim();let kNormal=k.toUpperCase().replace(/\s+/g," ");let list=db.siswa.filter(s=>(s.kelas||"").trim().toUpperCase().replace(/\s+/g," ")===kNormal);let sel=document.getElementById('pilihAnak');let info=document.getElementById('infoAnak');if(list.length===0){sel.innerHTML='<option value="">-- Belum ada siswa --</option>';if(info)info.innerText='Belum ada siswa di kelas ini.';}else{sel.innerHTML=list.map(s=>`<option value="${s.nama}">${s.nama}</option>`).join('');if(info)info.innerText=list.length+' siswa di kelas '+k;}}
 cekRole();
-function copyCSVAbsen(){
+  }
 function copyCSVAbsen(){
   let list=db.siswa||[];
   if(!list.length) return alert('Belum ada siswa, Pak!');
