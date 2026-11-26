@@ -53,7 +53,7 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="pageAbsensi" class="card"><h3>✅ Absensi - Kelas 11</h3><p class="small" id="tglAbsenTampil" style="font-weight:700"></p>
 <div id="boxTambahSiswa" class="hidden" style="background:#f0fdf4;padding:10px;border-radius:10px"><b>Tambah Siswa (Guru)</b><input id="namaBaru" placeholder="Nama siswa"><input id="hpBaru" placeholder="No HP Ortu - 081234567890"><select id="kelasBaru"><option>XI 1 TKJ</option><option>XI 1 AKL</option></select><button class="btn" onclick="tambahSiswa()">+ Tambah Siswa</button></div>
 <label style="margin-top:10px;display:block">Filter Kelas</label><select id="filterKelas" onchange="renderAll()"><option>Semua</option><option>XI 1 TKJ</option><option>XI 1 AKL</option></select>
-<button class="btn" onclick="downloadCSVAbsen()" style="background:#0ea5e9;margin-top:10px">📥 Download Absen Hari Ini - CSV (XI TKJ + XI AKL)</button><div id="listSiswa"></div></div>
+<button class="btn" onclick="copyCSVAbsen()" style="background:#0ea5e9;margin-top:10px">📋 Copy Absensi - CSV (Paste ke Google Sheet)</button><div id="listSiswa"></div></div>
 <div id="pageIzin" class="card hidden"><h3>📝 Izin Online</h3><div id="formIzin" class="hidden" style="background:#fffbe6;padding:10px;border-radius:10px"><b>Ajukan Izin (Ortu)</b><select id="jenisIzin"><option>Sakit</option><option>Izin</option></select><input id="tglIzin" type="date"><textarea id="alasanIzin" placeholder="Alasan..."></textarea><button class="btn" onclick="ajukanIzin()">Kirim Izin</button></div><p class="small" id="infoIzin"></p><h3>Daftar Pengajuan Izin:</h3><div id="listIzin"></div></div>
 <div id="pagePesan" class="card hidden"><h3>💬 Pesan / Chat</h3><div id="listPesan"></div></div>
 <div id="pageJadwal" class="card hidden"><h3>📅 Jadwal Pelajaran</h3><p class="small" id="infoJadwal"></p><div id="listJadwal"></div><div id="boxSimpanJadwal" class="hidden" style="margin-top:10px"><button class="btn" onclick="simpanJadwal()">💾 Simpan Jadwal</button></div></div>
@@ -87,7 +87,30 @@ document.getElementById('kelasLogin').addEventListener('change',isiPilihAnak);
 function cekRole(){let r=document.getElementById('role').value;document.getElementById('boxGuru').classList.toggle('hidden',r!=='guru');document.getElementById('boxOrtu').classList.toggle('hidden',r!=='ortu');if(r==='ortu')isiPilihAnak();}
 function isiPilihAnak(){let k=document.getElementById('kelasLogin').value.trim();let kNormal=k.toUpperCase().replace(/\s+/g," ");let list=db.siswa.filter(s=>(s.kelas||"").trim().toUpperCase().replace(/\s+/g," ")===kNormal);let sel=document.getElementById('pilihAnak');let info=document.getElementById('infoAnak');if(list.length===0){sel.innerHTML='<option value="">-- Belum ada siswa --</option>';if(info)info.innerText='Belum ada siswa di kelas ini.';}else{sel.innerHTML=list.map(s=>`<option value="${s.nama}">${s.nama}</option>`).join('');if(info)info.innerText=list.length+' siswa di kelas '+k;}}
 cekRole();
-function downloadCSVAbsen(){let list=db.siswa||[];if(!list.length)return alert('Belum ada siswa, Pak!');let header='Nama,Kelas,Status Absen Hari Ini,No HP Ortu\n';let baris=list.map(s=>{let st=db.absen[s.nama]||'Belum Absen';let esc=(v)=>'"'+String(v||'').replace(/"/g,'""')+'"';return [esc(s.nama),esc(s.kelas),esc(st),esc(tampilHP(s.hp))].join(',');}).join('\n');let blob=new Blob([header+baris],{type:'text/csv;charset=utf-8;'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Absen_Kelas11_'+new Date().toISOString().slice(0,10)+'.csv';a.click();alert('CSV Absen terdownload, Pak!');}
+function copyCSVAbsen(){
+  let list=db.siswa||[];
+  if(!list.length) return alert('Belum ada siswa, Pak!');
+  let header='Nama\tKelas\tStatus Absen Hari Ini\tNo HP Ortu';
+  let baris=list.map(s=>{
+    let st=db.absen[s.nama]||'Belum Absen';
+    return [s.nama, s.kelas, st, tampilHP(s.hp)].join('\t');
+  }).join('\n');
+  let teksCSV=header+'\n'+baris;
+
+  // Coba copy otomatis
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(teksCSV).then(()=>{
+      alert('BERHASIL DI-COPY, Pak! ✅\n\nTinggal buka Google Sheet Bapak, pencet di kolom yang mau ditempel, terus Pencet Paste, Pak.\n\nLangsung rapi jadi 4 kolom, Pak. Nggak numpuk di kolom A lagi, Pak.');
+    }).catch(()=>{ tampilCopyManual(teksCSV); });
+  } else {
+    tampilCopyManual(teksCSV);
+  }
+}
+
+function tampilCopyManual(teks){
+  let w=window.open('','_blank');
+  w.document.write('<h3>Copy manual, Pak. Blok semua, Pencet Salin:</h3><textarea style="width:95%;height:400px">'+teks+'</textarea>');
+}
 function login(){currentRole=document.getElementById('role').value;if(currentRole==='guru'){currentNama=document.getElementById('namaLogin').value.trim()||'Guru';currentKelas='XI 1 TKJ';currentAnak='';let pw=document.getElementById('passGuru').value.trim();if(!cekPassword(pw)){alert('Password Guru salah, Pak!');return;}}else if(currentRole==='ortu'){currentNama=document.getElementById('namaOrtu').value.trim()||'Ortu';currentKelas=document.getElementById('kelasLogin').value;currentAnak=document.getElementById('pilihAnak').value;if(!currentAnak){alert('Belum ada siswa di kelas ini.');return;}let kode=document.getElementById('kodeOrtu').value.trim();if(kode!==db.kodeOrtu){alert('🔒 Kode Ortu salah! Tanya ke Guru via WA, Pak/Bu.');return;}}document.getElementById('loginPage').classList.add('hidden');document.getElementById('mainPage').classList.remove('hidden');document.getElementById('bottomNav').classList.remove('hidden');pageIdx=0;showTab(pages[0]);renderAll();updateNotif();}
 function simpanKode(){let a=document.getElementById('kodeOrtuBaru').value.trim();if(a)db.kodeOrtu=a;save();renderAll();alert('Kode baru tersimpan, Pak!');}
 function gantiPassword(){let lama=document.getElementById('passLama').value;let baru=document.getElementById('passBaru').value;let baru2=document.getElementById('passBaru2').value;if(!cekPassword(lama)){alert('Password Lama salah, Pak!');return;}if(baru.length<4){alert('Password Baru minimal 4 huruf/angka, Pak!');return;}if(baru!==baru2){alert('Password Baru tidak sama, Pak!');return;}db.passGuru=baru;save();document.getElementById('passLama').value='';document.getElementById('passBaru').value='';document.getElementById('passBaru2').value='';alert('Password baru tersimpan, Pak!');}
