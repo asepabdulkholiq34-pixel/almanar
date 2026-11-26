@@ -122,7 +122,7 @@ function login(){
 }
 function renderGuruHeader(){document.getElementById('judulUlangan').value=meta.judul||'';document.getElementById('kelasUlangan').value=meta.kelas||'11';document.getElementById('kodeUL10Baru').value=meta.kodeUL10||'';document.getElementById('kodeUL11Baru').value=meta.kodeUL11||'';document.getElementById('kodeUL12Baru').value=meta.kodeUL12||'';document.getElementById('acakSoal').checked=!!meta.acak;document.getElementById('acakUrutanSoal').checked=!!meta.acakUrutan;}
 function renderGuru(){renderGuruHeader();document.getElementById('listSoalUlangan').innerHTML=soalList.length?soalList.map((s,i)=>`<div style="border:1px solid #eee;padding:10px;border-radius:10px;margin:6px 0"><b>Soal ${i+1} [${s.tipe}]</b><br>${s.teks}<br>${s.tipe==='pg'?s.opsi.map((o,oi)=>`<div>${['A','B','C','D','E'][oi]}. ${o} ${['A','B','C','D','E'][oi]===s.kunci?' ✅ KUNCI':''}</div>`).join(''):''}<button class="btn2" onclick="hapusSoal('${s.key}')" style="background:#fee2e2;margin-top:6px">🗑️ Hapus</button></div>`).join(''):'<p class="small">Belum ada soal.</p>';renderHasil();}
-function renderHasil()function renderHasil(){
+function renderHasil(){
   let el=document.getElementById('listHasilUlangan');
   if(!jawabanList.length){el.innerHTML='<p class="small">Belum ada yang jawab.</p>';return;}
   el.innerHTML=jawabanList.map(j=>{
