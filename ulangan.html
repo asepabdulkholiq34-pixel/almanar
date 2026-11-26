@@ -141,14 +141,22 @@ function renderHasil(){
 function tambahSoal(){let judul=document.getElementById('judulUlangan').value.trim();if(judul) metaRef.child('judul').set(judul);metaRef.child('kelas').set(document.getElementById('kelasUlangan').value);let tipe=document.getElementById('tipeSoal').value;let teks=document.getElementById('teksSoal').value.trim();if(!teks) return alert('Tulis soal dulu, Pak!');if(tipe==='pg'){let a=document.getElementById('opsiA').value.trim(),b=document.getElementById('opsiB').value.trim(),c=document.getElementById('opsiC').value.trim(),d=document.getElementById('opsiD').value.trim(),e=document.getElementById('opsiE').value.trim();if(!a||!b||!c||!d||!e) return alert('Isi A sampai E dulu, Pak!');soalRef.push({tipe:'pg',teks:teks,opsi:[a,b,c,d,e],kunci:document.getElementById('kunciPG').value});}else{soalRef.push({tipe:'essay',teks:teks});}['teksSoal','opsiA','opsiB','opsiC','opsiD','opsiE'].forEach(id=>document.getElementById(id).value='');alert('Soal ditambah, Pak!');}
   function copySoalKeSheet(){
   if(!soalList.length){alert('Belum ada soal, Pak!');return;}
+  // Cari Judul & Kelas dari isinya, bukan dari ID, Pak - biar pasti ketemu
+  let judul='Ulangan Kisah Nabi Yusuf AS';
+  let kelas='Kelas 11 Saja';
+  document.querySelectorAll('input, select, textarea').forEach(el=>{
+    let v=(el.value||'').trim();
+    if(v.toLowerCase().includes('ulangan')) judul=v;
+    if(v.toLowerCase().includes('kelas 11')) kelas=v;
+  });
   let teks='Judul\tKelas\tJenis\tPertanyaan\tJawaban A\tJawaban B\tJawaban C\tJawaban D\tJawaban E\tKunci\n';
   soalList.forEach((s,i)=>{
     let a=s.pilihan?s.pilihan[0]||'':'', b=s.pilihan?s.pilihan[1]||'':'', c=s.pilihan?s.pilihan[2]||'':'', d=s.pilihan?s.pilihan[3]||'':'', e=s.pilihan?s.pilihan[4]||'':'';
-    teks+=(i+1)+'\t'+s.tipe+'\t'+s.teks.replace(/\n/g,' ')+'\t'+a+'\t'+b+'\t'+c+'\t'+d+'\t'+e+'\t'+(s.kunci||'')+'\n';
+    teks+=judul+'\t'+kelas+'\t'+s.tipe+'\t'+s.teks.replace(/\n/g,' ')+'\t'+a+'\t'+b+'\t'+c+'\t'+d+'\t'+e+'\t'+(s.kunci||'')+'\n';
   });
   navigator.clipboard.writeText(teks).then(()=>{
-    alert('Berhasil di-copy, Pak! '+soalList.length+' soal. Tinggal buka Google Sheet, pencet 1 kotak, terus Paste / Tempel.');
-  }).catch(()=>{alert('Gagal copy otomatis, Pak. Coba lagi.');});
+    alert('Berhasil, Pak! Judul: '+judul+' | Kelas: '+kelas);
+  });
 }
 function isiSoalYusuf(){if(!confirm('Isi 8 soal Yusuf, Pak?')) return;metaRef.child('judul').set('Ulangan Kisah Nabi Yusuf AS');let baru=[{tipe:'pg',teks:'Siapakah ayah dari Nabi Yusuf AS?',opsi:['Nabi Ibrahim AS','Nabi Yaqub AS','Nabi Ishaq AS','Nabi Musa AS','Nabi Ismail AS'],kunci:'B'},{tipe:'pg',teks:'Berapa jumlah bintang dalam mimpi Nabi Yusuf AS?',opsi:['10 bintang','11 bintang','12 bintang','7 bintang','9 bintang'],kunci:'B'},{tipe:'pg',teks:'Dalam mimpi Nabi Yusuf AS apa yang sujud kepadanya?',opsi:['11 bintang, matahari dan bulan','7 sapi gemuk dan 7 sapi kurus','7 tangkai gandum','Langit dan bumi','Burung dan ikan'],kunci:'A'},{tipe:'pg',teks:'Siapa adik kandung Nabi Yusuf AS?',opsi:['Yehuda','Ruben','Bunyamin','Simon','Levi'],kunci:'C'},{tipe:'pg',teks:'Mengapa kakak-kakak Yusuf iri kepadanya?',opsi:['Karena Yusuf kaya','Karena ayahnya lebih menyayangi Yusuf dan Bunyamin','Karena Yusuf tampan','Karena Yusuf pintar berdagang','Karena Yusuf anak pertama'],kunci:'B'},{tipe:'pg',teks:'Kemana kakak-kakaknya membuang Nabi Yusuf AS?',opsi:['Ke dalam hutan','Ke dalam sumur','Ke dalam laut','Ke dalam gua','Ke dalam sungai'],kunci:'B'},{tipe:'pg',teks:'Apa alasan bohong yang disampaikan kakak-kakaknya kepada Nabi Yaqub AS?',opsi:['Yusuf tenggelam','Yusuf hilang di pasar','Yusuf dimakan serigala','Yusuf diculik perampok','Yusuf kabur dari rumah'],kunci:'C'},{tipe:'pg',teks:'Siapa yang menemukan Nabi Yusuf AS di dalam sumur?',opsi:['Raja Mesir','Al-Aziz','Rombongan pedagang yang hendak mengambil air','Nabi Yaqub AS','Zulaikha'],kunci:'C'}];baru.forEach(s=>soalRef.push(s));alert('Berhasil, Pak! 8 soal Yusuf masuk.');}
 function hapusSoal(key){if(!confirm('Hapus soal ini, Pak?'))return;soalRef.child(key).remove();}
