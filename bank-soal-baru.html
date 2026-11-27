@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Soal - Pak Guru</title>
+<style>
+*{box-sizing:border-box} body{font-family:Arial,sans-serif;background:#0f172a;color:white;margin:0;padding:12px}
+h1{text-align:center;font-size:20px;margin:6px 0} p.sub{text-align:center;color:#94a3b8;font-size:13px;margin:0 0 12px}
+.box{background:#1e293b;border-radius:14px;padding:14px;margin-bottom:12px}
+input,select,textarea,button{width:100%;padding:11px;border-radius:10px;border:none;font-size:14px;margin-top:8px}
+input,select,textarea{background:white;color:#111} button{background:#22c55e;color:white;font-weight:bold;cursor:pointer}
+button.blue{background:#3b82f6} button.orange{background:#f97316} button.grey{background:#475569} button.red{background:#ef4444}
+.soal{background:#334155;padding:12px;border-radius:10px;margin-top:10px}
+.soal b{font-size:14px} .soal div{font-size:13px;margin-top:4px} .kunci{color:#4ade80;font-weight:bold}
+.chip{display:inline-block;background:#475569;padding:6px 10px;border-radius:20px;font-size:12px;margin:2px;cursor:pointer}
+.chip.on{background:#22c55e} .row{display:flex;gap:8px} .row button{flex:1}
+</style>
+</head>
+<body>
+<h1>📚 Bank Soal PAI</h1>
+<p class="sub">Akhlak • Akidah • Kisah Nabi Yusuf • dll - Impor dari Google Sheet</p>
+
+<div class="box" style="border:2px solid #f97316">
+  <b>📥 Impor Soal dari Google Sheet / CSV</b>
+  <p style="font-size:12px;color:#cbd5e1;margin:6px 0">Soal Bapak yang di Google Sheet langsung masuk ke sini, Pak. Format di Sheet: <b>Soal | A | B | C | D | E | Kunci</b></p>
+  <input id="linkSheet" placeholder="Tempel Link Google Sheet di sini, Pak">
+  <button class="orange" onclick="imporLink()">📥 Impor dari Link Google Sheet</button>
+  <div style="text-align:center;font-size:12px;color:#94a3b8;margin:8px 0">— atau —</div>
+  <input type="file" id="fileCSV" accept=".csv">
+  <button class="blue" onclick="imporFile()">📂 Impor dari File CSV di HP</button>
+  <button class="grey" onclick="downloadContoh()">⬇ Download Contoh Format CSV</button>
+  <div style="font-size:11px;color:#94a3b8;margin-top:8px">Di Google Sheet, Bapak setting dulu: <b>Bagikan > Siapa saja yang memiliki link > Lihat</b>. Kalau belum, nanti gagal, Pak.</div>
+</div>
+
+<div class="box">
+  <b>🔍 Filter & Cari</b>
+  <div id="filterMapel">
+    <span class="chip on" onclick="setFilter('Semua',this)">Semua</span>
+    <span class="chip" onclick="setFilter('Akhlak',this)">Akhlak</span>
+    <span class="chip" onclick="setFilter('Akidah',this)">Akidah</span>
+    <span class="chip" onclick="setFilter('Kisah Nabi Yusuf',this)">Kisah Nabi Yusuf</span>
+    <span class="chip" onclick="setFilter('Fiqih',this)">Fiqih</span>
+    <span class="chip" onclick="setFilter('Sejarah',this)">Sejarah</span>
+  </div>
+  <input id="cari" placeholder="Cari soal... contoh: Yusuf" oninput="render()">
+</div>
+
+<div class="box">
+  <b>➕ Tambah Soal Manual (kalau mau nambah 1-2 soal)</b>
+  <select id="mapel"><option>Akhlak</option><option>Akidah</option><option>Kisah Nabi Yusuf</option><option>Fiqih</option><option>Sejarah</option></select>
+  <textarea id="soalBaru" rows="2" placeholder="Tulis soal di sini, Pak..."></textarea>
+  <input id="aBaru" placeholder="Pilihan A"><input id="bBaru" placeholder="Pilihan B"><input id="cBaru" placeholder="Pilihan C"><input id="dBaru" placeholder="Pilihan D"><input id="eBaru" placeholder="Pilihan E">
+  <select id="kunciBaru"><option value="A">Kunci: A</option><option value="B">Kunci: B</option><option value="C">Kunci: C</option><option value="D">Kunci: D</option><option value="E">Kunci: E</option></select>
+  <button onclick="tambahManual()">+ Simpan Soal Manual</button>
+</div>
+
+<div class="box">
+  <b>📋 Daftar Soal (<span id="jml">0</span> soal)</b>
+  <div class="row"><button class="blue" onclick="exportCSV()">📤 Export ke CSV</button><button class="red" onclick="hapusSemua()">🗑 Hapus Semua</button></div>
+  <div id="list"></div>
+</div>
+
+<script>
+let daftarSoal = JSON.parse(localStorage.getItem('bankSoalPAI')||'[]');
+let filterAktif='Semua';
+function simpan(){ localStorage.setItem('bankSoalPAI', JSON.stringify(daftarSoal)); }
+function setFilter(f,el){ filterAktif=f; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); render(); }
+
+function parseCSV(text){
+  let rows=[], row=[], cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    let c=text[i];
+    if(c=='"'){ if(inQ && text[i+1]=='"'){cur+='"'; i++;} else inQ=!inQ; }
+    else if(c==',' && !inQ){ row.push(cur.trim()); cur=''; }
+    else if((c=='\n'||c=='\r') && !inQ){ if(c=='\r' && text[i+1]=='\n') i++; row.push(cur.trim()); cur=''; if(row.length>1||row[0]) rows.push(row); row=[]; }
+    else cur+=c;
+  }
+  if(cur||row.length){ row.push(cur.trim()); rows.push(row); }
+  return rows;
+}
+function imporDariTeks(text){
+  let rows=parseCSV(text);
+  if(!rows.length){ alert('File-nya kosong, Pak!'); return; }
+  // Cek header
+  let header=rows[0].map(h=>h.toLowerCase());
+  let adaHeader=header[0].includes('soal');
+  if(adaHeader) rows.shift();
+  // Cek posisi kolom: kalau ada kolom Mapel di depan
+  // Format 1: Soal,A,B,C,D,E,Kunci (7 kolom)
+  // Format 2: Mapel,Soal,A,B,C,D,E,Kunci (8 kolom) -> kayak di absensi dulu
+  // Format 3: No,Mapel,Soal,A,B,C,D,E,Kunci
+  let masuk=0, gagal=0;
+  rows.forEach(r=>{
+    if(r.length<7) return;
+    let obj=null;
+    if(r.length>=8 && r[1].length>3 && !r[0].toLowerCase().includes('soal')){
+      // Format: Mapel, Soal, A,B,C,D,E,Kunci
+      obj={mapel:r[0]||'Akhlak', soal:r[1], a:r[2], b:r[3], c:r[4], d:r[5], e:r[6], kunci:r[7].toUpperCase().trim()};
+    } else if(r.length>=9){
+      obj={mapel:r[1]||'Akhlak', soal:r[2], a:r[3], b:r[4], c:r[5], d:r[6], e:r[7], kunci:r[8].toUpperCase().trim()};
+    } else {
+      obj={mapel:tebakMapel(r[0]), soal:r[0], a:r[1], b:r[2], c:r[3], d:r[4], e:r[5], kunci:r[6].toUpperCase().trim()};
+    }
+    if(obj.soal && ['A','B','C','D','E'].includes(obj.kunci)){
+      // Cek duplikat
+      if(!daftarSoal.some(s=>s.soal===obj.soal)){ daftarSoal.push(obj); masuk++; } 
+    } else gagal++;
+  });
+  simpan(); render();
+  alert('Berhasil, Pak! ✅\n'+masuk+' soal baru masuk.\n'+(gagal?gagal+' baris ke-skip karena format kunci salah, Pak.':'')+'\nTotal sekarang: '+daftarSoal.length+' soal.');
+}
+function tebakMapel(soal){
+  let s=soal.toLowerCase();
+  if(s.includes('yusuf')||s.includes('nabi')) return 'Kisah Nabi Yusuf';
+  if(s.includes('akhlak')||s.includes('jujur')||s.includes('sopan')||s.includes('adab')) return 'Akhlak';
+  if(s.includes('allah')||s.includes('iman')||s.includes('rukun')) return 'Akidah';
+  return 'Akhlak';
+}
+function imporLink(){
+  let link=document.getElementById('linkSheet').value.trim();
+  if(!link){ alert('Tempel dulu link Google Sheet-nya, Pak!'); return; }
+  let csvLink=link;
+  if(link.includes('/d/')){
+    let id=link.split('/d/')[1].split('/')[0];
+    // Kalau ada gid (sheet ke-2, ke-3), ambil juga
+    let gid='';
+    if(link.includes('gid=')) gid='&gid='+link.split('gid=')[1].split('&')[0].split('#')[0];
+    csvLink='https://docs.google.com/spreadsheets/d/'+id+'/export?format=csv'+gid;
+  }
+  fetch(csvLink).then(r=>{
+    if(!r.ok) throw new Error('gagal');
+    return r.text();
+  }).then(t=>imporDariTeks(t)).catch(()=>alert('Gagal impor, Pak! Cek dulu:\n1. Sheet-nya udah di-Bagikan > Siapa saja?\n2. Link-nya bener?\nKalau masih gagal, pakai cara File CSV aja, Pak. Di Sheet: File > Download > CSV.'));
+}
+function imporFile(){
+  let f=document.getElementById('fileCSV').files[0];
+  if(!f){ alert('Pilih dulu file CSV-nya, Pak!'); return; }
+  let rd=new FileReader(); rd.onload=e=>imporDariTeks(e.target.result); rd.readAsText(f);
+}
+function downloadContoh(){
+  let c="Soal,A,B,C,D,E,Kunci\n\"Siapa ayah Nabi Yusuf?\",Nabi Yakub,Nabi Ibrahim,Nabi Musa,Nabi Isa,Nabi Nuh,A\n\"Apa arti jujur?\",Berkata benar,Berkata bohong,Menyembunyikan,Sombong,Malas,A";
+  let a=document.createElement('a'); a.href='data:text/csv,[STRIPPED] a.download='contoh-soal-pai.csv'; a.click();
+}
+function tambahManual(){
+  let s={mapel:document.getElementById('mapel').value, soal:document.getElementById('soalBaru').value.trim(), a:document.getElementById('aBaru').value.trim(), b:document.getElementById('bBaru').value.trim(), c:document.getElementById('cBaru').value.trim(), d:document.getElementById('dBaru').value.trim(), e:document.getElementById('eBaru').value.trim(), kunci:document.getElementById('kunciBaru').value};
+  if(!s.soal||!s.a){ alert('Isi dulu soal & pilihan A, Pak!'); return; }
+  daftarSoal.push(s); simpan(); render();
+  ['soalBaru','aBaru','bBaru','cBaru','dBaru','eBaru'].forEach(id=>document.getElementById(id).value='');
+  alert('Tersimpan, Pak!');
+}
+function hapus(i){ if(confirm('Hapus soal ini, Pak?')){ daftarSoal.splice(i,1); simpan(); render(); } }
+function hapusSemua(){ if(confirm('Hapus SEMUA soal, Pak?')){ daftarSoal=[]; simpan(); render(); } }
+function exportCSV(){
+  let t="Soal,A,B,C,D,E,Kunci,Mapel\n";
+  daftarSoal.forEach(s=>{ t+='"'+s.soal.replace(/"/g,'""')+'","'+s.a+'","'+s.b+'","'+s.c+'","'+s.d+'","'+s.e+'","'+s.kunci+'","'+s.mapel+'"\n'; });
+  let a=document.createElement('a'); a.href='data:text/csv,[STRIPPED] a.download='bank-soal-pai.csv'; a.click();
+}
+function render(){
+  let q=document.getElementById('cari').value.toLowerCase();
+  let tampil=daftarSoal.filter((s,i)=>{ s._i=i; return (filterAktif==='Semua'||s.mapel===filterAktif) && s.soal.toLowerCase().includes(q); });
+  document.getElementById('jml').innerText=daftarSoal.length;
+  let h='';
+  tampil.forEach(s=>{
+    h+='<div class="soal"><b>'+(s._i+1)+'. ['+s.mapel+'] '+s.soal+'</b><div>A. '+s.a+'</div><div>B. '+s.b+'</div><div>C. '+s.c+'</div><div>D. '+s.d+'</div><div>E. '+s.e+'</div><div class="kunci">Kunci: '+s.kunci+'</div><button class="red" style="margin-top:8px" onclick="hapus('+s._i+')">Hapus Soal Ini</button></div>';
+  });
+  if(!tampil.length) h='<p style="font-size:13px;color:#cbd5e1">Belum ada soal, Pak. Impor dari Google Sheet di atas dulu, Pak.</p>';
+  document.getElementById('list').innerHTML=h;
+}
+render();
+</script>
+</body>
+</html>
