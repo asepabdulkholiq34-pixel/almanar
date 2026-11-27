@@ -39,6 +39,11 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <button class="btn" onclick="tambahSoal()">+ Tambah Soal Ini</button>
 <button class="btn" onclick="copySoalKeSheet()" style="background:#22c55e">📋 Copy Semua Soal ke Google Sheet</button>
 <button class="btn" onclick="isiOtomatis()" style="background:#f59e0b">⚡ Isi Otomatis 8 Soal Yusuf</button>
+  <!-- TOMBOL KE-4 BARU - IMPOR CSV, PAK -->
+<input type="file" id="fileCSVUlangan" accept=".csv" style="display:none">
+<button onclick="document.getElementById('fileCSVUlangan').click()" style="background:#7c3aed;color:white">📥 Impor Soal dari File CSV HP</button>
+<input type="text" id="linkSheetUlangan" placeholder="Atau tempel Link Google Sheet di sini, Pak" style="margin-top:8px">
+<button onclick="imporLinkUlangan()" style="background:#0ea5e9;color:white">📥 Impor dari Link Google Sheet</button>
 <div style="background:#fef9c3;padding:12px;border-radius:10px;margin-top:10px"><b>🔒 Ganti Kode Ulangan</b><label>Kode 10</label><input id="kodeUL10Baru"><label>Kode 11</label><input id="kodeUL11Baru"><label>Kode 12</label><input id="kodeUL12Baru"><button class="btn" onclick="simpanKode()" style="background:#f59e0b">💾 Simpan Kode</button></div>
 <div class="flex" style="margin-top:8px"><button class="btn2" onclick="hapusSemuaSoal()" style="background:#fee2e2">🗑️ Hapus Semua Soal</button><button class="btn2" onclick="hapusSemuaJawaban()" style="background:#fee2e2">🗑️ Hapus Semua Jawaban</button></div>
 <label style="margin-top:12px;display:block"><input type="checkbox" id="acakSoal" onchange="toggleAcak()" style="width:auto"> Acak Pilihan A-E</label>
@@ -224,5 +229,71 @@ async function kirimJawabanV2(){
     renderSatuSoal();
   }catch(e){alert('Gagal kirim, coba lagi. Cek internet. Error: '+e.message);}
   sedangKirim=false;
+}
+  // === IMPOR CSV UNTUK ULANGAN - PAK ASEP ===
+document.getElementById('fileCSVUlangan').addEventListener('change', function(e){
+  let f=e.target.files[0]; if(!f) return;
+  let r=new FileReader(); r.onload=ev=>prosesCSVUlangan(ev.target.result); r.readAsText(f);
+});
+function parseCSVUlangan(text){
+  let rows=[], row=[], cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    let c=text[i];
+    if(c=='"'){ if(inQ && text[i+1]=='"'){cur+='"'; i++;} else inQ=!inQ; }
+    else if(c==',' && !inQ){ row.push(cur.trim()); cur=''; }
+    else if((c=='\n'||c=='\r') && !inQ){ if(c=='\r' && text[i+1]=='\n') i++; row.push(cur.trim()); cur=''; if(row.length>1||row[0]) rows.push(row); row=[]; }
+    else cur+=c;
+  }
+  if(cur||row.length){ row.push(cur.trim()); rows.push(row); }
+  return rows;
+}
+function prosesCSVUlangan(text){
+  let rows=parseCSVUlangan(text);
+  if(rows[0] && rows[0][0].toLowerCase().includes('soal') || rows[0] && rows[0][0].toLowerCase().includes('pertanyaan')) rows.shift();
+  let masuk=0;
+  rows.forEach(r=>{
+    if(r.length<7) return;
+    // Format di Sheet Bapak: Pertanyaan, A, B, C, D, E, Kunci
+    // Kalau Sheet Bapak ada Judul/Kelas di depan, kode ini tetap baca 7 kolom terakhir
+    let data=r.slice(-7);
+    let soalBaru={
+      pertanyaan:data[0], soal:data[0],
+      a:data[1], jawabanA:data[1],
+      b:data[2], jawabanB:data[2],
+      c:data[3], jawabanC:data[3],
+      d:data[4], jawabanD:data[4],
+      e:data[5], jawabanE:data[5],
+      kunci:data[6].toUpperCase().trim(), jawabanBenar:data[6].toUpperCase().trim()
+    };
+    if(!soalBaru.soal || !['A','B','C','D','E'].includes(soalBaru.kunci)) return;
+    // Cari variabel soal di aplikasi Bapak - coba semua nama yang biasa dipakai
+    if(typeof daftarSoal!=='undefined') daftarSoal.push(soalBaru);
+    else if(typeof soalList!=='undefined') soalList.push(soalBaru);
+    else if(typeof semuaSoal!=='undefined') semuaSoal.push(soalBaru);
+    else if(typeof questions!=='undefined') questions.push(soalBaru);
+    else if(typeof listSoal!=='undefined') listSoal.push(soalBaru);
+    else { window._soalImpor=window._soalImpor||[]; window._soalImpor.push(soalBaru); }
+    masuk++;
+  });
+  // Coba panggil fungsi tampil yang ada di aplikasi Bapak
+  if(typeof tampilSoal==='function') tampilSoal();
+  if(typeof renderSoal==='function') renderSoal();
+  if(typeof updateDaftarSoal==='function') updateDaftarSoal();
+  if(typeof tampilDaftarSoal==='function') tampilDaftarSoal();
+  if(typeof simpanSoal==='function') simpanSoal();
+  if(typeof simpan==='function') simpan();
+  alert('Berhasil, Pak! ✅\n'+masuk+' soal Yusuf masuk dari CSV.\nSekarang scroll ke bawah, Pak. Lihat di Daftar Soal.');
+  location.reload();
+}
+function imporLinkUlangan(){
+  let link=document.getElementById('linkSheetUlangan').value.trim();
+  if(!link){ alert('Tempel dulu link Google Sheet-nya, Pak!'); return; }
+  let csvLink=link;
+  if(link.includes('/d/')){
+    let id=link.split('/d/')[1].split('/')[0];
+    let gid=''; if(link.includes('gid=')) gid='&gid='+link.split('gid=')[1].split('&')[0].split('#')[0];
+    csvLink='https://docs.google.com/spreadsheets/d/'+id+'/export?format=csv'+gid;
+  }
+  fetch(csvLink).then(r=>r.text()).then(t=>prosesCSVUlangan(t)).catch(()=>alert('Gagal, Pak. Sheet-nya belum di-Bagikan > Siapa saja, Pak. Atau pakai cara File CSV aja, Pak. Itu yang paling aman.'));
 }
 </script></body></html>
