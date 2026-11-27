@@ -29,7 +29,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div id="mainPage" class="hidden">
 <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><b id="haloNama">Halo</b><br><span class="small" id="haloKelas"></span></div><span id="haloBadge" class="badge guru">GURU</span></div><button class="btn2" onclick="logout()" style="width:100%;margin-top:10px;background:#fee2e2">Keluar</button></div>
 
-<!-- GURU -->
 <div id="panelGuru" class="card hidden"><h3>📝 Buat Soal - Guru</h3>
 <label>Judul Ulangan</label><input id="judulUlangan" placeholder="Contoh: Ulangan Kisah Nabi Yusuf AS">
 <label>Kelas Untuk:</label><select id="kelasUlangan"><option value="10">Kelas 10 Saja</option><option value="11">Kelas 11 Saja</option><option value="12">Kelas 12 Saja</option><option value="Semua">Semua Kelas</option></select>
@@ -39,7 +38,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <button class="btn" onclick="tambahSoal()">+ Tambah Soal Ini</button>
 <button class="btn" onclick="copySoalKeSheet()" style="background:#22c55e">📋 Copy Semua Soal ke Google Sheet</button>
 <button class="btn" onclick="isiOtomatis()" style="background:#f59e0b">⚡ Isi Otomatis 8 Soal Yusuf</button>
-  <!-- TOMBOL KE-4 BARU - IMPOR CSV, PAK -->
 <input type="file" id="fileCSVUlangan" accept=".csv" style="display:none">
 <button onclick="document.getElementById('fileCSVUlangan').click()" style="background:#7c3aed;color:white">📥 Impor Soal dari File CSV HP</button>
 <input type="text" id="linkSheetUlangan" placeholder="Atau tempel Link Google Sheet di sini, Pak" style="margin-top:8px">
@@ -51,7 +49,6 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <h3>Daftar Soal:</h3><div id="listSoalUlangan"></div>
 <h3>Hasil / Nilai:</h3><button class="btn" onclick="downloadCSV()" style="background:#16a34a">📥 Download Nilai - CSV</button><div id="listHasilUlangan"></div></div>
 
-<!-- SISWA - 1 SOAL 1 HALAMAN -->
 <div id="panelSiswa" class="card hidden"><h3 id="judulUlanganSiswa">Ulangan</h3><p class="small" id="infoUlanganSiswa"></p>
 <div class="progress"><div id="progressBar"></div></div>
 <p class="small" id="progressText" style="text-align:center"></p>
@@ -69,101 +66,35 @@ const rootRef=firebase.database().ref('almanar_ulangan_v2');
 const metaRef=rootRef.child('meta');
 const soalRef=rootRef.child('soal');
 const jawabanRef=rootRef.child('jawaban');
-
 let meta={passGuru:"asep2672",kodeUL10:"UL10",kodeUL11:"UL11",kodeUL12:"UL12",judul:"Ulangan",kelas:"11",acak:false,acakUrutan:false};
-let soalList=[]; // [{key, tipe, teks, opsi, kunci}]
-let jawabanList=[]; // [{key, nama, ...}]
+let soalList=[];
+let jawabanList=[];
 let currentRole='guru',currentNama='',currentKelasUlangan='11';
 let idxSoalAktif=0, jawabanSementara={}, sudahKirim=false, sedangKirim=false;
-
 function hashString(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 function seededShuffle(arr,seedStr){let a=[...arr];let seed=hashString(seedStr||'x');function rnd(){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;seed=seed>>>0;return seed/4294967296;}for(let i=a.length-1;i>0;i--){let j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function getUrutanSoal(){
-  let idxPG=[], idxEssay=[];
-  soalList.forEach((s,i)=>{ if(s.tipe==='essay') idxEssay.push(i); else idxPG.push(i); });
-  // Kalau Acak MATI, urutan normal: PG dulu, baru Essay
-  if(!meta.acakUrutan) return [...idxPG, ...idxEssay];
-  // Kalau Acak AKTIF, acak PG sesama PG, Essay sesama Essay
-  let acakPG = seededShuffle(idxPG, currentNama+'|urutan-PG|'+meta.judul);
-  let acakEssay = seededShuffle(idxEssay, currentNama+'|urutan-ESSAY|'+meta.judul);
-  // Gabung: PG dulu semua, baru Essay
-  return [...acakPG, ...acakEssay];
-}
+function getUrutanSoal(){let idxPG=[], idxEssay=[];soalList.forEach((s,i)=>{ if(s.tipe==='essay') idxEssay.push(i); else idxPG.push(i); });if(!meta.acakUrutan) return [...idxPG, ...idxEssay];let acakPG = seededShuffle(idxPG, currentNama+'|urutan-PG|'+meta.judul);let acakEssay = seededShuffle(idxEssay, currentNama+'|urutan-ESSAY|'+meta.judul);return [...acakPG, ...acakEssay];}
 function getOpsiAcak(soal,idxAsli){let dasar=soal.opsi.map((o,oi)=>({teks:o,kunciAsli:['A','B','C','D','E'][oi]}));if(!meta.acak) return dasar;return seededShuffle(dasar, currentNama+'|soal-'+idxAsli+'|'+soal.teks);}
-
 function togglePass(id,btn){let el=document.getElementById(id);if(el.type==='password'){el.type='text';btn.innerText='🙈';}else{el.type='password';btn.innerText='👁️';}}
 function cekRole(){let r=document.getElementById('role').value;document.getElementById('boxGuru').classList.toggle('hidden',r!=='guru');document.getElementById('boxSiswa').classList.toggle('hidden',r!=='siswa');} cekRole();
 function gantiTipeSoal(){let t=document.getElementById('tipeSoal').value;document.getElementById('boxPG').classList.toggle('hidden',t!=='pg');}
 function logout(){location.reload();}
-
-// === LISTENER DIPISAH - INI KUNCI ANTI TABRAKAN ===
 metaRef.on('value',snap=>{let v=snap.val();if(v){meta={...meta,...v};}else{metaRef.set(meta);}document.getElementById('statusFirebase').innerText="✅ Sudah Nyambung ke Firebase";document.getElementById('statusFirebase').style.color="#16a34a";if(!document.getElementById('mainPage').classList.contains('hidden')) renderGuruHeader();});
 soalRef.on('value',snap=>{soalList=[];snap.forEach(c=>{let v=c.val();v.key=c.key;soalList.push(v);});if(!document.getElementById('mainPage').classList.contains('hidden')){if(currentRole==='guru') renderGuru(); else renderSatuSoal();}});
 jawabanRef.on('value',snap=>{jawabanList=[];snap.forEach(c=>{let v=c.val();v.key=c.key;jawabanList.push(v);});if(!document.getElementById('mainPage').classList.contains('hidden') && currentRole==='guru') renderHasil();});
-
 function login(){
   currentRole=document.getElementById('role').value;
-  if(currentRole==='guru'){
-    currentNama=document.getElementById('namaLogin').value.trim()||'Guru';
-    let pw=document.getElementById('passGuru').value.trim();
-    if(!(pw==="asep2672"||pw==="1234"||pw===meta.passGuru)){alert('Password Guru salah, Pak!');return;}
-  } else {
-    currentKelasUlangan=document.getElementById('kelasSiswaUlangan').value;
-    currentNama=document.getElementById('namaSiswaUlangan').value.trim();
-    if(!currentNama){alert('Isi Nama Siswa dulu!');return;}
-    let kode=document.getElementById('kodeUlangan').value.trim();
-    let benar=currentKelasUlangan==='10'?meta.kodeUL10:currentKelasUlangan==='11'?meta.kodeUL11:meta.kodeUL12;
-    if(kode!==benar){alert('🔒 Kode Ulangan salah!');return;}
-    let sudah=jawabanList.some(j=>j.nama.toLowerCase()===currentNama.toLowerCase() && j.kelasUlangan===currentKelasUlangan && j.judulUlangan===meta.judul);
-    if(sudah){alert('⛔ Kamu sudah mengerjakan ulangan ini. Tidak bisa 2x.');}
-  }
-  document.getElementById('loginPage').classList.add('hidden');
-  document.getElementById('mainPage').classList.remove('hidden');
-  document.getElementById('haloNama').innerText='Halo, '+currentNama;
-  document.getElementById('haloKelas').innerText=currentRole==='guru'?'MODE GURU':'Kelas '+currentKelasUlangan+' | MODE ULANGAN';
-  document.getElementById('haloBadge').innerText=currentRole==='guru'?'👨‍🏫 GURU':'📝 SISWA';
-  document.getElementById('panelGuru').classList.toggle('hidden',currentRole!=='guru');
-  document.getElementById('panelSiswa').classList.toggle('hidden',currentRole!=='siswa');
-  if(currentRole==='guru') renderGuru(); else {idxSoalAktif=0; jawabanSementara={}; renderSatuSoal();}
+  if(currentRole==='guru'){currentNama=document.getElementById('namaLogin').value.trim()||'Guru';let pw=document.getElementById('passGuru').value.trim();if(!(pw==="asep2672"||pw==="1234"||pw===meta.passGuru)){alert('Password Guru salah, Pak!');return;}}
+  else {currentKelasUlangan=document.getElementById('kelasSiswaUlangan').value;currentNama=document.getElementById('namaSiswaUlangan').value.trim();if(!currentNama){alert('Isi Nama Siswa dulu!');return;}let kode=document.getElementById('kodeUlangan').value.trim();let benar=currentKelasUlangan==='10'?meta.kodeUL10:currentKelasUlangan==='11'?meta.kodeUL11:meta.kodeUL12;if(kode!==benar){alert('🔒 Kode Ulangan salah!');return;}let sudah=jawabanList.some(j=>j.nama.toLowerCase()===currentNama.toLowerCase() && j.kelasUlangan===currentKelasUlangan && j.judulUlangan===meta.judul);if(sudah){alert('⛔ Kamu sudah mengerjakan ulangan ini. Tidak bisa 2x.');}}
+  document.getElementById('loginPage').classList.add('hidden');document.getElementById('mainPage').classList.remove('hidden');document.getElementById('haloNama').innerText='Halo, '+currentNama;document.getElementById('haloKelas').innerText=currentRole==='guru'?'MODE GURU':'Kelas '+currentKelasUlangan+' | MODE ULANGAN';document.getElementById('haloBadge').innerText=currentRole==='guru'?'👨‍🏫 GURU':'📝 SISWA';document.getElementById('panelGuru').classList.toggle('hidden',currentRole!=='guru');document.getElementById('panelSiswa').classList.toggle('hidden',currentRole!=='siswa');if(currentRole==='guru') renderGuru(); else {idxSoalAktif=0; jawabanSementara={}; renderSatuSoal();}
 }
 function renderGuruHeader(){document.getElementById('judulUlangan').value=meta.judul||'';document.getElementById('kelasUlangan').value=meta.kelas||'11';document.getElementById('kodeUL10Baru').value=meta.kodeUL10||'';document.getElementById('kodeUL11Baru').value=meta.kodeUL11||'';document.getElementById('kodeUL12Baru').value=meta.kodeUL12||'';document.getElementById('acakSoal').checked=!!meta.acak;document.getElementById('acakUrutanSoal').checked=!!meta.acakUrutan;}
 function renderGuru(){renderGuruHeader();document.getElementById('listSoalUlangan').innerHTML=soalList.length?soalList.map((s,i)=>`<div style="border:1px solid #eee;padding:10px;border-radius:10px;margin:6px 0"><b>Soal ${i+1} [${s.tipe}]</b><br>${s.teks}<br>${s.tipe==='pg'?s.opsi.map((o,oi)=>`<div>${['A','B','C','D','E'][oi]}. ${o} ${['A','B','C','D','E'][oi]===s.kunci?' ✅ KUNCI':''}</div>`).join(''):''}<button class="btn2" onclick="hapusSoal('${s.key}')" style="background:#fee2e2;margin-top:6px">🗑️ Hapus</button></div>`).join(''):'<p class="small">Belum ada soal.</p>';renderHasil();}
-function renderHasil(){
-  let el=document.getElementById('listHasilUlangan');
-  if(!jawabanList.length){el.innerHTML='<p class="small">Belum ada yang jawab.</p>';return;}
-  el.innerHTML=jawabanList.map(j=>{
-    let essayHTML='';
-    soalList.forEach((s,i)=>{
-      if(s.tipe!=='essay') return; // PG SKIP - Nggak usah ditampilin, Pak
-      let jwb=(j.jawaban&&j.jawaban[i])||'(Tidak dijawab)';
-      essayHTML+=`<div style="padding:8px;border:1px solid #ddd;border-radius:8px;margin:4px 0;background:#fffbe6"><b>Soal ${i+1} ESSAY:</b> ${s.teks}<br><b>Jawaban Siswa:</b><br><div style="background:#fff;padding:8px;border-radius:8px;margin-top:4px;white-space:pre-wrap">${jwb}</div></div>`;
-    });
-    if(!essayHTML) essayHTML='<p class="small">Tidak ada soal Essay di ulangan ini.</p>';
-    return `<div style="border:1px solid #eee;padding:10px;border-radius:10px;margin:8px 0"><b>${j.nama} - ${j.kelas}</b> | ${j.waktu}<br><b>Nilai PG: ${j.nilaiPG}</b> (${j.benarPG} benar dari ${j.jmlPG}) | Essay: ${j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay} | <b>Akhir: ${j.nilaiAkhir}</b><br>${essayHTML}<button class="btn" onclick="beriNilaiEssay('${j.key}')" style="background:#f59e0b;margin-top:6px">✏️ Nilai Essay</button> <button class="btn2" onclick="hapusJawabanSiswa('${j.key}')" style="background:#fee2e2;margin-top:6px">🗑️ Reset Jawaban</button></div>`;
-  }).join('');
-}
-
+function renderHasil(){let el=document.getElementById('listHasilUlangan');if(!jawabanList.length){el.innerHTML='<p class="small">Belum ada yang jawab.</p>';return;}el.innerHTML=jawabanList.map(j=>{let essayHTML='';soalList.forEach((s,i)=>{if(s.tipe!=='essay') return;let jwb=(j.jawaban&&j.jawaban[i])||'(Tidak dijawab)';essayHTML+=`<div style="padding:8px;border:1px solid #ddd;border-radius:8px;margin:4px 0;background:#fffbe6"><b>Soal ${i+1} ESSAY:</b> ${s.teks}<br><b>Jawaban Siswa:</b><br><div style="background:#fff;padding:8px;border-radius:8px;margin-top:4px;white-space:pre-wrap">${jwb}</div></div>`;});if(!essayHTML) essayHTML='<p class="small">Tidak ada soal Essay di ulangan ini.</p>';return `<div style="border:1px solid #eee;padding:10px;border-radius:10px;margin:8px 0"><b>${j.nama} - ${j.kelas}</b> | ${j.waktu}<br><b>Nilai PG: ${j.nilaiPG}</b> (${j.benarPG} benar dari ${j.jmlPG}) | Essay: ${j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay} | <b>Akhir: ${j.nilaiAkhir}</b><br>${essayHTML}<button class="btn" onclick="beriNilaiEssay('${j.key}')" style="background:#f59e0b;margin-top:6px">✏️ Nilai Essay</button> <button class="btn2" onclick="hapusJawabanSiswa('${j.key}')" style="background:#fee2e2;margin-top:6px">🗑️ Reset Jawaban</button></div>`;}).join('');}
 function tambahSoal(){let judul=document.getElementById('judulUlangan').value.trim();if(judul) metaRef.child('judul').set(judul);metaRef.child('kelas').set(document.getElementById('kelasUlangan').value);let tipe=document.getElementById('tipeSoal').value;let teks=document.getElementById('teksSoal').value.trim();if(!teks) return alert('Tulis soal dulu, Pak!');if(tipe==='pg'){let a=document.getElementById('opsiA').value.trim(),b=document.getElementById('opsiB').value.trim(),c=document.getElementById('opsiC').value.trim(),d=document.getElementById('opsiD').value.trim(),e=document.getElementById('opsiE').value.trim();if(!a||!b||!c||!d||!e) return alert('Isi A sampai E dulu, Pak!');soalRef.push({tipe:'pg',teks:teks,opsi:[a,b,c,d,e],kunci:document.getElementById('kunciPG').value});}else{soalRef.push({tipe:'essay',teks:teks});}['teksSoal','opsiA','opsiB','opsiC','opsiD','opsiE'].forEach(id=>document.getElementById(id).value='');alert('Soal ditambah, Pak!');}
-  function copySoalKeSheet(){
-  if(!soalList.length){alert('Belum ada soal, Pak!');return;}
-  // Cari Judul & Kelas dari isinya, bukan dari ID, Pak - biar pasti ketemu
-  let judul='Ulangan Kisah Nabi Yusuf AS';
-  let kelas='Kelas 11 Saja';
-  document.querySelectorAll('input, select, textarea').forEach(el=>{
-    let v=(el.value||'').trim();
-    if(v.toLowerCase().includes('ulangan')) judul=v;
-    if(v.toLowerCase().includes('kelas 11')) kelas=v;
-  });
-  let teks='Judul\tKelas\tJenis\tPertanyaan\tJawaban A\tJawaban B\tJawaban C\tJawaban D\tJawaban E\tKunci\n';
-  soalList.forEach((s,i)=>{
-    let a=s.pilihan?s.pilihan[0]||'':'', b=s.pilihan?s.pilihan[1]||'':'', c=s.pilihan?s.pilihan[2]||'':'', d=s.pilihan?s.pilihan[3]||'':'', e=s.pilihan?s.pilihan[4]||'':'';
-    teks+=judul+'\t'+kelas+'\t'+s.tipe+'\t'+s.teks.replace(/\n/g,' ')+'\t'+a+'\t'+b+'\t'+c+'\t'+d+'\t'+e+'\t'+(s.kunci||'')+'\n';
-  });
-  navigator.clipboard.writeText(teks).then(()=>{
-    alert('Berhasil, Pak! Judul: '+judul+' | Kelas: '+kelas);
-  });
-}
-function isiSoalYusuf(){if(!confirm('Isi 8 soal Yusuf, Pak?')) return;metaRef.child('judul').set('Ulangan Kisah Nabi Yusuf AS');let baru=[{tipe:'pg',teks:'Siapakah ayah dari Nabi Yusuf AS?',opsi:['Nabi Ibrahim AS','Nabi Yaqub AS','Nabi Ishaq AS','Nabi Musa AS','Nabi Ismail AS'],kunci:'B'},{tipe:'pg',teks:'Berapa jumlah bintang dalam mimpi Nabi Yusuf AS?',opsi:['10 bintang','11 bintang','12 bintang','7 bintang','9 bintang'],kunci:'B'},{tipe:'pg',teks:'Dalam mimpi Nabi Yusuf AS apa yang sujud kepadanya?',opsi:['11 bintang, matahari dan bulan','7 sapi gemuk dan 7 sapi kurus','7 tangkai gandum','Langit dan bumi','Burung dan ikan'],kunci:'A'},{tipe:'pg',teks:'Siapa adik kandung Nabi Yusuf AS?',opsi:['Yehuda','Ruben','Bunyamin','Simon','Levi'],kunci:'C'},{tipe:'pg',teks:'Mengapa kakak-kakak Yusuf iri kepadanya?',opsi:['Karena Yusuf kaya','Karena ayahnya lebih menyayangi Yusuf dan Bunyamin','Karena Yusuf tampan','Karena Yusuf pintar berdagang','Karena Yusuf anak pertama'],kunci:'B'},{tipe:'pg',teks:'Kemana kakak-kakaknya membuang Nabi Yusuf AS?',opsi:['Ke dalam hutan','Ke dalam sumur','Ke dalam laut','Ke dalam gua','Ke dalam sungai'],kunci:'B'},{tipe:'pg',teks:'Apa alasan bohong yang disampaikan kakak-kakaknya kepada Nabi Yaqub AS?',opsi:['Yusuf tenggelam','Yusuf hilang di pasar','Yusuf dimakan serigala','Yusuf diculik perampok','Yusuf kabur dari rumah'],kunci:'C'},{tipe:'pg',teks:'Siapa yang menemukan Nabi Yusuf AS di dalam sumur?',opsi:['Raja Mesir','Al-Aziz','Rombongan pedagang yang hendak mengambil air','Nabi Yaqub AS','Zulaikha'],kunci:'C'}];baru.forEach(s=>soalRef.push(s));alert('Berhasil, Pak! 8 soal Yusuf masuk.');}
+function copySoalKeSheet(){if(!soalList.length){alert('Belum ada soal, Pak!');return;}let judul=document.getElementById('judulUlangan').value||meta.judul||'Ulangan';let kelas=document.getElementById('kelasUlangan').value||meta.kelas||'';let teks='Judul\tKelas\tJenis\tPertanyaan\tJawaban A\tJawaban B\tJawaban C\tJawaban D\tJawaban E\tKunci\n';soalList.forEach((s,i)=>{let o=s.opsi||['','','','',''];teks+=judul+'\t'+kelas+'\t'+s.tipe+'\t'+(s.teks||'').replace(/\n/g,' ')+'\t'+o[0]+'\t'+o[1]+'\t'+o[2]+'\t'+o[3]+'\t'+o[4]+'\t'+(s.kunci||'')+'\n';});navigator.clipboard.writeText(teks).then(()=>{alert('Berhasil, Pak! Tinggal Paste di Google Sheet, Pak.');});}
+// === INI YANG DIBENERIN, PAK - NAMANYA isiOtomatis, SESUAI TOMBOLNYA ===
+function isiOtomatis(){if(!confirm('Isi 8 soal Yusuf, Pak?')) return;metaRef.child('judul').set('Ulangan Kisah Nabi Yusuf AS');let baru=[{tipe:'pg',teks:'Siapakah ayah dari Nabi Yusuf AS?',opsi:['Nabi Ibrahim AS','Nabi Yaqub AS','Nabi Ishaq AS','Nabi Musa AS','Nabi Ismail AS'],kunci:'B'},{tipe:'pg',teks:'Berapa jumlah bintang dalam mimpi Nabi Yusuf AS?',opsi:['10 bintang','11 bintang','12 bintang','7 bintang','9 bintang'],kunci:'B'},{tipe:'pg',teks:'Dalam mimpi Nabi Yusuf AS apa yang sujud kepadanya?',opsi:['11 bintang, matahari dan bulan','7 sapi gemuk dan 7 sapi kurus','7 tangkai gandum','Langit dan bumi','Burung dan ikan'],kunci:'A'},{tipe:'pg',teks:'Siapa adik kandung Nabi Yusuf AS?',opsi:['Yehuda','Ruben','Bunyamin','Simon','Levi'],kunci:'C'},{tipe:'pg',teks:'Mengapa kakak-kakak Yusuf iri kepadanya?',opsi:['Karena Yusuf kaya','Karena ayahnya lebih menyayangi Yusuf dan Bunyamin','Karena Yusuf tampan','Karena Yusuf pintar berdagang','Karena Yusuf anak pertama'],kunci:'B'},{tipe:'pg',teks:'Kemana kakak-kakaknya membuang Nabi Yusuf AS?',opsi:['Ke dalam hutan','Ke dalam sumur','Ke dalam laut','Ke dalam gua','Ke dalam sungai'],kunci:'B'},{tipe:'pg',teks:'Apa alasan bohong yang disampaikan kakak-kakaknya kepada Nabi Yaqub AS?',opsi:['Yusuf tenggelam','Yusuf hilang di pasar','Yusuf dimakan serigala','Yusuf diculik perampok','Yusuf kabur dari rumah'],kunci:'C'},{tipe:'pg',teks:'Siapa yang menemukan Nabi Yusuf AS di dalam sumur?',opsi:['Raja Mesir','Al-Aziz','Rombongan pedagang yang hendak mengambil air','Nabi Yaqub AS','Zulaikha'],kunci:'C'}];baru.forEach(s=>soalRef.push(s));alert('Berhasil, Pak! 8 soal Yusuf masuk.');}
 function hapusSoal(key){if(!confirm('Hapus soal ini, Pak?'))return;soalRef.child(key).remove();}
 function hapusSemuaSoal(){if(!confirm('Hapus SEMUA soal, Pak?'))return;soalRef.remove();}
 function hapusSemuaJawaban(){if(!confirm('Hapus SEMUA jawaban, Pak? Semua anak bisa jawab lagi.'))return;jawabanRef.remove();}
@@ -173,117 +104,80 @@ function toggleAcakUrutan(){metaRef.child('acakUrutan').set(document.getElementB
 function downloadCSV(){if(!jawabanList.length) return alert('Belum ada yang jawab, Pak!');let header='Nama,Kelas,Waktu,Nilai PG,Benar PG,Jumlah PG,Nilai Essay,Nilai Akhir\n';let baris=jawabanList.map(j=>`"${j.nama}","${j.kelas}","${j.waktu}",${j.nilaiPG},${j.benarPG},${j.jmlPG},"${j.nilaiEssay===''?'Belum Dinilai':j.nilaiEssay}",${j.nilaiAkhir}`).join('\n');let blob=new Blob([header+baris],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Nilai_Ulangan_V2.csv';a.click();}
 function beriNilaiEssay(key){let j=jawabanList.find(x=>x.key===key);let nilai=prompt('Nilai Essay untuk '+j.nama+' (0-100):',j.nilaiEssay||'');if(nilai===null)return;nilai=parseInt(nilai);if(isNaN(nilai))return;let jmlPG=soalList.filter(s=>s.tipe==='pg').length,jmlEssay=soalList.filter(s=>s.tipe==='essay').length;let akhir=(jmlPG>0&&jmlEssay>0)?Math.round((j.nilaiPG+nilai)/2):(jmlEssay>0&&jmlPG===0)?nilai:j.nilaiPG;jawabanRef.child(key).update({nilaiEssay:nilai,nilaiAkhir:akhir});}
 function hapusJawabanSiswa(key){if(!confirm('Reset jawaban ini? Siswa bisa jawab lagi 1x.'))return;jawabanRef.child(key).remove();}
-
-// === SISWA: 1 SOAL 1 HALAMAN ===
-function renderSatuSoal(){
-  if(currentRole!=='siswa') return;
-  let sudah=jawabanList.find(j=>j.nama.toLowerCase()===currentNama.toLowerCase() && j.kelasUlangan===currentKelasUlangan && j.judulUlangan===meta.judul);
-  if(sudah){document.getElementById('boxSatuSoal').innerHTML=`<div class="kunci-box">🔒 SUDAH DIJAWAB - TERKUNCI<br>Nilai PG: ${sudah.nilaiPG} | Nilai Akhir: ${sudah.nilaiAkhir}</div>`;document.getElementById('btnKirim').style.display='none';document.getElementById('btnNext').style.display='none';return;}
-  if(meta.kelas!=='Semua' && meta.kelas!==currentKelasUlangan){document.getElementById('boxSatuSoal').innerHTML='<p>🔒 Belum ada Ulangan untuk Kelas '+currentKelasUlangan+'</p>';return;}
-  if(!soalList.length){document.getElementById('boxSatuSoal').innerHTML='<p>Belum ada soal. Tunggu Guru.</p>';return;}
-  document.getElementById('judulUlanganSiswa').innerText=meta.judul||'Ulangan';
-  document.getElementById('infoUlanganSiswa').innerText='Kelas '+currentKelasUlangan+' | Total '+soalList.length+' soal';
-  let urutan=getUrutanSoal();
-  let idxAsli=urutan[idxSoalAktif];
-  let s=soalList[idxAsli];
-  let persen=Math.round(((idxSoalAktif+1)/soalList.length)*100);
-  document.getElementById('progressBar').style.width=persen+'%';
-  document.getElementById('progressText').innerText='Soal '+(idxSoalAktif+1)+' dari '+soalList.length+' - '+persen+'%';
-  let html=`<div class="soal-box"><b>Soal ${idxSoalAktif+1} - ${s.tipe==='pg'?'PG': 'ESSAY'}</b><br><br>${s.teks}<br><br>`;
-  if(s.tipe==='pg'){
-    let opsi=getOpsiAcak(s,idxAsli);
-    html+=opsi.map((obj,oi)=>`<label class="opsi-label"><input type="radio" name="jawab-skrg" value="${obj.kunciAsli}" ${jawabanSementara[idxAsli]===obj.kunciAsli?'checked':''} onchange="simpanSementara(${idxAsli},this.value)"> <b>${['A','B','C','D','E'][oi]}.</b> ${obj.teks}</label>`).join('');
-  } else {
-    html+=`<textarea rows="4" placeholder="Ketik jawaban..." oninput="simpanSementara(${idxAsli},this.value)">${jawabanSementara[idxAsli]||''}</textarea>`;
-  }
-  html+=`</div>`;
-  document.getElementById('boxSatuSoal').innerHTML=html;
-  document.getElementById('btnNext').innerText=(idxSoalAktif===soalList.length-1)?'Cek Lagi ➡️':'Berikutnya ➡️';
-  document.getElementById('btnKirim').style.display=(idxSoalAktif===soalList.length-1)?'block':'none';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+function renderSatuSoal(){if(currentRole!=='siswa') return;let sudah=jawabanList.find(j=>j.nama.toLowerCase()===currentNama.toLowerCase() && j.kelasUlangan===currentKelasUlangan && j.judulUlangan===meta.judul);if(sudah){document.getElementById('boxSatuSoal').innerHTML=`<div class="kunci-box">🔒 SUDAH DIJAWAB - TERKUNCI<br>Nilai PG: ${sudah.nilaiPG} | Nilai Akhir: ${sudah.nilaiAkhir}</div>`;document.getElementById('btnKirim').style.display='none';document.getElementById('btnNext').style.display='none';return;}if(meta.kelas!=='Semua' && meta.kelas!==currentKelasUlangan){document.getElementById('boxSatuSoal').innerHTML='<p>🔒 Belum ada Ulangan untuk Kelas '+currentKelasUlangan+'</p>';return;}if(!soalList.length){document.getElementById('boxSatuSoal').innerHTML='<p>Belum ada soal. Tunggu Guru.</p>';return;}document.getElementById('judulUlanganSiswa').innerText=meta.judul||'Ulangan';document.getElementById('infoUlanganSiswa').innerText='Kelas '+currentKelasUlangan+' | Total '+soalList.length+' soal';let urutan=getUrutanSoal();let idxAsli=urutan[idxSoalAktif];let s=soalList[idxAsli];let persen=Math.round(((idxSoalAktif+1)/soalList.length)*100);document.getElementById('progressBar').style.width=persen+'%';document.getElementById('progressText').innerText='Soal '+(idxSoalAktif+1)+' dari '+soalList.length+' - '+persen+'%';let html=`<div class="soal-box"><b>Soal ${idxSoalAktif+1} - ${s.tipe==='pg'?'PG': 'ESSAY'}</b><br><br>${s.teks}<br><br>`;if(s.tipe==='pg'){let opsi=getOpsiAcak(s,idxAsli);html+=opsi.map((obj,oi)=>`<label class="opsi-label"><input type="radio" name="jawab-skrg" value="${obj.kunciAsli}" ${jawabanSementara[idxAsli]===obj.kunciAsli?'checked':''} onchange="simpanSementara(${idxAsli},this.value)"> <b>${['A','B','C','D','E'][oi]}.</b> ${obj.teks}</label>`).join('');} else {html+=`<textarea rows="4" placeholder="Ketik jawaban..." oninput="simpanSementara(${idxAsli},this.value)">${jawabanSementara[idxAsli]||''}</textarea>`;}html+=`</div>`;document.getElementById('boxSatuSoal').innerHTML=html;document.getElementById('btnNext').innerText=(idxSoalAktif===soalList.length-1)?'Cek Lagi ➡️':'Berikutnya ➡️';document.getElementById('btnKirim').style.display=(idxSoalAktif===soalList.length-1)?'block':'none';window.scrollTo({top:0,behavior:'smooth'});}
 function simpanSementara(idxAsli,val){jawabanSementara[idxAsli]=val;}
 function soalSebelumnya(){if(idxSoalAktif>0){idxSoalAktif--;renderSatuSoal();}}
 function soalBerikutnya(){let urutan=getUrutanSoal();let idxAsli=urutan[idxSoalAktif];let s=soalList[idxAsli];if(s.tipe==='pg'){let el=document.querySelector('input[name="jawab-skrg"]:checked');if(el) jawabanSementara[idxAsli]=el.value;if(!jawabanSementara[idxAsli]) return alert('Jawab dulu soal ini!');}else{let el=document.querySelector('#boxSatuSoal textarea');if(el) jawabanSementara[idxAsli]=el.value.trim();if(!jawabanSementara[idxAsli]) return alert('Isi dulu jawaban Essay-nya!');}if(idxSoalAktif<soalList.length-1){idxSoalAktif++;renderSatuSoal();}}
+async function kirimJawabanV2(){if(sedangKirim) return; sedangKirim=true;let urutan=getUrutanSoal();let idxAsli=urutan[idxSoalAktif];let s=soalList[idxAsli];if(s.tipe==='pg'){let el=document.querySelector('input[name="jawab-skrg"]:checked');if(el) jawabanSementara[idxAsli]=el.value;}else{let el=document.querySelector('#boxSatuSoal textarea');if(el) jawabanSementara[idxAsli]=el.value.trim();}let belum=soalList.filter((_,i)=>!jawabanSementara[i]||jawabanSementara[i]==='').length;if(belum>0){sedangKirim=false;return alert('Masih ada '+belum+' soal belum dijawab! Cek pakai tombol Sebelumnya.');}if(!confirm('Kirim jawaban? Sekali kirim langsung dikunci, tidak bisa ngulang.')){sedangKirim=false;return;}try{let snap=await jawabanRef.orderByChild('nama').equalTo(currentNama).once('value');let sudah=false; snap.forEach(c=>{let v=c.val();if(v.kelasUlangan===currentKelasUlangan && v.judulUlangan===meta.judul) sudah=true;});if(sudah){alert('⛔ Kamu sudah mengerjakan ulangan ini.');sedangKirim=false;renderSatuSoal();return;}let jmlPG=soalList.filter(x=>x.tipe==='pg').length, benar=0;soalList.forEach((soal,i)=>{if(soal.tipe==='pg' && jawabanSementara[i]===soal.kunci) benar++;});let nilaiPG=jmlPG>0?Math.round((benar/jmlPG)*100):0;let jawabanArr=soalList.map((_,i)=>jawabanSementara[i]||'');await jawabanRef.push({nama:currentNama,kelas:'Kelas '+currentKelasUlangan,kelasUlangan:currentKelasUlangan,judulUlangan:meta.judul||'Ulangan',jawaban:jawabanArr,nilaiPG:nilaiPG,benarPG:benar,jmlPG:jmlPG,nilaiEssay:'',nilaiAkhir:nilaiPG,waktu:new Date().toLocaleString('id-ID')});sudahKirim=true; alert('✅ Jawaban terkirim! Nilai PG: '+nilaiPG+' ('+benar+' benar dari '+jmlPG+' PG).');renderSatuSoal();}catch(e){alert('Gagal kirim, coba lagi. Cek internet. Error: '+e.message);}sedangKirim=false;}
 
-// === KIRIM PAKAI PUSH + CEK DULU - ANTI TABRAKAN ===
-async function kirimJawabanV2(){
-  if(sedangKirim) return; sedangKirim=true;
-  let urutan=getUrutanSoal();let idxAsli=urutan[idxSoalAktif];let s=soalList[idxAsli];
-  if(s.tipe==='pg'){let el=document.querySelector('input[name="jawab-skrg"]:checked');if(el) jawabanSementara[idxAsli]=el.value;}else{let el=document.querySelector('#boxSatuSoal textarea');if(el) jawabanSementara[idxAsli]=el.value.trim();}
-  let belum=soalList.filter((_,i)=>!jawabanSementara[i]||jawabanSementara[i]==='').length;
-  if(belum>0){sedangKirim=false;return alert('Masih ada '+belum+' soal belum dijawab! Cek pakai tombol Sebelumnya.');}
-  if(!confirm('Kirim jawaban? Sekali kirim langsung dikunci, tidak bisa ngulang.')){sedangKirim=false;return;}
-  try{
-    // Cek anti-ngulang di server, bukan cuma di HP
-    let snap=await jawabanRef.orderByChild('nama').equalTo(currentNama).once('value');
-    let sudah=false; snap.forEach(c=>{let v=c.val();if(v.kelasUlangan===currentKelasUlangan && v.judulUlangan===meta.judul) sudah=true;});
-    if(sudah){alert('⛔ Kamu sudah mengerjakan ulangan ini.');sedangKirim=false;renderSatuSoal();return;}
-    let jmlPG=soalList.filter(x=>x.tipe==='pg').length, benar=0;
-    soalList.forEach((soal,i)=>{if(soal.tipe==='pg' && jawabanSementara[i]===soal.kunci) benar++;});
-    let nilaiPG=jmlPG>0?Math.round((benar/jmlPG)*100):0;
-    let jawabanArr=soalList.map((_,i)=>jawabanSementara[i]||'');
-    // PUSH - bukan SET - jadi tidak nimpa jawaban teman
-    await jawabanRef.push({nama:currentNama,kelas:'Kelas '+currentKelasUlangan,kelasUlangan:currentKelasUlangan,judulUlangan:meta.judul||'Ulangan',jawaban:jawabanArr,nilaiPG:nilaiPG,benarPG:benar,jmlPG:jmlPG,nilaiEssay:'',nilaiAkhir:nilaiPG,waktu:new Date().toLocaleString('id-ID')});
-    sudahKirim=true; alert('✅ Jawaban terkirim! Nilai PG: '+nilaiPG+' ('+benar+' benar dari '+jmlPG+' PG).');
-    renderSatuSoal();
-  }catch(e){alert('Gagal kirim, coba lagi. Cek internet. Error: '+e.message);}
-  sedangKirim=false;
-}
-  // === IMPOR CSV UNTUK ULANGAN - PAK ASEP ===
+// === IMPOR CSV V3 - BENERIN TOTAL, PAK. MASUK KE FIREBASE, BUKAN KE HP AJA ===
 document.getElementById('fileCSVUlangan').addEventListener('change', function(e){
   let f=e.target.files[0]; if(!f) return;
   let r=new FileReader(); r.onload=ev=>prosesCSVUlangan(ev.target.result); r.readAsText(f);
+  e.target.value=''; // biar bisa impor file yang sama 2x, Pak
 });
-function parseCSVUlangan(text){
+function prosesCSVUlangan(text){
+  // 1. Deteksi pemisah: ; atau ,
+  let baris1 = text.split('\n')[0]||'';
+  let pisah = (baris1.split(';').length > baris1.split(',').length) ? ';' : ',';
   let rows=[], row=[], cur='', inQ=false;
   for(let i=0;i<text.length;i++){
     let c=text[i];
     if(c=='"'){ if(inQ && text[i+1]=='"'){cur+='"'; i++;} else inQ=!inQ; }
-    else if(c==',' && !inQ){ row.push(cur.trim()); cur=''; }
+    else if(c==pisah && !inQ){ row.push(cur.trim()); cur=''; }
     else if((c=='\n'||c=='\r') && !inQ){ if(c=='\r' && text[i+1]=='\n') i++; row.push(cur.trim()); cur=''; if(row.length>1||row[0]) rows.push(row); row=[]; }
     else cur+=c;
   }
   if(cur||row.length){ row.push(cur.trim()); rows.push(row); }
-  return rows;
-}
-function prosesCSVUlangan(text){
-  let rows=parseCSVUlangan(text);
-  if(rows[0] && rows[0][0].toLowerCase().includes('soal') || rows[0] && rows[0][0].toLowerCase().includes('pertanyaan')) rows.shift();
-  let masuk=0;
+  if(!rows.length){ alert('File-nya kosong, Pak!'); return; }
+
+  // 2. Cari posisi kolom dari header, bukan dari posisi tetap
+  // Supaya format apa pun masuk, Pak
+  let header = rows[0].map(h=>h.toLowerCase().replace(/[^a-z]/g,''));
+  let iJudul = header.findIndex(h=>h.includes('judul'));
+  let iKelas = header.findIndex(h=>h.includes('kelas'));
+  let iJenis = header.findIndex(h=>h.includes('jenis')||h.includes('tipe'));
+  let iSoal = header.findIndex(h=>h.includes('soal')||h.includes('pertanyaan'));
+  let iA = header.findIndex(h=>h==='a'||h.includes('jawabana'));
+  let iB = header.findIndex(h=>h==='b'||h.includes('jawabanb'));
+  let iC = header.findIndex(h=>h==='c'||h.includes('jawabanc'));
+  let iD = header.findIndex(h=>h==='d'||h.includes('jawaband'));
+  let iE = header.findIndex(h=>h==='e'||h.includes('jawabane'));
+  let iKunci = header.findIndex(h=>h.includes('kunci')||h.includes('benar'));
+  let adaHeader = iSoal>=0;
+  if(adaHeader) rows.shift(); else { iSoal=0; iA=1; iB=2; iC=3; iD=4; iE=5; iKunci=6; }
+
+  // 3. Kalau di file ada Judul & Kelas, update meta juga
+  if(adaHeader && iJudul>=0 && rows[0] && rows[0][iJudul]){
+    let j = rows[0][iJudul]; if(j) metaRef.child('judul').set(j);
+    let k = rows[0][iKelas]||'';
+    if(k.includes('10')) metaRef.child('kelas').set('10');
+    else if(k.includes('11')) metaRef.child('kelas').set('11');
+    else if(k.includes('12')) metaRef.child('kelas').set('12');
+  }
+
+  let masuk=0, gagal=0, contohGagal='';
   rows.forEach(r=>{
-    if(r.length<7) return;
-    // Format di Sheet Bapak: Pertanyaan, A, B, C, D, E, Kunci
-    // Kalau Sheet Bapak ada Judul/Kelas di depan, kode ini tetap baca 7 kolom terakhir
-    let data=r.slice(-7);
-    let soalBaru={
-      pertanyaan:data[0], soal:data[0],
-      a:data[1], jawabanA:data[1],
-      b:data[2], jawabanB:data[2],
-      c:data[3], jawabanC:data[3],
-      d:data[4], jawabanD:data[4],
-      e:data[5], jawabanE:data[5],
-      kunci:data[6].toUpperCase().trim(), jawabanBenar:data[6].toUpperCase().trim()
-    };
-    if(!soalBaru.soal || !['A','B','C','D','E'].includes(soalBaru.kunci)) return;
-    // Cari variabel soal di aplikasi Bapak - coba semua nama yang biasa dipakai
-    if(typeof daftarSoal!=='undefined') daftarSoal.push(soalBaru);
-    else if(typeof soalList!=='undefined') soalList.push(soalBaru);
-    else if(typeof semuaSoal!=='undefined') semuaSoal.push(soalBaru);
-    else if(typeof questions!=='undefined') questions.push(soalBaru);
-    else if(typeof listSoal!=='undefined') listSoal.push(soalBaru);
-    else { window._soalImpor=window._soalImpor||[]; window._soalImpor.push(soalBaru); }
+    let teks = (r[iSoal]||'').trim();
+    let a = (r[iA]||'').trim(); let b = (r[iB]||'').trim(); let c = (r[iC]||'').trim(); let d = (r[iD]||'').trim(); let e = (r[iE]||'').trim();
+    let kunciRaw = (r[iKunci]||'').toString().trim().toUpperCase();
+    // Kalau kunci-nya isinya jawaban panjang, misal "Nabi Yakub", ubah jadi huruf
+    let kunci = kunciRaw;
+    if(kunci.length>1){
+      if(kunci===a.toUpperCase()) kunci='A';
+      else if(kunci===b.toUpperCase()) kunci='B';
+      else if(kunci===c.toUpperCase()) kunci='C';
+      else if(kunci===d.toUpperCase()) kunci='D';
+      else if(kunci===e.toUpperCase()) kunci='E';
+      else kunci=kunci.charAt(0);
+    }
+    if(!teks || !a || !['A','B','C','D','E'].includes(kunci)){ gagal++; if(!contohGagal) contohGagal=r.join(' | ').substring(0,120); return; }
+    // INI KUNCINYA, PAK - PUSH KE FIREBASE, BUKAN KE ARRAY HP AJA
+    soalRef.push({tipe:'pg', teks:teks, opsi:[a,b,c,d,e], kunci:kunci});
     masuk++;
   });
-  // Coba panggil fungsi tampil yang ada di aplikasi Bapak
-  if(typeof tampilSoal==='function') tampilSoal();
-  if(typeof renderSoal==='function') renderSoal();
-  if(typeof updateDaftarSoal==='function') updateDaftarSoal();
-  if(typeof tampilDaftarSoal==='function') tampilDaftarSoal();
-  if(typeof simpanSoal==='function') simpanSoal();
-  if(typeof simpan==='function') simpan();
-  alert('Berhasil, Pak! ✅\n'+masuk+' soal Yusuf masuk dari CSV.\nSekarang scroll ke bawah, Pak. Lihat di Daftar Soal.');
-  location.reload();
+  // JANGAN reload, Pak! Biar nggak ke-logout. Firebase otomatis update Daftar Soal.
+  alert('Berhasil, Pak! ✅\nPemisah: '+(pisah===';'?'TITIK KOMA (;)':'KOMA (,)')+'\nMasuk: '+masuk+' soal\nGagal: '+gagal+' baris'+(gagal?'\nContoh gagal: '+contohGagal:'')+'\n\nTunggu 2 detik, Pak. Daftar Soal di bawah langsung muncul sendiri, Pak. Jangan di-refresh, Pak.');
 }
 function imporLinkUlangan(){
   let link=document.getElementById('linkSheetUlangan').value.trim();
@@ -294,6 +188,6 @@ function imporLinkUlangan(){
     let gid=''; if(link.includes('gid=')) gid='&gid='+link.split('gid=')[1].split('&')[0].split('#')[0];
     csvLink='https://docs.google.com/spreadsheets/d/'+id+'/export?format=csv'+gid;
   }
-  fetch(csvLink).then(r=>r.text()).then(t=>prosesCSVUlangan(t)).catch(()=>alert('Gagal, Pak. Sheet-nya belum di-Bagikan > Siapa saja, Pak. Atau pakai cara File CSV aja, Pak. Itu yang paling aman.'));
+  fetch(csvLink).then(r=>r.text()).then(t=>prosesCSVUlangan(t)).catch(()=>alert('Gagal, Pak. Sheet-nya belum di-Bagikan > Siapa saja, Pak. Pakai cara File CSV aja, Pak. Itu yang paling aman.'));
 }
 </script></body></html>
