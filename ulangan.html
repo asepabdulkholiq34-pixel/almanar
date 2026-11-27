@@ -30,8 +30,8 @@ button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;cursor:poin
 <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><b id="haloNama">Halo</b><br><span class="small" id="haloKelas"></span></div><span id="haloBadge" class="badge guru">GURU</span></div><button class="btn2" onclick="logout()" style="width:100%;margin-top:10px;background:#fee2e2">Keluar</button></div>
 
 <div id="panelGuru" class="card hidden"><h3>📝 Buat Soal - Guru</h3>
-<label>Judul Ulangan</label><input id="judulUlangan" placeholder="Contoh: Ulangan Kisah Nabi Yusuf AS">
-<label>Kelas Untuk:</label><select id="kelasUlangan"><option value="10">Kelas 10 Saja</option><option value="11">Kelas 11 Saja</option><option value="12">Kelas 12 Saja</option><option value="Semua">Semua Kelas</option></select>
+<label>Judul Ulangan</label><input id="judulUlangan" onchange="simpanJudul()" placeholder="Contoh: Ulangan Kisah Nabi Yusuf AS">
+<label>Kelas Untuk:</label><select id="kelasUlangan"onchange="simpanKelas()"><option value="10">Kelas 10 Saja</option><option value="11">Kelas 11 Saja</option><option value="12">Kelas 12 Saja</option><option value="Semua">Semua Kelas</option></select>
 <label>Jenis Soal</label><select id="tipeSoal" onchange="gantiTipeSoal()"><option value="pg">Pilihan Ganda - ABCDE</option><option value="essay">Essay / Uraian</option></select>
 <label>Pertanyaan</label><textarea id="teksSoal" rows="3" placeholder="Tulis soal..."></textarea>
 <div id="boxPG"><label>Jawaban A</label><input id="opsiA"><label>Jawaban B</label><input id="opsiB"><label>Jawaban C</label><input id="opsiC"><label>Jawaban D</label><input id="opsiD"><label>Jawaban E</label><input id="opsiE"><label>Kunci</label><select id="kunciPG"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></div>
@@ -98,6 +98,8 @@ function isiOtomatis(){if(!confirm('Isi 8 soal Yusuf, Pak?')) return;metaRef.chi
 function hapusSoal(key){if(!confirm('Hapus soal ini, Pak?'))return;soalRef.child(key).remove();}
 function hapusSemuaSoal(){if(!confirm('Hapus SEMUA soal, Pak?'))return;soalRef.remove();}
 function hapusSemuaJawaban(){if(!confirm('Hapus SEMUA jawaban, Pak? Semua anak bisa jawab lagi.'))return;jawabanRef.remove();}
+  function simpanJudul(){let j=document.getElementById('judulUlangan').value.trim();if(j) metaRef.child('judul').set(j);}
+function simpanKelas(){metaRef.child('kelas').set(document.getElementById('kelasUlangan').value);}
 function simpanKode(){let b=document.getElementById('kodeUL10Baru').value.trim(),c=document.getElementById('kodeUL11Baru').value.trim(),d=document.getElementById('kodeUL12Baru').value.trim();if(b)metaRef.child('kodeUL10').set(b);if(c)metaRef.child('kodeUL11').set(c);if(d)metaRef.child('kodeUL12').set(d);alert('Kode tersimpan, Pak!');}
 function toggleAcak(){metaRef.child('acak').set(document.getElementById('acakSoal').checked);}
 function toggleAcakUrutan(){metaRef.child('acakUrutan').set(document.getElementById('acakUrutanSoal').checked);}
