@@ -117,7 +117,6 @@ document.getElementById('fileCSVUlangan').addEventListener('change', function(e)
   e.target.value=''; // biar bisa impor file yang sama 2x, Pak
 });
 function prosesCSVUlangan(text){
-  // 1. Deteksi pemisah: ; atau ,
   let baris1 = text.split('\n')[0]||'';
   let pisah = (baris1.split(';').length > baris1.split(',').length) ? ';' : ',';
   let rows=[], row=[], cur='', inQ=false;
@@ -131,26 +130,31 @@ function prosesCSVUlangan(text){
   if(cur||row.length){ row.push(cur.trim()); rows.push(row); }
   if(!rows.length){ alert('File-nya kosong, Pak!'); return; }
 
-  // 2. Cari posisi kolom dari header, bukan dari posisi tetap
-  // Supaya format apa pun masuk, Pak
-  let header = rows[0].map(h=>h.toLowerCase().replace(/[^a-z]/g,''));
-  let iJudul = header.findIndex(h=>h.includes('judul'));
-  let iKelas = header.findIndex(h=>h.includes('kelas'));
-  let iJenis = header.findIndex(h=>h.includes('jenis')||h.includes('tipe'));
-  let iSoal = header.findIndex(h=>h.includes('soal')||h.includes('pertanyaan'));
-  let iA = header.findIndex(h=>h==='a'||h.includes('jawabana'));
-  let iB = header.findIndex(h=>h==='b'||h.includes('jawabanb'));
-  let iC = header.findIndex(h=>h==='c'||h.includes('jawabanc'));
-  let iD = header.findIndex(h=>h==='d'||h.includes('jawaband'));
-  let iE = header.findIndex(h=>h==='e'||h.includes('jawabane'));
-  let iKunci = header.findIndex(h=>h.includes('kunci')||h.includes('benar'));
-  let adaHeader = iSoal>=0;
-  if(adaHeader) rows.shift(); else { iSoal=0; iA=1; iB=2; iC=3; iD=4; iE=5; iKunci=6; }
+  // === V4 - BACA SEMUA NAMA KOLOM, PAK ===
+  // teks = soal = pertanyaan, semua dianggap sama, Pak
+  let header = rows[0].map(h=>h.toLowerCase().replace(/[^a-z0-9]/g,''));
+  let cari = (...kata)=> header.findIndex(h=> kata.some(k=> h===k || h.includes(k)));
+  let iTipe = cari('tipe','jenis');
+  let iSoal = cari('teks','soal','pertanyaan');
+  let iA = cari('opsia','jawabana','pilihana');
+  let iB = cari('opsib','jawabanb','pilihanb');
+  let iC = cari('opsic','jawabanc','pilihanc');
+  let iD = cari('opsid','jawaband','pilihand');
+  let iE = cari('opsie','jawabane','pilihane');
+  let iKunci = cari('kunci','jawabanbenar','benar');
+  let iJudul = cari('judul');
+  let iKelas = cari('kelas');
 
-  // 3. Kalau di file ada Judul & Kelas, update meta juga
-  if(adaHeader && iJudul>=0 && rows[0] && rows[0][iJudul]){
-    let j = rows[0][iJudul]; if(j) metaRef.child('judul').set(j);
-    let k = rows[0][iKelas]||'';
+  // Kalau baris pertama itu header beneran, buang. Kalau bukan, anggap urutan standar.
+  let isHeader = (iSoal>=0 || iA>=0 || iKunci>=0);
+  if(isHeader) rows.shift();
+  else { iTipe=0; iSoal=1; iA=2; iB=3; iC=4; iD=5; iE=6; iKunci=7; }
+  // Kalau file cuma 7 kolom tanpa tipe, geser
+  if(iSoal<0){ iSoal=0; iA=1; iB=2; iC=3; iD=4; iE=5; iKunci=6; }
+
+  if(iJudul>=0 && rows[0] && rows[0][iJudul]) metaRef.child('judul').set(rows[0][iJudul]);
+  if(iKelas>=0 && rows[0] && rows[0][iKelas]){
+    let k=rows[0][iKelas];
     if(k.includes('10')) metaRef.child('kelas').set('10');
     else if(k.includes('11')) metaRef.child('kelas').set('11');
     else if(k.includes('12')) metaRef.child('kelas').set('12');
@@ -158,26 +162,38 @@ function prosesCSVUlangan(text){
 
   let masuk=0, gagal=0, contohGagal='';
   rows.forEach(r=>{
+    // Kalau barisnya cuma header ulang, skip, Pak
+    if((r[iSoal]||'').toLowerCase().includes('teks') && (r[iA]||'').toLowerCase().includes('opsi')) return;
     let teks = (r[iSoal]||'').trim();
     let a = (r[iA]||'').trim(); let b = (r[iB]||'').trim(); let c = (r[iC]||'').trim(); let d = (r[iD]||'').trim(); let e = (r[iE]||'').trim();
-    let kunciRaw = (r[iKunci]||'').toString().trim().toUpperCase();
-    // Kalau kunci-nya isinya jawaban panjang, misal "Nabi Yakub", ubah jadi huruf
-    let kunci = kunciRaw;
-    if(kunci.length>1){
-      if(kunci===a.toUpperCase()) kunci='A';
-      else if(kunci===b.toUpperCase()) kunci='B';
-      else if(kunci===c.toUpperCase()) kunci='C';
-      else if(kunci===d.toUpperCase()) kunci='D';
-      else if(kunci===e.toUpperCase()) kunci='E';
-      else kunci=kunci.charAt(0);
+    let kunciRaw = (r[iKunci]||'').toString().trim();
+    let kunci = kunciRaw.toUpperCase().trim();
+
+    // === KUNCI BISA MACAM-MACAM, PAK ===
+    // 1. Kalau kuncinya "B" -> langsung B
+    // 2. Kalau kuncinya "2" atau "B." atau "B)" -> jadi B
+    // 3. Kalau kuncinya kalimat panjang "Budi pekerti..." -> cari opsi mana yang mirip
+    if(kunci.length===1 && ['A','B','C','D','E'].includes(kunci)){}
+    else if(/^[A-E][\.\)\:\s]/.test(kunci)) kunci=kunci.charAt(0);
+    else if(/^[1-5]$/.test(kunci)) kunci=['A','B','C','D','E'][parseInt(kunci)-1];
+    else if(kunci.length>1){
+      let kr = kunciRaw.toLowerCase();
+      let opsiArr=[a,b,c,d,e];
+      let ketemu=-1;
+      // Cari yang persis sama dulu
+      ketemu = opsiArr.findIndex(o=> o.toLowerCase().trim()===kr);
+      // Kalau nggak persis, cari yang mengandung / dikandung, Pak. Misal kunci "Budi pekerti" ada di dalam opsi A
+      if(ketemu<0) ketemu = opsiArr.findIndex(o=> o && (o.toLowerCase().includes(kr) || kr.includes(o.toLowerCase())));
+      // Kalau masih nggak ketemu, ambil huruf pertama kalau A-E
+      if(ketemu>=0) kunci=['A','B','C','D','E'][ketemu];
+      else if(['A','B','C','D','E'].includes(kunci.charAt(0))) kunci=kunci.charAt(0);
+      else kunci='';
     }
     if(!teks || !a || !['A','B','C','D','E'].includes(kunci)){ gagal++; if(!contohGagal) contohGagal=r.join(' | ').substring(0,120); return; }
-    // INI KUNCINYA, PAK - PUSH KE FIREBASE, BUKAN KE ARRAY HP AJA
     soalRef.push({tipe:'pg', teks:teks, opsi:[a,b,c,d,e], kunci:kunci});
     masuk++;
   });
-  // JANGAN reload, Pak! Biar nggak ke-logout. Firebase otomatis update Daftar Soal.
-  alert('Berhasil, Pak! ✅\nPemisah: '+(pisah===';'?'TITIK KOMA (;)':'KOMA (,)')+'\nMasuk: '+masuk+' soal\nGagal: '+gagal+' baris'+(gagal?'\nContoh gagal: '+contohGagal:'')+'\n\nTunggu 2 detik, Pak. Daftar Soal di bawah langsung muncul sendiri, Pak. Jangan di-refresh, Pak.');
+  alert('Berhasil, Pak! ✅\nPemisah: '+(pisah===';'?'TITIK KOMA (;)':'KOMA (,)')+'\nMasuk: '+masuk+' soal\nGagal: '+gagal+' baris'+(gagal?'\nContoh gagal: '+contohGagal:'')+'\n\nTunggu 2 detik, Pak. Daftar Soal langsung muncul sendiri.');
 }
 function imporLinkUlangan(){
   let link=document.getElementById('linkSheetUlangan').value.trim();
