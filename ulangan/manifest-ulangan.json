@@ -1,0 +1,20 @@
+{
+  "name": "Ulangan Al-Manar",
+  "short_name": "Ulangan",
+  "start_url": "./bank-soal.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "icons": [
+    {
+      "src": "icon-ulangan-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-ulangan-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
