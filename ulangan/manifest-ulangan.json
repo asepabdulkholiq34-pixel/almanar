@@ -1,7 +1,7 @@
 {
   "name": "Ulangan Al-Manar",
   "short_name": "Ulangan",
-  "start_url": "./bank-soal.html",
+  "start_url": "./ulangan.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#16a34a",
